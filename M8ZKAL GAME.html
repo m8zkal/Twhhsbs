@@ -479,35 +479,29 @@
     console.log('Скрипт загружен');
 
     // ================================================================
-    // ДОБАВЛЯЕМ ПРОВЕРКУ ЗАГРУЗКИ FIREBASE И PEERJS
-    if (typeof firebase === 'undefined') {
-        console.error('Firebase не загружен! Проверьте интернет-соединение и URL скриптов.');
-        alert('Ошибка: Firebase не загружен. Проверьте интернет.');
-    }
-    if (typeof Peer === 'undefined') {
-        console.error('PeerJS не загружен! Проверьте интернет-соединение и URL скриптов.');
-        alert('Ошибка: PeerJS не загружен. Проверьте интернет.');
-    }
-
-    // ===== FIREBASE =====
-    const firebaseConfig = {
-        apiKey: "AIzaSyAMPOydCdcTT5BhOALD5xf7AlIYlcYAPuM",
-        authDomain: "project-14e2d5d5-c6f1-46a5-a7f.firebaseapp.com",
-        databaseURL: "https://project-14e2d5d5-c6f1-46a5-a7f-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "project-14e2d5d5-c6f1-46a5-a7f",
-        storageBucket: "project-14e2d5d5-c6f1-46a5-a7f.firebasestorage.app",
-        messagingSenderId: "655633526126",
-        appId: "1:655633526126:web:835086275cdfafd77f657f",
-        measurementId: "G-MWB6KHF5VQ"
-    };
+    // ИНИЦИАЛИЗАЦИЯ FIREBASE (обёрнута в try, чтобы ошибка не ломала игру)
+    let db = null;
     try {
-        firebase.initializeApp(firebaseConfig);
-        console.log('Firebase инициализирован');
+        const firebaseConfig = {
+            apiKey: "AIzaSyAMPOydCdcTT5BhOALD5xf7AlIYlcYAPuM",
+            authDomain: "project-14e2d5d5-c6f1-46a5-a7f.firebaseapp.com",
+            databaseURL: "https://project-14e2d5d5-c6f1-46a5-a7f-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "project-14e2d5d5-c6f1-46a5-a7f",
+            storageBucket: "project-14e2d5d5-c6f1-46a5-a7f.firebasestorage.app",
+            messagingSenderId: "655633526126",
+            appId: "1:655633526126:web:835086275cdfafd77f657f",
+            measurementId: "G-MWB6KHF5VQ"
+        };
+        if (typeof firebase !== 'undefined') {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+            console.log('Firebase инициализирован');
+        } else {
+            console.warn('Firebase не загружен, PvP будет недоступен');
+        }
     } catch (e) {
-        console.error('Ошибка инициализации Firebase:', e);
-        alert('Ошибка Firebase: ' + e.message);
+        console.warn('Ошибка Firebase:', e.message);
     }
-    const db = firebase.database();
 
     // ===== ЭЛЕМЕНТЫ =====
     const menu = document.getElementById('menu');
@@ -553,7 +547,7 @@
 
     console.log('Элементы получены');
 
-    // ===== ПРОВЕРКА НА НАЛИЧИЕ ЭЛЕМЕНТОВ =====
+    // ===== ПРОВЕРКА НА НАЛИЧИЕ ЭЛЕМЕНТОВ (для отладки) =====
     const elements = { startBtn, addPlayerBtn, removePlayerBtn, tabBattle, tabSurvival, tabPvp, pvpCreateBtn, pvpJoinBtn, pvpReadyBtn, menuBtn, nextBtn };
     for (const [name, el] of Object.entries(elements)) {
         if (!el) console.warn(`Элемент ${name} не найден!`);
@@ -1155,6 +1149,7 @@
 
     function createPvpRoom() {
         console.log('Создание комнаты...');
+        if (!db) { alert('Firebase недоступен. Проверьте интернет.'); return; }
         roomCode = generateRoomCode();
         isRoomCreator = true;
         pvpRoomInput.value = roomCode;
@@ -1165,7 +1160,13 @@
         pvpRoomCodeOutput.value = roomCode;
         pvpRoomCodeContainer.style.display = 'block';
 
-        peer = new Peer(undefined, { host: '0.peerjs.com', port: 443, path: '/', debug: 2 });
+        if (typeof Peer === 'undefined') {
+            alert('PeerJS не загружен. Проверьте интернет.');
+            return;
+        }
+
+        // ★ ЗАМЕНА СЕРВЕРА НА 4 ★
+        peer = new Peer(undefined, { host: '4.peerjs.com', port: 443, path: '/', debug: 2 });
         peer.on('open', function(id) {
             peerId = id;
             console.log('Peer открыт, id:', id);
@@ -1201,6 +1202,11 @@
 
     function joinPvpRoom(code) {
         console.log('joinPvpRoom вызвана с кодом:', code);
+        if (!db) { alert('Firebase недоступен. Проверьте интернет.'); return; }
+        if (typeof Peer === 'undefined') {
+            alert('PeerJS не загружен. Проверьте интернет.');
+            return;
+        }
         roomCode = code;
         isRoomCreator = false;
         pvpRoomInput.value = code;
@@ -1214,7 +1220,8 @@
             const data = snapshot.val();
             if (!data || data.status === 'waiting') {
                 console.log('Комната найдена, статус waiting или отсутствует. Подключаемся к создателю.');
-                peer = new Peer(undefined, { host: '0.peerjs.com', port: 443, path: '/', debug: 2 });
+                // ★ ЗАМЕНА СЕРВЕРА НА 4 ★
+                peer = new Peer(undefined, { host: '4.peerjs.com', port: 443, path: '/', debug: 2 });
                 peer.on('open', function(id) {
                     peerId = id;
                     console.log('Мой peerId:', id);
@@ -1512,11 +1519,14 @@
         else if (mode === 'survival') { tabSurvival.classList.add('active'); survivalSettings.style.display = 'block'; mobileControls.classList.add('visible'); recordDisplay.textContent = '🏆 Рекорд волн: ' + waveRecord; }
         else if (mode === 'pvp') { tabPvp.classList.add('active'); pvpSettings.style.display = 'block'; mobileControls.classList.add('visible'); }
     }
+
+    // ===== НАВЕШИВАНИЕ ОБРАБОТЧИКОВ =====
+    // Вкладки
     tabBattle.addEventListener('click', () => { console.log('Клик на КБ'); switchMode('battle'); });
     tabSurvival.addEventListener('click', () => { console.log('Клик на Выживание'); switchMode('survival'); });
     tabPvp.addEventListener('click', () => { console.log('Клик на PvP'); switchMode('pvp'); });
 
-    // ===== КНОПКИ ДЛЯ ПОЛЯ ВВОДА КОДА =====
+    // Кнопки PvP
     pvpPasteBtn.addEventListener('click', async () => {
         try {
             const text = await navigator.clipboard.readText();
@@ -1534,8 +1544,6 @@
         pvpCopyBtn.textContent = '✅';
         setTimeout(() => { pvpCopyBtn.textContent = '📃'; }, 2000);
     });
-
-    // ===== PvP КНОПКИ =====
     pvpCreateBtn.addEventListener('click', () => { console.log('Создать дуэль'); if (!peer) createPvpRoom(); });
     pvpJoinBtn.addEventListener('click', () => {
         console.log('Клик по кнопке Подключиться');
@@ -1565,7 +1573,7 @@
         setTimeout(() => { pvpCopyCodeBtn.textContent = 'Копировать'; }, 2000);
     });
 
-    // ===== ДОБАВЛЕНИЕ/УДАЛЕНИЕ ИГРОКОВ =====
+    // Добавление/удаление игроков
     addPlayerBtn.addEventListener('click', () => {
         if (currentPlayerCount < 4) { currentPlayerCount++; if (currentPlayerCount === 3) { p3Group.style.display = 'block'; removePlayerBtn.style.display = 'block'; } else if (currentPlayerCount === 4) { p4Group.style.display = 'block'; addPlayerBtn.style.display = 'none'; } }
     });
@@ -1573,7 +1581,7 @@
         if (currentPlayerCount > 2) { if (currentPlayerCount === 4) { p4Group.style.display = 'none'; addPlayerBtn.style.display = 'block'; } else if (currentPlayerCount === 3) { p3Group.style.display = 'none'; removePlayerBtn.style.display = 'none'; } currentPlayerCount--; }
     });
 
-    // ===== ЗАПУСК =====
+    // Старт
     startBtn.addEventListener('click', function(e) {
         e.preventDefault(); console.log('Старт нажат');
         if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
@@ -1615,7 +1623,11 @@
         updateHUD(); menu.style.display = 'none'; gameContainer.style.display = 'flex'; screenVictory.style.display = 'none'; gameActive = true; gameStarted = true; gameLoop();
     });
 
-    // ===== ОБРАБОТКА ПАРАМЕТРА ССЫЛКИ =====
+    // Другие кнопки
+    canvas.addEventListener('click', (e) => { if (currentMode !== 'survival' || !gameActive || !gameStarted) return; const player = players[0]; if (!player || player.dead) return; playerShoot(player); });
+    menuBtn.addEventListener('click', goToMenu); nextBtn.addEventListener('click', goToMenu);
+
+    // Обработка параметра ссылки
     function checkUrlForRoom() {
         const params = new URLSearchParams(window.location.search);
         const roomParam = params.get('room');
@@ -1626,11 +1638,11 @@
         }
     }
 
-    canvas.addEventListener('click', (e) => { if (currentMode !== 'survival' || !gameActive || !gameStarted) return; const player = players[0]; if (!player || player.dead) return; playerShoot(player); });
-    menuBtn.addEventListener('click', goToMenu); nextBtn.addEventListener('click', goToMenu);
-
+    // Инициализация
     menu.style.display = 'flex'; gameContainer.style.display = 'none'; screenVictory.style.display = 'none'; mobileControls.classList.remove('visible');
     checkUrlForRoom();
+
+    console.log('Готово! Все кнопки должны работать. PeerJS сервер заменён на 4.peerjs.com');
 })();
 </script>
 </body>
