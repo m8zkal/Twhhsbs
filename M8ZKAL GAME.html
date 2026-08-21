@@ -5,9 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>M8ZKAL GAME</title>
     
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
+    <!-- simple-peer (замена PeerJS) -->
+    <script src="https://unpkg.com/simple-peer@9.11.1/simplepeer.min.js"></script>
 
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -479,7 +481,7 @@
     console.log('Скрипт загружен');
 
     // ================================================================
-    // ИНИЦИАЛИЗАЦИЯ FIREBASE (обёрнута в try, чтобы ошибка не ломала игру)
+    // ИНИЦИАЛИЗАЦИЯ FIREBASE
     let db = null;
     try {
         const firebaseConfig = {
@@ -547,7 +549,7 @@
 
     console.log('Элементы получены');
 
-    // ===== ПРОВЕРКА НА НАЛИЧИЕ ЭЛЕМЕНТОВ (для отладки) =====
+    // ===== ПРОВЕРКА ЭЛЕМЕНТОВ =====
     const elements = { startBtn, addPlayerBtn, removePlayerBtn, tabBattle, tabSurvival, tabPvp, pvpCreateBtn, pvpJoinBtn, pvpReadyBtn, menuBtn, nextBtn };
     for (const [name, el] of Object.entries(elements)) {
         if (!el) console.warn(`Элемент ${name} не найден!`);
@@ -576,12 +578,13 @@
     let spawnTimer = 0;
     let spawnInterval = 35;
 
-    let peer = null;
-    let peerId = null;
-    let roomCode = null;
-    let isRoomCreator = false;
-    let pvpConnection = null;
+    // === PvP с simple-peer ===
+    let pvpPeer = null;          // экземпляр SimplePeer
+    let pvpRoomRef = null;
+    let pvpRoomCode = null;
+    let pvpIsCreator = false;
     let pvpOtherPlayer = null;
+    let pvpConnected = false;
 
     let pvpShootCooldown = 0;
     const PVP_SHOOT_COOLDOWN = 15;
@@ -622,7 +625,7 @@
 
     recordDisplay.textContent = '🏆 Рекорд волн: ' + waveRecord;
 
-    // ===== ЗАГРУЗКА ФОТО ИЗ ГАЛЕРЕИ =====
+    // ===== ЗАГРУЗКА ФОТО =====
     window.loadPhoto = function(inputId, previewId, imgId) {
         const fileInput = document.getElementById(inputId);
         const img = document.getElementById(imgId);
@@ -753,7 +756,10 @@
         createImpactParticles(myPlayer.x, myPlayer.y, '#ffdd44', 4);
         playSound('shoot');
 
-        sendPvpData({ type: 'shoot', damage: PLAYER_DAMAGE });
+        // Отправляем данные сопернику через simple-peer
+        if (pvpPeer && pvpConnected) {
+            pvpPeer.send(JSON.stringify({ type: 'shoot', damage: PLAYER_DAMAGE }));
+        }
 
         pvpShootCooldown = PVP_SHOOT_COOLDOWN;
         pvpIsReloading = true;
@@ -1103,6 +1109,8 @@
                 victoryRecord.innerText = `🇮🇱 Волн пройдено: ${wave}  |  🏆 Рекорд: ${waveRecord}`; playSound('victory');
                 nextBtn.textContent = 'В меню'; setTimeout(() => { gameContainer.style.display = 'none'; screenVictory.style.display = 'flex'; }, 800);
             }
+        } else if (currentMode === 'pvp') {
+            // PvP game over обрабатывается в обработчике данных
         }
     }
 
@@ -1142,7 +1150,9 @@
     function updateParticles() { if (particles.length > MAX_PARTICLES) particles.splice(0, particles.length - MAX_PARTICLES); for (let i=particles.length-1; i>=0; i--) { particles[i].update(); if (particles[i].isDead()) particles.splice(i, 1); } }
     function drawParticles() { for (const p of particles) p.draw(); }
 
-    // ===== PvP ФУНКЦИИ =====
+    // ================================================================
+    // PvP с simple-peer (сигналинг через Firebase)
+    // ================================================================
     function generateRoomCode() {
         return 'room-' + Math.random().toString(36).substring(2, 8);
     }
@@ -1150,101 +1160,125 @@
     function createPvpRoom() {
         console.log('Создание комнаты...');
         if (!db) { alert('Firebase недоступен. Проверьте интернет.'); return; }
-        roomCode = generateRoomCode();
-        isRoomCreator = true;
-        pvpRoomInput.value = roomCode;
+        const code = generateRoomCode();
+        pvpRoomCode = code;
+        pvpIsCreator = true;
+        pvpRoomInput.value = code;
         pvpRoomInput.disabled = true;
         pvpCreateBtn.disabled = true;
         pvpJoinBtn.disabled = true;
 
-        pvpRoomCodeOutput.value = roomCode;
+        pvpRoomCodeOutput.value = code;
         pvpRoomCodeContainer.style.display = 'block';
 
-        if (typeof Peer === 'undefined') {
-            alert('PeerJS не загружен. Проверьте интернет.');
-            return;
-        }
-
-        // ★ ЗАМЕНА СЕРВЕРА НА 4 ★
-        peer = new Peer(undefined, { host: '4.peerjs.com', port: 443, path: '/', debug: 2 });
-        peer.on('open', function(id) {
-            peerId = id;
-            console.log('Peer открыт, id:', id);
-            const roomRef = db.ref('rooms/' + roomCode);
-            roomRef.set({
-                creatorPeerId: peerId,
-                status: 'waiting',
-                creatorReady: false,
-                joinerReady: false
-            });
-            roomRef.on('value', function(snapshot) {
-                const data = snapshot.val();
-                if (!data) return;
-                if (data.status === 'joined') {
-                    pvpReadyBtn.style.display = 'block';
-                }
-                if (data.status === 'ready') {
-                    pvpReadyBtn.style.display = 'none';
-                    startPvpDuel(peerId, true);
-                }
-            });
+        // Создаём узел комнаты в Firebase
+        pvpRoomRef = db.ref('rooms/' + code);
+        pvpRoomRef.set({
+            status: 'waiting',
+            creatorReady: false,
+            joinerReady: false,
+            offer: null,
+            answer: null,
+            ice: []
         });
-        peer.on('connection', function(conn) {
-            console.log('Входящее соединение от:', conn.peer);
-            pvpConnection = conn;
-            conn.on('data', function(data) {
-                handlePvpData(data);
-            });
-            const roomRef = db.ref('rooms/' + roomCode);
-            roomRef.update({ status: 'joined' });
+
+        // Создаём SimplePeer (инициатор)
+        pvpPeer = new SimplePeer({
+            initiator: true,
+            trickle: true,
+            config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
+        });
+
+        setupPvpPeerEvents();
+
+        // Слушаем изменения в комнате (для получения answer и ice кандидатов от джойнера)
+        pvpRoomRef.on('value', function(snapshot) {
+            const data = snapshot.val();
+            if (!data) return;
+            // Если статус стал 'joined' – показываем кнопку "Готов"
+            if (data.status === 'joined') {
+                pvpReadyBtn.style.display = 'block';
+            }
+            // Если статус 'ready' – начинаем дуэль
+            if (data.status === 'ready') {
+                pvpReadyBtn.style.display = 'none';
+                startPvpDuel();
+            }
+            // Если пришёл answer от джойнера
+            if (data.answer && pvpPeer && !pvpPeer.destroyed) {
+                pvpPeer.signal(JSON.parse(data.answer));
+            }
+            // Если пришли ice кандидаты
+            if (data.ice && data.ice.length > 0) {
+                data.ice.forEach(function(candidate) {
+                    if (pvpPeer && !pvpPeer.destroyed) {
+                        pvpPeer.signal(candidate);
+                    }
+                });
+                // Очищаем ice после обработки
+                pvpRoomRef.child('ice').set([]);
+            }
         });
     }
 
     function joinPvpRoom(code) {
         console.log('joinPvpRoom вызвана с кодом:', code);
         if (!db) { alert('Firebase недоступен. Проверьте интернет.'); return; }
-        if (typeof Peer === 'undefined') {
-            alert('PeerJS не загружен. Проверьте интернет.');
-            return;
-        }
-        roomCode = code;
-        isRoomCreator = false;
+        pvpRoomCode = code;
+        pvpIsCreator = false;
         pvpRoomInput.value = code;
         pvpRoomInput.disabled = true;
         pvpCreateBtn.disabled = true;
         pvpJoinBtn.disabled = true;
 
-        const roomRef = db.ref('rooms/' + code);
-        roomRef.once('value', function(snapshot) {
-            console.log('Firebase snapshot:', snapshot.val());
+        pvpRoomRef = db.ref('rooms/' + code);
+        pvpRoomRef.once('value', function(snapshot) {
             const data = snapshot.val();
             if (!data || data.status === 'waiting') {
-                console.log('Комната найдена, статус waiting или отсутствует. Подключаемся к создателю.');
-                // ★ ЗАМЕНА СЕРВЕРА НА 4 ★
-                peer = new Peer(undefined, { host: '4.peerjs.com', port: 443, path: '/', debug: 2 });
-                peer.on('open', function(id) {
-                    peerId = id;
-                    console.log('Мой peerId:', id);
-                    const conn = peer.connect(data.creatorPeerId);
-                    pvpConnection = conn;
-                    conn.on('open', function() {
-                        console.log('Соединение установлено с создателем');
-                        roomRef.update({ status: 'joined' });
-                        pvpReadyBtn.style.display = 'block';
-                    });
-                    conn.on('data', function(data) {
-                        handlePvpData(data);
-                    });
+                console.log('Комната найдена, статус waiting. Подключаемся.');
+                // Создаём SimplePeer (не инициатор)
+                pvpPeer = new SimplePeer({
+                    initiator: false,
+                    trickle: true,
+                    config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
                 });
-                roomRef.on('value', function(snapshot) {
-                    const data = snapshot.val();
-                    if (data && data.status === 'ready') {
+
+                setupPvpPeerEvents();
+
+                // Слушаем изменения комнаты
+                pvpRoomRef.on('value', function(snap) {
+                    const d = snap.val();
+                    if (!d) return;
+                    // Если статус стал 'joined' – показываем "Готов"
+                    if (d.status === 'joined') {
+                        pvpReadyBtn.style.display = 'block';
+                    }
+                    // Если статус 'ready' – начинаем дуэль
+                    if (d.status === 'ready') {
                         pvpReadyBtn.style.display = 'none';
-                        startPvpDuel(peerId, false);
+                        startPvpDuel();
+                    }
+                    // Если пришёл offer от создателя
+                    if (d.offer && pvpPeer && !pvpPeer.destroyed) {
+                        pvpPeer.signal(JSON.parse(d.offer));
+                        // После получения offer, отправляем answer
+                        // Это произойдёт в событии 'signal' нашего peer
+                    }
+                    // ICE кандидаты
+                    if (d.ice && d.ice.length > 0) {
+                        d.ice.forEach(function(candidate) {
+                            if (pvpPeer && !pvpPeer.destroyed) {
+                                pvpPeer.signal(candidate);
+                            }
+                        });
+                        pvpRoomRef.child('ice').set([]);
                     }
                 });
+
+                // Обновляем статус комнаты на 'joined'
+                pvpRoomRef.update({ status: 'joined' });
             } else {
-                console.log('Комната не найдена или статус не waiting:', data);
+                console.log('Комната не найдена или уже занята.');
                 pvpRoomInput.disabled = false;
                 pvpCreateBtn.disabled = false;
                 pvpJoinBtn.disabled = false;
@@ -1254,7 +1288,81 @@
         });
     }
 
-    function startPvpDuel(myPeerId, isCreator) {
+    function setupPvpPeerEvents() {
+        // Сигнал (SDP/ICE) – отправляем в Firebase
+        pvpPeer.on('signal', function(data) {
+            console.log('Сигнал от peer:', data);
+            if (pvpPeer.destroyed) return;
+            if (data.type === 'offer') {
+                // Сохраняем offer в Firebase
+                if (pvpRoomRef) {
+                    pvpRoomRef.child('offer').set(JSON.stringify(data));
+                }
+            } else if (data.type === 'answer') {
+                // Сохраняем answer в Firebase
+                if (pvpRoomRef) {
+                    pvpRoomRef.child('answer').set(JSON.stringify(data));
+                }
+            } else if (data.candidate) {
+                // Отправляем ICE кандидаты через Firebase
+                if (pvpRoomRef) {
+                    pvpRoomRef.child('ice').push(data);
+                }
+            }
+        });
+
+        // Соединение установлено
+        pvpPeer.on('connect', function() {
+            console.log('PvP соединение установлено!');
+            pvpConnected = true;
+            // Если мы джойнер и подключились, обновляем статус готовности
+            if (!pvpIsCreator && pvpRoomRef) {
+                pvpRoomRef.update({ joinerReady: true });
+                // Проверяем, готов ли создатель
+                pvpRoomRef.once('value', function(snap) {
+                    const d = snap.val();
+                    if (d && d.creatorReady && d.joinerReady) {
+                        pvpRoomRef.update({ status: 'ready' });
+                    }
+                });
+            }
+            if (pvpIsCreator && pvpRoomRef) {
+                pvpRoomRef.update({ creatorReady: true });
+                pvpRoomRef.once('value', function(snap) {
+                    const d = snap.val();
+                    if (d && d.creatorReady && d.joinerReady) {
+                        pvpRoomRef.update({ status: 'ready' });
+                    }
+                });
+            }
+        });
+
+        // Получение данных
+        pvpPeer.on('data', function(data) {
+            try {
+                const parsed = JSON.parse(data);
+                handlePvpData(parsed);
+            } catch(e) {
+                console.warn('Ошибка парсинга данных от соперника:', e);
+            }
+        });
+
+        // Ошибки
+        pvpPeer.on('error', function(err) {
+            console.error('PvP ошибка:', err);
+            alert('Ошибка соединения: ' + err.message);
+            goToMenu();
+        });
+
+        // Закрытие
+        pvpPeer.on('close', function() {
+            console.log('PvP соединение закрыто');
+            pvpConnected = false;
+        });
+    }
+
+    function startPvpDuel() {
+        // Создаём игроков
         const myColor = '#d32f2f';
         const myBorder = '#ff3b30';
         const opponentColor = '#1976d2';
@@ -1292,12 +1400,13 @@
         if (animationFrameId) cancelAnimationFrame(animationFrameId);
         animationFrameId = requestAnimationFrame(pvpGameLoop);
 
+        // Отправляем информацию о себе сопернику
         sendPvpData({ type: 'init', name: pvpMyName, color: myColor, border: myBorder });
     }
 
     function sendPvpData(data) {
-        if (pvpConnection && pvpConnection.open) {
-            pvpConnection.send(data);
+        if (pvpPeer && pvpConnected && !pvpPeer.destroyed) {
+            pvpPeer.send(JSON.stringify(data));
         }
     }
 
@@ -1500,9 +1609,21 @@
         recordDisplay.textContent = '🏆 Рекорд волн: ' + waveRecord; victoryCup.textContent = '🏆'; victoryText.innerText = 'Победитель'; victoryText.style.color = '#ffffff'; victoryRecord.innerText = ''; nextBtn.textContent = 'Дальше';
         if (currentMode === 'survival') mobileControls.classList.add('visible'); else mobileControls.classList.remove('visible');
         waveMessage = ''; waveMessageTimer = 0;
-        if (peer) { peer.destroy(); peer = null; }
-        if (pvpConnection) { pvpConnection = null; }
-        roomCode = null; isRoomCreator = false; pvpOtherPlayer = null;
+
+        // Закрываем PvP соединение
+        if (pvpPeer) {
+            pvpPeer.destroy();
+            pvpPeer = null;
+        }
+        if (pvpRoomRef) {
+            pvpRoomRef.off();
+            pvpRoomRef = null;
+        }
+        pvpConnected = false;
+        pvpRoomCode = null;
+        pvpIsCreator = false;
+        pvpOtherPlayer = null;
+
         pvpRoomInput.disabled = false; pvpCreateBtn.disabled = false; pvpJoinBtn.disabled = false;
         pvpRoomInput.value = ''; pvpRoomCodeContainer.style.display = 'none'; pvpReadyBtn.style.display = 'none';
         pvpShootCooldown = 0; pvpReloadTimer = 0; pvpIsReloading = false; pvpReloadSoundPlayed = false;
@@ -1521,12 +1642,10 @@
     }
 
     // ===== НАВЕШИВАНИЕ ОБРАБОТЧИКОВ =====
-    // Вкладки
     tabBattle.addEventListener('click', () => { console.log('Клик на КБ'); switchMode('battle'); });
     tabSurvival.addEventListener('click', () => { console.log('Клик на Выживание'); switchMode('survival'); });
     tabPvp.addEventListener('click', () => { console.log('Клик на PvP'); switchMode('pvp'); });
 
-    // Кнопки PvP
     pvpPasteBtn.addEventListener('click', async () => {
         try {
             const text = await navigator.clipboard.readText();
@@ -1544,7 +1663,8 @@
         pvpCopyBtn.textContent = '✅';
         setTimeout(() => { pvpCopyBtn.textContent = '📃'; }, 2000);
     });
-    pvpCreateBtn.addEventListener('click', () => { console.log('Создать дуэль'); if (!peer) createPvpRoom(); });
+
+    pvpCreateBtn.addEventListener('click', () => { console.log('Создать дуэль'); if (!pvpPeer) createPvpRoom(); });
     pvpJoinBtn.addEventListener('click', () => {
         console.log('Клик по кнопке Подключиться');
         const code = pvpRoomInput.value.trim();
@@ -1553,14 +1673,14 @@
         else console.log('Код пустой');
     });
     pvpReadyBtn.addEventListener('click', () => {
-        if (roomCode) {
-            const roomRef = db.ref('rooms/' + roomCode);
-            if (isRoomCreator) roomRef.update({ creatorReady: true });
-            else roomRef.update({ joinerReady: true });
-            roomRef.once('value', function(snapshot) {
-                const data = snapshot.val();
-                if (data && data.creatorReady && data.joinerReady) {
-                    roomRef.update({ status: 'ready' });
+        if (pvpRoomRef) {
+            // Отправляем сигнал о готовности
+            pvpRoomRef.update({ creatorReady: pvpIsCreator, joinerReady: !pvpIsCreator });
+            // Проверяем готовность обоих
+            pvpRoomRef.once('value', function(snap) {
+                const d = snap.val();
+                if (d && d.creatorReady && d.joinerReady) {
+                    pvpRoomRef.update({ status: 'ready' });
                 }
             });
             pvpReadyBtn.disabled = true;
@@ -1573,7 +1693,6 @@
         setTimeout(() => { pvpCopyCodeBtn.textContent = 'Копировать'; }, 2000);
     });
 
-    // Добавление/удаление игроков
     addPlayerBtn.addEventListener('click', () => {
         if (currentPlayerCount < 4) { currentPlayerCount++; if (currentPlayerCount === 3) { p3Group.style.display = 'block'; removePlayerBtn.style.display = 'block'; } else if (currentPlayerCount === 4) { p4Group.style.display = 'block'; addPlayerBtn.style.display = 'none'; } }
     });
@@ -1581,7 +1700,6 @@
         if (currentPlayerCount > 2) { if (currentPlayerCount === 4) { p4Group.style.display = 'none'; addPlayerBtn.style.display = 'block'; } else if (currentPlayerCount === 3) { p3Group.style.display = 'none'; removePlayerBtn.style.display = 'none'; } currentPlayerCount--; }
     });
 
-    // Старт
     startBtn.addEventListener('click', function(e) {
         e.preventDefault(); console.log('Старт нажат');
         if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
@@ -1617,17 +1735,18 @@
             }
             players.push(player); mobileControls.classList.add('visible'); wave = 0; waveDelay = 60;
         } else if (currentMode === 'pvp') {
-            goToMenu();
+            // Если PvP ещё не начат, то ничего не делаем
+            if (!pvpConnected) {
+                alert('Сначала создайте или подключитесь к комнате и нажмите "Готов".');
+            }
             return;
         }
         updateHUD(); menu.style.display = 'none'; gameContainer.style.display = 'flex'; screenVictory.style.display = 'none'; gameActive = true; gameStarted = true; gameLoop();
     });
 
-    // Другие кнопки
     canvas.addEventListener('click', (e) => { if (currentMode !== 'survival' || !gameActive || !gameStarted) return; const player = players[0]; if (!player || player.dead) return; playerShoot(player); });
     menuBtn.addEventListener('click', goToMenu); nextBtn.addEventListener('click', goToMenu);
 
-    // Обработка параметра ссылки
     function checkUrlForRoom() {
         const params = new URLSearchParams(window.location.search);
         const roomParam = params.get('room');
@@ -1638,11 +1757,10 @@
         }
     }
 
-    // Инициализация
     menu.style.display = 'flex'; gameContainer.style.display = 'none'; screenVictory.style.display = 'none'; mobileControls.classList.remove('visible');
     checkUrlForRoom();
 
-    console.log('Готово! Все кнопки должны работать. PeerJS сервер заменён на 4.peerjs.com');
+    console.log('Готово! Все кнопки должны работать. PvP переписан на simple-peer + Firebase.');
 })();
 </script>
 </body>
