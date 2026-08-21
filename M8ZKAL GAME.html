@@ -482,7 +482,7 @@
         <!-- Кнопка отмены (скрыта изначально) -->
         <button id="pvp-cancel-btn" class="pvp-cancel-btn" style="display: none;">Отмена</button>
 
-        <div class="pvp-character-block player-input-group p1-border">
+        <div class="pvp-character-block player-input-group p1-border" id="pvp-character-block">
             <label for="pvp-name">Твоё имя</label>
             <input type="text" id="pvp-name" value="Игрок">
             <label style="margin-top:10px; margin-bottom:8px;">Загрузи фото</label>
@@ -593,6 +593,7 @@
     const pvpPasteBtn = document.getElementById('pvp-paste-btn');
     const pvpClearBtn = document.getElementById('pvp-clear-btn');
     const pvpCopyBtn = document.getElementById('pvp-copy-btn');
+    const pvpCharacterBlock = document.getElementById('pvp-character-block');
 
     console.log('Элементы получены');
 
@@ -1204,9 +1205,14 @@
         pvpRoomCode = code;
         pvpIsCreator = true;
         
-        // Новая логика интерфейса
+        // Новая логика интерфейса: убираем персонажа, убираем кнопки вставки и очистки
         pvpSelectionButtons.style.display = 'none';
         pvpCodeEntry.style.display = 'block';
+        pvpCharacterBlock.style.display = 'none';
+        pvpPasteBtn.style.display = 'none';
+        pvpClearBtn.style.display = 'none';
+        pvpCopyBtn.style.display = 'block';
+        
         pvpRoomInput.value = code;
         pvpRoomInput.disabled = true;
         pvpCancelBtn.style.display = 'block';
@@ -1274,6 +1280,11 @@
         // Установка UI (код уже был введен пользователем)
         pvpSelectionButtons.style.display = 'none';
         pvpCodeEntry.style.display = 'block';
+        pvpCharacterBlock.style.display = 'none';
+        pvpPasteBtn.style.display = 'block';
+        pvpClearBtn.style.display = 'block';
+        pvpCopyBtn.style.display = 'block';
+        
         pvpRoomInput.value = code;
         pvpRoomInput.disabled = true;
         pvpCancelBtn.style.display = 'block';
@@ -1342,9 +1353,14 @@
         pvpIsCreator = false;
         pvpOtherPlayer = null;
         
-        // Полный сброс UI
+        // Полный сброс UI: возвращаем персонажа и все кнопки на свои места
         pvpSelectionButtons.style.display = 'flex';
         pvpCodeEntry.style.display = 'none';
+        pvpCharacterBlock.style.display = 'block';
+        pvpPasteBtn.style.display = 'block';
+        pvpClearBtn.style.display = 'block';
+        pvpCopyBtn.style.display = 'block';
+        
         pvpRoomInput.disabled = false;
         pvpRoomInput.value = '';
         pvpCreateBtn.disabled = false;
@@ -1733,6 +1749,11 @@
         pvpIsCreator = false; // Обязательно сбрасываем флаг создателя
         pvpSelectionButtons.style.display = 'none';
         pvpCodeEntry.style.display = 'block';
+        pvpCharacterBlock.style.display = 'none'; // Убираем меню персонажа
+        pvpPasteBtn.style.display = 'block';
+        pvpClearBtn.style.display = 'block';
+        pvpCopyBtn.style.display = 'block';
+        
         pvpRoomInput.value = '';
         pvpRoomInput.disabled = false;
         pvpCancelBtn.style.display = 'block';
