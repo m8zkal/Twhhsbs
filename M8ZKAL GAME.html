@@ -99,12 +99,13 @@
             height: 100%;
         }
 
+        /* Увеличен отступ снизу для панели режимов */
         #mode-tabs {
             display: flex;
             width: 100%;
             max-width: 500px;
             gap: 5px;
-            margin-bottom: 20px;
+            margin-bottom: 40px;
             background: #1a1a1a;
             border-radius: 12px;
             padding: 4px;
@@ -133,9 +134,25 @@
 
         h1 { font-size: clamp(20px, 5vw, 32px); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; text-align: center; color: #fff; text-shadow: 0 0 20px rgba(255,255,255,0.5); }
         
+        /* Единый стиль для меню выбора игрока (PvP, КБ, Выживание) */
+        #battle-settings, #survival-settings, #pvp-settings {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto 40px auto;
+        }
+        #battle-settings > * + *, #survival-settings > * + *, #pvp-settings > * + * {
+            margin-top: 20px;
+        }
+        #battle-settings .player-input-group, #survival-settings .player-input-group, #pvp-settings .player-input-group {
+            margin-bottom: 0;
+        }
+
         .player-input-group {
             background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%); padding: 15px; border-radius: 15px;
-            width: 100%; margin-bottom: 12px; border: 2px solid #333; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            width: 100%; border: 2px solid #333; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
         .p1-border { border-left: 5px solid #ff3b30; } .p2-border { border-left: 5px solid #007aff; }
         .p3-border { border-left: 5px solid #34c759; } .p4-border { border-left: 5px solid #ff9500; }
@@ -308,24 +325,31 @@
         #menu-btn { margin-top: 10px; width: 200px; padding: 12px; background: #555; color: #fff; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: background 0.3s; flex-shrink: 0; z-index: 30; }
         #menu-btn:hover { background: #777; }
 
-        #pvp-settings {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            max-width: 500px;
-            margin: 0 auto 40px auto;
-        }
-        #pvp-settings > * + * { margin-top: 20px; }
-        #pvp-settings .player-input-group { margin-bottom: 0; }
         .pvp-code-block { width: 100%; }
         .pvp-actions-block { display: flex; gap: 10px; width: 100%; flex-wrap: wrap; }
-        /* Обновлённые стили для кнопок, чтобы текст помещался на телефоне */
         .pvp-actions-block button { margin: 0; flex: 1; min-width: 80px; padding: 12px; font-size: 14px; white-space: nowrap; }
-        .pvp-actions-block .pvp-cancel-btn { background: #ff3b30; box-shadow: 0 4px 15px rgba(255,59,48,0.4); }
-        .pvp-actions-block .pvp-cancel-btn:hover { background: #cc0000; }
+        
+        /* Стили для кнопки Подключиться (синяя) */
+        #pvp-join-btn {
+            background: #007aff;
+            box-shadow: 0 4px 15px rgba(0, 122, 255, 0.4);
+        }
+        #pvp-join-btn:hover {
+            background: #0056b3;
+        }
+        
+        /* Стили для кнопки Отмена (красная) */
+        .pvp-cancel-btn {
+            background: #ff3b30;
+            box-shadow: 0 4px 15px rgba(255, 59, 48, 0.4);
+        }
+        .pvp-cancel-btn:hover {
+            background: #cc0000;
+        }
+        
         .pvp-character-block { width: 100%; }
-        /* Кнопка Готово теперь находится сразу после действий */
+        
+        /* Стили для кнопки "Готово" */
         #pvp-ready-btn {
             display: none;
             width: 100%;
@@ -335,6 +359,16 @@
             font-size: 18px;
         }
         #pvp-ready-btn:disabled { opacity: 0.5; pointer-events: none; }
+        
+        @keyframes readyPulse {
+            0% { box-shadow: 0 0 10px rgba(255, 149, 0, 0.5); }
+            50% { box-shadow: 0 0 30px rgba(255, 149, 0, 1); }
+            100% { box-shadow: 0 0 10px rgba(255, 149, 0, 0.5); }
+        }
+        #pvp-ready-btn.ready {
+            animation: readyPulse 1.5s infinite;
+            background: #ffaa00;
+        }
 
         @media (max-width: 600px) {
             #game-container { padding: 0 5px 5px 5px; gap: 5px; }
@@ -350,7 +384,6 @@
             .mode-tab { font-size: 13px; padding: 8px; }
             #record-display { font-size: 24px; padding: 8px 16px; }
             .pvp-actions-block button { min-width: 60px; padding: 10px; font-size: 12px; }
-            .pvp-info-block .pvp-room-code-row input { font-size: 14px; }
         }
     </style>
 </head>
@@ -427,7 +460,14 @@
 
     <!-- НАСТРОЙКИ PVP (упрощено) -->
     <div id="pvp-settings" style="display: none;">
-        <div class="pvp-code-block">
+        <!-- Блок выбора действий (виден изначально) -->
+        <div class="pvp-actions-block" id="pvp-selection-buttons">
+            <button id="pvp-create-btn">Создать дуэль</button>
+            <button id="pvp-join-btn">Подключиться</button>
+        </div>
+
+        <!-- Блок ввода/отображения кода комнаты (скрыт изначально) -->
+        <div class="pvp-code-block" id="pvp-code-entry" style="display: none;">
             <label for="pvp-room-input">Код комнаты</label>
             <div class="input-wrapper">
                 <input type="text" id="pvp-room-input" placeholder="Введите код комнаты">
@@ -438,11 +478,10 @@
                 </div>
             </div>
         </div>
-        <div class="pvp-actions-block">
-            <button id="pvp-create-btn">Создать дуэль</button>
-            <button id="pvp-join-btn" style="background:#007aff; box-shadow:0 4px 15px rgba(0,122,255,0.4);">Подключиться</button>
-            <button id="pvp-cancel-btn" class="pvp-cancel-btn" style="display:none;">Отмена</button>
-        </div>
+
+        <!-- Кнопка отмены (скрыта изначально) -->
+        <button id="pvp-cancel-btn" class="pvp-cancel-btn" style="display: none;">Отмена</button>
+
         <div class="pvp-character-block player-input-group p1-border">
             <label for="pvp-name">Твоё имя</label>
             <input type="text" id="pvp-name" value="Игрок">
@@ -453,7 +492,8 @@
             </div>
             <input type="file" id="file-pvp" accept="image/*" style="display:none;" onchange="loadPhoto('file-pvp', 'preview-pvp', 'preview-pvp-img')">
         </div>
-        <!-- Блок с кодом комнаты удалён -->
+        
+        <!-- Кнопка готово (скрыта изначально) -->
         <button id="pvp-ready-btn">Готов</button>
     </div>
 
@@ -548,7 +588,8 @@
     const pvpJoinBtn = document.getElementById('pvp-join-btn');
     const pvpCancelBtn = document.getElementById('pvp-cancel-btn');
     const pvpReadyBtn = document.getElementById('pvp-ready-btn');
-    // Удалены элементы pvpRoomCodeContainer, pvpRoomCodeOutput, pvpCopyCodeBtn
+    const pvpSelectionButtons = document.getElementById('pvp-selection-buttons');
+    const pvpCodeEntry = document.getElementById('pvp-code-entry');
     const pvpPasteBtn = document.getElementById('pvp-paste-btn');
     const pvpClearBtn = document.getElementById('pvp-clear-btn');
     const pvpCopyBtn = document.getElementById('pvp-copy-btn');
@@ -1162,14 +1203,16 @@
         const code = generateRoomCode();
         pvpRoomCode = code;
         pvpIsCreator = true;
+        
+        // Новая логика интерфейса
+        pvpSelectionButtons.style.display = 'none';
+        pvpCodeEntry.style.display = 'block';
         pvpRoomInput.value = code;
         pvpRoomInput.disabled = true;
-        pvpCreateBtn.disabled = true;
-        pvpJoinBtn.disabled = true;
         pvpCancelBtn.style.display = 'block';
-        // Блок с кодом комнаты удалён
         pvpReadyBtn.style.display = 'block';
         pvpReadyBtn.disabled = false;
+        pvpReadyBtn.classList.remove('ready');
 
         pvpRoomRef = db.ref('rooms/' + code);
         pvpRoomRef.set({
@@ -1223,12 +1266,16 @@
 
     function joinPvpRoom(code) {
         if (!db) { alert('Firebase недоступен'); return; }
+        if (pvpPeer) return; // Предотвращаем повторное подключение
+
         pvpRoomCode = code;
         pvpIsCreator = false;
+        
+        // Установка UI (код уже был введен пользователем)
+        pvpSelectionButtons.style.display = 'none';
+        pvpCodeEntry.style.display = 'block';
         pvpRoomInput.value = code;
         pvpRoomInput.disabled = true;
-        pvpCreateBtn.disabled = true;
-        pvpJoinBtn.disabled = true;
         pvpCancelBtn.style.display = 'block';
         pvpReadyBtn.style.display = 'block';
         pvpReadyBtn.disabled = false;
@@ -1275,12 +1322,7 @@
                 pvpRoomRef.update({ status: 'joined' });
             } else {
                 alert('Комната не найдена или уже занята.');
-                pvpRoomInput.disabled = false;
-                pvpCreateBtn.disabled = false;
-                pvpJoinBtn.disabled = false;
-                pvpCancelBtn.style.display = 'none';
-                pvpRoomInput.value = '';
-                pvpReadyBtn.style.display = 'none';
+                cancelPvp();
             }
         });
     }
@@ -1299,14 +1341,19 @@
         pvpRoomCode = null;
         pvpIsCreator = false;
         pvpOtherPlayer = null;
+        
+        // Полный сброс UI
+        pvpSelectionButtons.style.display = 'flex';
+        pvpCodeEntry.style.display = 'none';
         pvpRoomInput.disabled = false;
+        pvpRoomInput.value = '';
         pvpCreateBtn.disabled = false;
         pvpJoinBtn.disabled = false;
         pvpCancelBtn.style.display = 'none';
-        pvpRoomInput.value = '';
-        // Блок с кодом комнаты удалён
         pvpReadyBtn.style.display = 'none';
         pvpReadyBtn.disabled = false;
+        pvpReadyBtn.classList.remove('ready');
+        
         pvpShootCooldown = 0;
         pvpReloadTimer = 0;
         pvpIsReloading = false;
@@ -1636,18 +1683,18 @@
 
         if (mode === 'battle') {
             tabBattle.classList.add('active');
-            battleSettings.style.display = 'block';
+            battleSettings.style.display = 'flex';
             mobileControls.classList.remove('visible');
             startBtn.style.display = 'block';
         } else if (mode === 'survival') {
             tabSurvival.classList.add('active');
-            survivalSettings.style.display = 'block';
+            survivalSettings.style.display = 'flex';
             mobileControls.classList.add('visible');
             recordDisplay.textContent = '🏆 Рекорд волн: ' + waveRecord;
             startBtn.style.display = 'block';
         } else if (mode === 'pvp') {
             tabPvp.classList.add('active');
-            pvpSettings.style.display = 'block';
+            pvpSettings.style.display = 'flex';
             mobileControls.classList.add('visible');
             startBtn.style.display = 'none'; // скрываем кнопку Старт в PvP
             // Сбрасываем PvP состояние при переключении на вкладку
@@ -1679,30 +1726,53 @@
     });
 
     pvpCreateBtn.addEventListener('click', () => { console.log('Создать дуэль'); if (!pvpPeer) createPvpRoom(); });
+    
+    // Обработчик кнопки "Подключиться" - переводит интерфейс в режим ввода кода
     pvpJoinBtn.addEventListener('click', () => {
         console.log('Клик по кнопке Подключиться');
-        const code = pvpRoomInput.value.trim();
-        console.log('Введённый код:', code);
-        if (code) joinPvpRoom(code);
-        else console.log('Код пустой');
+        pvpIsCreator = false; // Обязательно сбрасываем флаг создателя
+        pvpSelectionButtons.style.display = 'none';
+        pvpCodeEntry.style.display = 'block';
+        pvpRoomInput.value = '';
+        pvpRoomInput.disabled = false;
+        pvpCancelBtn.style.display = 'block';
+        pvpReadyBtn.style.display = 'block';
+        pvpReadyBtn.disabled = false;
+        pvpReadyBtn.classList.remove('ready');
     });
+
     pvpCancelBtn.addEventListener('click', () => {
         console.log('Отмена PvP');
         cancelPvp();
     });
+
+    // Обработчик кнопки "Готово" - в зависимости от режима либо подтверждает создание, либо подключает
     pvpReadyBtn.addEventListener('click', () => {
-        if (pvpRoomRef) {
-            pvpRoomRef.update({ creatorReady: pvpIsCreator, joinerReady: !pvpIsCreator });
-            pvpRoomRef.once('value', function(snap) {
-                const d = snap.val();
-                if (d && d.creatorReady && d.joinerReady) {
-                    pvpRoomRef.update({ status: 'ready' });
-                }
-            });
-            pvpReadyBtn.disabled = true;
+        if (pvpIsCreator) {
+            // Логика создания (код комнаты уже готов)
+            if (pvpRoomRef) {
+                pvpRoomRef.update({ creatorReady: true });
+                pvpRoomRef.once('value', function(snap) {
+                    const d = snap.val();
+                    if (d && d.creatorReady && d.joinerReady) {
+                        pvpRoomRef.update({ status: 'ready' });
+                    }
+                });
+                pvpReadyBtn.disabled = true;
+                pvpReadyBtn.classList.add('ready'); // Подсветка
+            }
+        } else {
+            // Логика подключения (пользователь сам ввел код)
+            const code = pvpRoomInput.value.trim();
+            if (code) {
+                joinPvpRoom(code);
+                pvpReadyBtn.disabled = true;
+                pvpReadyBtn.classList.add('ready'); // Подсветка
+            } else {
+                alert('Введите код комнаты');
+            }
         }
     });
-    // Удалён обработчик для pvpCopyCodeBtn
 
     addPlayerBtn.addEventListener('click', () => {
         if (currentPlayerCount < 4) { currentPlayerCount++; if (currentPlayerCount === 3) { p3Group.style.display = 'block'; removePlayerBtn.style.display = 'block'; } else if (currentPlayerCount === 4) { p4Group.style.display = 'block'; addPlayerBtn.style.display = 'none'; } }
