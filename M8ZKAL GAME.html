@@ -1144,8 +1144,10 @@
     function drawParticles() { for (const p of particles) p.draw(); }
 
     // ================================================================
-    // PVP (simple-peer + Firebase) с кнопкой "Отмена"
+    // PVP (simple-peer + Firebase) с защитой от двойных сигналов
     // ================================================================
+    let pvpProcessingSignal = false; // флаг, чтобы не обрабатывать сигналы одновременно
+
     function generateRoomCode() {
         return 'room-' + Math.random().toString(36).substring(2, 8);
     }
@@ -1186,24 +1188,31 @@
                 pvpReadyBtn.style.display = 'none';
                 if (!pvpConnected) startPvpDuel();
             }
-            if (pvpIsCreator && data.answer && pvpPeer && !pvpPeer.destroyed && !pvpConnected) {
-                try {
-                    pvpPeer.signal(JSON.parse(data.answer));
-                    pvpRoomRef.child('answer').set(null);
-                } catch(e) {}
-            }
-            if (!pvpIsCreator && data.offer && pvpPeer && !pvpPeer.destroyed && !pvpConnected) {
-                try {
-                    pvpPeer.signal(JSON.parse(data.offer));
-                } catch(e) {}
-            }
-            if (data.ice && data.ice.length > 0) {
-                data.ice.forEach(function(candidate) {
-                    if (pvpPeer && !pvpPeer.destroyed && !pvpConnected) {
-                        try { pvpPeer.signal(candidate); } catch(e) {}
-                    }
-                });
-                pvpRoomRef.child('ice').set([]);
+            // Обрабатываем сигналы только если соединение ещё не установлено и мы не в процессе обработки
+            if (!pvpConnected && !pvpProcessingSignal && pvpPeer && !pvpPeer.destroyed) {
+                if (pvpIsCreator && data.answer) {
+                    pvpProcessingSignal = true;
+                    try {
+                        pvpPeer.signal(JSON.parse(data.answer));
+                        pvpRoomRef.child('answer').set(null);
+                    } catch(e) { console.warn('signal(answer) error:', e); }
+                    pvpProcessingSignal = false;
+                }
+                if (!pvpIsCreator && data.offer) {
+                    pvpProcessingSignal = true;
+                    try {
+                        pvpPeer.signal(JSON.parse(data.offer));
+                    } catch(e) { console.warn('signal(offer) error:', e); }
+                    pvpProcessingSignal = false;
+                }
+                if (data.ice && data.ice.length > 0) {
+                    data.ice.forEach(function(candidate) {
+                        if (!pvpConnected && pvpPeer && !pvpPeer.destroyed) {
+                            try { pvpPeer.signal(candidate); } catch(e) {}
+                        }
+                    });
+                    pvpRoomRef.child('ice').set([]);
+                }
             }
         });
     }
@@ -1235,21 +1244,29 @@
                         pvpReadyBtn.style.display = 'none';
                         if (!pvpConnected) startPvpDuel();
                     }
-                    if (!pvpIsCreator && d.offer && pvpPeer && !pvpPeer.destroyed && !pvpConnected) {
-                        try {
-                            pvpPeer.signal(JSON.parse(d.offer));
-                        } catch(e) {}
-                    }
-                    if (pvpIsCreator && d.answer && pvpPeer && !pvpPeer.destroyed && !pvpConnected) {
-                        try { pvpPeer.signal(JSON.parse(d.answer)); } catch(e) {}
-                    }
-                    if (d.ice && d.ice.length > 0) {
-                        d.ice.forEach(function(c) {
-                            if (pvpPeer && !pvpPeer.destroyed && !pvpConnected) {
-                                try { pvpPeer.signal(c); } catch(e) {}
-                            }
-                        });
-                        pvpRoomRef.child('ice').set([]);
+                    if (!pvpConnected && !pvpProcessingSignal && pvpPeer && !pvpPeer.destroyed) {
+                        if (!pvpIsCreator && d.offer) {
+                            pvpProcessingSignal = true;
+                            try {
+                                pvpPeer.signal(JSON.parse(d.offer));
+                            } catch(e) { console.warn('signal(offer) error:', e); }
+                            pvpProcessingSignal = false;
+                        }
+                        if (pvpIsCreator && d.answer) {
+                            pvpProcessingSignal = true;
+                            try {
+                                pvpPeer.signal(JSON.parse(d.answer));
+                            } catch(e) { console.warn('signal(answer) error:', e); }
+                            pvpProcessingSignal = false;
+                        }
+                        if (d.ice && d.ice.length > 0) {
+                            d.ice.forEach(function(c) {
+                                if (!pvpConnected && pvpPeer && !pvpPeer.destroyed) {
+                                    try { pvpPeer.signal(c); } catch(e) {}
+                                }
+                            });
+                            pvpRoomRef.child('ice').set([]);
+                        }
                     }
                 });
 
@@ -1292,6 +1309,7 @@
         pvpIsReloading = false;
         pvpReloadSoundPlayed = false;
         fireBtn.classList.remove('disabled');
+        pvpProcessingSignal = false;
         console.log('PvP отменено');
     }
 
@@ -1310,6 +1328,7 @@
         pvpPeer.on('connect', function() {
             console.log('PvP соединение установлено!');
             pvpConnected = true;
+            // Очищаем сигнальные данные после установки соединения
             if (pvpRoomRef) {
                 pvpRoomRef.child('offer').set(null);
                 pvpRoomRef.child('answer').set(null);
@@ -1735,7 +1754,7 @@
     menu.style.display = 'flex'; gameContainer.style.display = 'none'; screenVictory.style.display = 'none'; mobileControls.classList.remove('visible');
     checkUrlForRoom();
 
-    console.log('Готово! Все режимы работают, PvP с отменой.');
+    console.log('Готово! Все режимы работают, PvP с защитой от двойных сигналов.');
 })();
 </script>
 </body>
