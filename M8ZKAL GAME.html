@@ -291,10 +291,10 @@
         .player-name { font-size: 10px; font-weight: bold; text-align: center; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 0 5px currentColor; }
         #p3-group, #p4-group { display: none; }
 
-        /* ===== РЕКОРД ВОЛН (БЕЗ РАМКИ, КАПСОМ) ===== */
+        /* ===== РЕКОРД ВОЛН (УБРАНЫ ЛИШНИЕ ЭФФЕКТЫ) ===== */
         #record-display {
             font-size: 30px;
-            font-weight: 900;
+            font-weight: 700;
             color: #ffd700;
             text-align: center;
             letter-spacing: 2px;
@@ -302,7 +302,7 @@
             padding: 10px 20px;
             background: transparent;
             width: 100%;
-            text-shadow: 0 0 10px rgba(255,215,0,0.8), 0 0 20px rgba(255,215,0,0.6), 0 0 40px rgba(255,215,0,0.4);
+            text-shadow: 0 0 8px rgba(255,215,0,0.6);
             text-transform: uppercase;
         }
 
@@ -1193,6 +1193,7 @@
     }
 
     function joinPvpRoom(code) {
+        console.log('joinPvpRoom вызвана с кодом:', code);
         roomCode = code;
         isRoomCreator = false;
         pvpRoomInput.value = code;
@@ -1202,14 +1203,18 @@
 
         const roomRef = db.ref('rooms/' + code);
         roomRef.once('value', function(snapshot) {
+            console.log('Firebase snapshot:', snapshot.val());
             const data = snapshot.val();
             if (!data || data.status === 'waiting') {
+                console.log('Комната найдена, статус waiting или отсутствует. Подключаемся к создателю.');
                 peer = new Peer(undefined, { debug: 2 });
                 peer.on('open', function(id) {
                     peerId = id;
+                    console.log('Мой peerId:', id);
                     const conn = peer.connect(data.creatorPeerId);
                     pvpConnection = conn;
                     conn.on('open', function() {
+                        console.log('Соединение установлено с создателем');
                         roomRef.update({ status: 'joined' });
                         pvpReadyBtn.style.display = 'block';
                     });
@@ -1225,10 +1230,12 @@
                     }
                 });
             } else {
+                console.log('Комната не найдена или статус не waiting:', data);
                 pvpRoomInput.disabled = false;
                 pvpCreateBtn.disabled = false;
                 pvpJoinBtn.disabled = false;
                 pvpRoomInput.value = '';
+                alert('Комната не найдена или уже занята.');
             }
         });
     }
@@ -1523,7 +1530,13 @@
 
     // ===== PvP КНОПКИ =====
     pvpCreateBtn.addEventListener('click', () => { if (!peer) createPvpRoom(); });
-    pvpJoinBtn.addEventListener('click', () => { const code = pvpRoomInput.value.trim(); if (code) joinPvpRoom(code); });
+    pvpJoinBtn.addEventListener('click', () => {
+        console.log('Клик по кнопке Подключиться');
+        const code = pvpRoomInput.value.trim();
+        console.log('Введённый код:', code);
+        if (code) joinPvpRoom(code);
+        else console.log('Код пустой');
+    });
     pvpReadyBtn.addEventListener('click', () => {
         if (roomCode) {
             const roomRef = db.ref('rooms/' + roomCode);
