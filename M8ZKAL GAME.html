@@ -1160,7 +1160,7 @@
         pvpRoomCodeOutput.value = roomCode;
         pvpRoomCodeContainer.style.display = 'block';
 
-        peer = new Peer(undefined, { debug: 2 });
+        peer = new Peer(undefined, { host: '0.peerjs.com', port: 443, '/', debug: 2 });
         peer.on('open', function(id) {
             peerId = id;
             const roomRef = db.ref('rooms/' + roomCode);
@@ -1207,7 +1207,7 @@
             const data = snapshot.val();
             if (!data || data.status === 'waiting') {
                 console.log('Комната найдена, статус waiting или отсутствует. Подключаемся к создателю.');
-                peer = new Peer(undefined, { debug: 2 });
+                peer = new Peer(undefined, { host: '0.peerjs.com', port: 443, '/', debug: 2 });
                 peer.on('open', function(id) {
                     peerId = id;
                     console.log('Мой peerId:', id);
