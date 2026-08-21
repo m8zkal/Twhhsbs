@@ -98,7 +98,6 @@
             height: 100%;
         }
 
-        /* ===== ВКЛАДКИ (Слайдер-переключатель) ===== */
         #mode-tabs {
             display: flex;
             width: 100%;
@@ -291,7 +290,6 @@
         .player-name { font-size: 10px; font-weight: bold; text-align: center; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 0 5px currentColor; }
         #p3-group, #p4-group { display: none; }
 
-        /* ===== РЕКОРД ВОЛН (УБРАНЫ ЛИШНИЕ ЭФФЕКТЫ) ===== */
         #record-display {
             font-size: 30px;
             font-weight: 700;
@@ -309,7 +307,6 @@
         #menu-btn { margin-top: 10px; width: 200px; padding: 12px; background: #555; color: #fff; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: background 0.3s; flex-shrink: 0; z-index: 30; }
         #menu-btn:hover { background: #777; }
 
-        /* ===== PVP МЕНЮ (Структура с чёткими отступами) ===== */
         #pvp-settings {
             display: flex;
             flex-direction: column;
@@ -349,15 +346,12 @@
 
 <div id="menu">
     <h1>⚔️ M8ZKAL GAME ⚔️</h1>
-    
-    <!-- Вкладки -->
     <div id="mode-tabs">
         <div class="mode-tab active" id="tab-battle">Королевская битва</div>
         <div class="mode-tab" id="tab-survival">Выживание</div>
         <div class="mode-tab" id="tab-pvp">Онлайн-дуэль</div>
     </div>
 
-    <!-- НАСТРОЙКИ КБ -->
     <div id="battle-settings">
         <div class="player-input-group p1-border">
             <label for="p1-name">Имя Игрока 1</label>
@@ -403,7 +397,6 @@
         <button id="remove-player-btn">Убрать игрока</button>
     </div>
 
-    <!-- НАСТРОЙКИ ВЫЖИВАНИЯ -->
     <div id="survival-settings" style="display: none;">
         <div id="record-display">🏆 Рекорд волн: 0</div>
         <div class="player-input-group p1-border">
@@ -418,9 +411,7 @@
         </div>
     </div>
 
-    <!-- НАСТРОЙКИ PVP (Структурировано с отступами) -->
     <div id="pvp-settings" style="display: none;">
-        <!-- 1. КОД КОМНАТЫ -->
         <div class="pvp-code-block">
             <label for="pvp-room-input">Код комнаты</label>
             <div class="input-wrapper">
@@ -432,14 +423,10 @@
                 </div>
             </div>
         </div>
-
-        <!-- 2. КНОПКИ ДУЭЛИ (Сразу под кодом с отступом) -->
         <div class="pvp-actions-block">
             <button id="pvp-create-btn">Создать дуэль</button>
             <button id="pvp-join-btn" style="background:#007aff; box-shadow:0 4px 15px rgba(0,122,255,0.4);">Подключиться</button>
         </div>
-
-        <!-- 3. ВЫБОР ПЕРСОНАЖА (Отступ от кнопок) -->
         <div class="pvp-character-block player-input-group p1-border">
             <label for="pvp-name">Твоё имя</label>
             <input type="text" id="pvp-name" value="Игрок">
@@ -450,8 +437,6 @@
             </div>
             <input type="file" id="file-pvp" accept="image/*" style="display:none;" onchange="loadPhoto('file-pvp', 'preview-pvp', 'preview-pvp-img')">
         </div>
-
-        <!-- 4. ИНФО О КОМНАТЕ (Отступ от блока персонажа) -->
         <div class="pvp-info-block" id="pvp-room-code-container">
             <div style="font-size:14px; color:#aaa; margin-bottom:5px;">Скопируй код и отправь другу:</div>
             <div style="display:flex; gap:10px;">
@@ -459,12 +444,9 @@
                 <button id="pvp-copy-code-btn" style="width:auto; padding:8px 15px; background:#555;">Копировать</button>
             </div>
         </div>
-
-        <!-- 5. ГОТОВ (Отступ от инфо) -->
         <button id="pvp-ready-btn" style="display:none; width:100%; background:#ff9500; box-shadow:0 4px 15px rgba(255,149,0,0.4);">Готов</button>
     </div>
 
-    <!-- Общая кнопка Старт (идёт с отступом после PvP-блока) -->
     <button id="start-btn">Старт</button>
 </div>
 
@@ -497,7 +479,15 @@
     console.log('Скрипт загружен');
 
     // ================================================================
-    const YOUR_WEBSITE_URL = "https://m8zkal.github.io/Twhhsbs/M8ZKAL%20GAME.html";
+    // ДОБАВЛЯЕМ ПРОВЕРКУ ЗАГРУЗКИ FIREBASE И PEERJS
+    if (typeof firebase === 'undefined') {
+        console.error('Firebase не загружен! Проверьте интернет-соединение и URL скриптов.');
+        alert('Ошибка: Firebase не загружен. Проверьте интернет.');
+    }
+    if (typeof Peer === 'undefined') {
+        console.error('PeerJS не загружен! Проверьте интернет-соединение и URL скриптов.');
+        alert('Ошибка: PeerJS не загружен. Проверьте интернет.');
+    }
 
     // ===== FIREBASE =====
     const firebaseConfig = {
@@ -510,7 +500,13 @@
         appId: "1:655633526126:web:835086275cdfafd77f657f",
         measurementId: "G-MWB6KHF5VQ"
     };
-    firebase.initializeApp(firebaseConfig);
+    try {
+        firebase.initializeApp(firebaseConfig);
+        console.log('Firebase инициализирован');
+    } catch (e) {
+        console.error('Ошибка инициализации Firebase:', e);
+        alert('Ошибка Firebase: ' + e.message);
+    }
     const db = firebase.database();
 
     // ===== ЭЛЕМЕНТЫ =====
@@ -554,6 +550,14 @@
     const pvpPasteBtn = document.getElementById('pvp-paste-btn');
     const pvpClearBtn = document.getElementById('pvp-clear-btn');
     const pvpCopyBtn = document.getElementById('pvp-copy-btn');
+
+    console.log('Элементы получены');
+
+    // ===== ПРОВЕРКА НА НАЛИЧИЕ ЭЛЕМЕНТОВ =====
+    const elements = { startBtn, addPlayerBtn, removePlayerBtn, tabBattle, tabSurvival, tabPvp, pvpCreateBtn, pvpJoinBtn, pvpReadyBtn, menuBtn, nextBtn };
+    for (const [name, el] of Object.entries(elements)) {
+        if (!el) console.warn(`Элемент ${name} не найден!`);
+    }
 
     // ===== ПЕРЕМЕННЫЕ =====
     let animationFrameId = null;
@@ -1150,6 +1154,7 @@
     }
 
     function createPvpRoom() {
+        console.log('Создание комнаты...');
         roomCode = generateRoomCode();
         isRoomCreator = true;
         pvpRoomInput.value = roomCode;
@@ -1160,9 +1165,10 @@
         pvpRoomCodeOutput.value = roomCode;
         pvpRoomCodeContainer.style.display = 'block';
 
-        peer = new Peer(undefined, { host: '0.peerjs.com', port: 443, '/', debug: 2 });
+        peer = new Peer(undefined, { host: '0.peerjs.com', port: 443, path: '/', debug: 2 });
         peer.on('open', function(id) {
             peerId = id;
+            console.log('Peer открыт, id:', id);
             const roomRef = db.ref('rooms/' + roomCode);
             roomRef.set({
                 creatorPeerId: peerId,
@@ -1183,6 +1189,7 @@
             });
         });
         peer.on('connection', function(conn) {
+            console.log('Входящее соединение от:', conn.peer);
             pvpConnection = conn;
             conn.on('data', function(data) {
                 handlePvpData(data);
@@ -1207,7 +1214,7 @@
             const data = snapshot.val();
             if (!data || data.status === 'waiting') {
                 console.log('Комната найдена, статус waiting или отсутствует. Подключаемся к создателю.');
-                peer = new Peer(undefined, { host: '0.peerjs.com', port: 443, '/', debug: 2 });
+                peer = new Peer(undefined, { host: '0.peerjs.com', port: 443, path: '/', debug: 2 });
                 peer.on('open', function(id) {
                     peerId = id;
                     console.log('Мой peerId:', id);
@@ -1241,7 +1248,6 @@
     }
 
     function startPvpDuel(myPeerId, isCreator) {
-        // Ты всегда красный, враг всегда синий
         const myColor = '#d32f2f';
         const myBorder = '#ff3b30';
         const opponentColor = '#1976d2';
@@ -1479,6 +1485,7 @@
 
     // ===== ВОЗВРАТ В МЕНЮ =====
     function goToMenu() {
+        console.log('Переход в меню');
         if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
         gameActive = false; gameStarted = false; menu.style.display = 'flex'; gameContainer.style.display = 'none'; screenVictory.style.display = 'none';
         players = []; enemies = []; bullets = []; items = []; particles = []; redOverlay.classList.remove('active'); redScreenTimer = 0;
@@ -1505,9 +1512,9 @@
         else if (mode === 'survival') { tabSurvival.classList.add('active'); survivalSettings.style.display = 'block'; mobileControls.classList.add('visible'); recordDisplay.textContent = '🏆 Рекорд волн: ' + waveRecord; }
         else if (mode === 'pvp') { tabPvp.classList.add('active'); pvpSettings.style.display = 'block'; mobileControls.classList.add('visible'); }
     }
-    tabBattle.addEventListener('click', () => switchMode('battle'));
-    tabSurvival.addEventListener('click', () => switchMode('survival'));
-    tabPvp.addEventListener('click', () => switchMode('pvp'));
+    tabBattle.addEventListener('click', () => { console.log('Клик на КБ'); switchMode('battle'); });
+    tabSurvival.addEventListener('click', () => { console.log('Клик на Выживание'); switchMode('survival'); });
+    tabPvp.addEventListener('click', () => { console.log('Клик на PvP'); switchMode('pvp'); });
 
     // ===== КНОПКИ ДЛЯ ПОЛЯ ВВОДА КОДА =====
     pvpPasteBtn.addEventListener('click', async () => {
@@ -1529,7 +1536,7 @@
     });
 
     // ===== PvP КНОПКИ =====
-    pvpCreateBtn.addEventListener('click', () => { if (!peer) createPvpRoom(); });
+    pvpCreateBtn.addEventListener('click', () => { console.log('Создать дуэль'); if (!peer) createPvpRoom(); });
     pvpJoinBtn.addEventListener('click', () => {
         console.log('Клик по кнопке Подключиться');
         const code = pvpRoomInput.value.trim();
@@ -1568,7 +1575,8 @@
 
     // ===== ЗАПУСК =====
     startBtn.addEventListener('click', function(e) {
-        e.preventDefault(); if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
+        e.preventDefault(); console.log('Старт нажат');
+        if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
         initAudio(); particles = []; players = []; enemies = []; bullets = []; items = []; wave = 0; enemiesPerWave = 0; enemiesSpawnedInWave = 0; waveDelay = 0; isWaveInProgress = false; bossSpawned = false; spawnTimer = 0; spawnInterval = 35; gameStarted = false; redOverlay.classList.remove('active'); redScreenTimer = 0; waveMessage = ''; waveMessageTimer = 0;
 
         if (currentMode === 'battle') {
