@@ -320,33 +320,12 @@
         #pvp-settings .player-input-group { margin-bottom: 0; }
         .pvp-code-block { width: 100%; }
         .pvp-actions-block { display: flex; gap: 10px; width: 100%; flex-wrap: wrap; }
-        .pvp-actions-block button { margin: 0; flex: 1; min-width: 100px; padding: 14px; font-size: 16px; }
+        /* Обновлённые стили для кнопок, чтобы текст помещался на телефоне */
+        .pvp-actions-block button { margin: 0; flex: 1; min-width: 80px; padding: 12px; font-size: 14px; white-space: nowrap; }
         .pvp-actions-block .pvp-cancel-btn { background: #ff3b30; box-shadow: 0 4px 15px rgba(255,59,48,0.4); }
         .pvp-actions-block .pvp-cancel-btn:hover { background: #cc0000; }
         .pvp-character-block { width: 100%; }
-        .pvp-info-block { display: none; width: 100%; padding: 10px; background: #1e1e1e; border-radius: 8px; }
-        .pvp-info-block .pvp-room-code-row {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        .pvp-info-block .pvp-room-code-row input {
-            flex: 1;
-            padding: 10px;
-            background: #2c2c2c;
-            border: 1px solid #444;
-            border-radius: 6px;
-            color: #ffd700;
-            font-size: 16px;
-            text-align: center;
-        }
-        .pvp-info-block .pvp-room-code-row button {
-            width: auto;
-            padding: 10px 20px;
-            background: #555;
-            font-size: 14px;
-        }
-
+        /* Кнопка Готово теперь находится сразу после действий */
         #pvp-ready-btn {
             display: none;
             width: 100%;
@@ -370,7 +349,7 @@
             #menu-btn { width: 140px; padding: 10px; font-size: 14px; }
             .mode-tab { font-size: 13px; padding: 8px; }
             #record-display { font-size: 24px; padding: 8px 16px; }
-            .pvp-actions-block button { min-width: 80px; padding: 12px; font-size: 14px; }
+            .pvp-actions-block button { min-width: 60px; padding: 10px; font-size: 12px; }
             .pvp-info-block .pvp-room-code-row input { font-size: 14px; }
         }
     </style>
@@ -474,12 +453,7 @@
             </div>
             <input type="file" id="file-pvp" accept="image/*" style="display:none;" onchange="loadPhoto('file-pvp', 'preview-pvp', 'preview-pvp-img')">
         </div>
-        <div class="pvp-info-block" id="pvp-room-code-container">
-            <div class="pvp-room-code-row">
-                <input type="text" id="pvp-room-code-output" readonly>
-                <button id="pvp-copy-code-btn">Копировать</button>
-            </div>
-        </div>
+        <!-- Блок с кодом комнаты удалён -->
         <button id="pvp-ready-btn">Готов</button>
     </div>
 
@@ -574,9 +548,7 @@
     const pvpJoinBtn = document.getElementById('pvp-join-btn');
     const pvpCancelBtn = document.getElementById('pvp-cancel-btn');
     const pvpReadyBtn = document.getElementById('pvp-ready-btn');
-    const pvpRoomCodeContainer = document.getElementById('pvp-room-code-container');
-    const pvpRoomCodeOutput = document.getElementById('pvp-room-code-output');
-    const pvpCopyCodeBtn = document.getElementById('pvp-copy-code-btn');
+    // Удалены элементы pvpRoomCodeContainer, pvpRoomCodeOutput, pvpCopyCodeBtn
     const pvpPasteBtn = document.getElementById('pvp-paste-btn');
     const pvpClearBtn = document.getElementById('pvp-clear-btn');
     const pvpCopyBtn = document.getElementById('pvp-copy-btn');
@@ -1195,8 +1167,7 @@
         pvpCreateBtn.disabled = true;
         pvpJoinBtn.disabled = true;
         pvpCancelBtn.style.display = 'block';
-        pvpRoomCodeContainer.style.display = 'block';
-        pvpRoomCodeOutput.value = code;
+        // Блок с кодом комнаты удалён
         pvpReadyBtn.style.display = 'block';
         pvpReadyBtn.disabled = false;
 
@@ -1333,7 +1304,7 @@
         pvpJoinBtn.disabled = false;
         pvpCancelBtn.style.display = 'none';
         pvpRoomInput.value = '';
-        pvpRoomCodeContainer.style.display = 'none';
+        // Блок с кодом комнаты удалён
         pvpReadyBtn.style.display = 'none';
         pvpReadyBtn.disabled = false;
         pvpShootCooldown = 0;
@@ -1731,12 +1702,7 @@
             pvpReadyBtn.disabled = true;
         }
     });
-    pvpCopyCodeBtn.addEventListener('click', () => {
-        pvpRoomCodeOutput.select();
-        document.execCommand('copy');
-        pvpCopyCodeBtn.textContent = 'Скопировано!';
-        setTimeout(() => { pvpCopyCodeBtn.textContent = 'Копировать'; }, 2000);
-    });
+    // Удалён обработчик для pvpCopyCodeBtn
 
     addPlayerBtn.addEventListener('click', () => {
         if (currentPlayerCount < 4) { currentPlayerCount++; if (currentPlayerCount === 3) { p3Group.style.display = 'block'; removePlayerBtn.style.display = 'block'; } else if (currentPlayerCount === 4) { p4Group.style.display = 'block'; addPlayerBtn.style.display = 'none'; } }
