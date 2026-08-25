@@ -49,12 +49,12 @@
         
         h1 { font-size: clamp(20px, 5vw, 32px); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; text-align: center; color: #fff; text-shadow: 0 0 20px rgba(255,255,255,0.5); }
         
-        /* Кнопка "СТАРТ" у Овнера */
+        /* Кнопка готовности/старта */
         #pvp-ready-btn {
             display: none;
             width: 100%;
             padding: 16px;
-            background: linear-gradient(135deg, #34c759 0%, #28a745 100%);
+            background: #555;
             color: #fff;
             border: none;
             border-radius: 10px;
@@ -63,17 +63,17 @@
             cursor: pointer;
             text-transform: uppercase;
             letter-spacing: 1px;
-            box-shadow: 0 4px 15px rgba(52,199,89,0.4);
             margin-top: 5px;
+            transition: all 0.3s ease;
         }
-        #pvp-ready-btn.active { display: block; opacity: 1; pointer-events: auto; animation: readyPulse 1.5s infinite; }
-        #pvp-ready-btn.inactive { display: block; opacity: 0.6; pointer-events: none; }
-        #pvp-ready-btn.ready { animation: readyPulse 1.5s infinite; }
-        
+        #pvp-ready-btn.active {
+            background: linear-gradient(135deg, #34c759 0%, #28a745 100%);
+            animation: readyPulse 1.5s infinite;
+        }
         @keyframes readyPulse {
-            0% { box-shadow: 0 0 10px rgba(52,199,89,0.5); transform: scale(1); }
-            50% { box-shadow: 0 0 30px rgba(52,199,89,1); transform: scale(1.05); }
-            100% { box-shadow: 0 0 10px rgba(52,199,89,0.5); transform: scale(1); }
+            0% { box-shadow: 0 0 10px rgba(52,199,89,0.5); }
+            50% { box-shadow: 0 0 30px rgba(52,199,89,1); }
+            100% { box-shadow: 0 0 10px rgba(52,199,89,0.5); }
         }
         
         .player-input-group { background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%); padding: 20px; border-radius: 15px; width: 100%; border: 2px solid #333; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
@@ -905,8 +905,8 @@
             pvpRoomInput.value = code; pvpRoomInput.disabled = true;
             pvpCancelBtn.style.display = 'block';
             pvpReadyBtn.style.display = 'block';
-            pvpReadyBtn.classList.add('inactive'); // Кнопка старт неактивна до подключения Гостя
-            pvpReadyBtn.classList.remove('active', 'ready');
+            pvpReadyBtn.textContent = 'СТАРТ';
+            pvpReadyBtn.classList.remove('active'); // Кнопка не активна, пока гость не нажмет готово
             pvpRoomRef = db.ref('rooms/' + code);
             pvpRoomRef.set({ status: 'waiting', creatorReady: true, joinerReady: false, offer: null, answer: null, ice: [] });
             pvpPeer = new SimplePeer({ initiator: true, trickle: true, config: { iceServers: iceServers } });
@@ -914,11 +914,9 @@
             pvpRoomRef.on('value', function(snapshot) {
                 const data = snapshot.val();
                 if (!data) return;
-                // Когда гость нажал готово, активируем кнопку старт
-                if (data.joinerReady && data.creatorReady) {
-                    pvpReadyBtn.classList.remove('inactive');
+                // Если гость готов, активируем кнопку старт у овнера
+                if (data.joinerReady) {
                     pvpReadyBtn.classList.add('active');
-                    pvpReadyBtn.textContent = 'СТАРТ';
                 }
                 if (!pvpConnected && !pvpProcessingSignal && pvpPeer && !pvpPeer.destroyed) {
                     if (pvpIsCreator && data.answer) { pvpProcessingSignal = true; try { pvpPeer.signal(JSON.parse(data.answer)); pvpRoomRef.child('answer').set(null); } catch(e) {} pvpProcessingSignal = false; }
@@ -935,8 +933,8 @@
             pvpRoomInput.value = code; pvpRoomInput.disabled = true;
             pvpCancelBtn.style.display = 'block';
             pvpReadyBtn.style.display = 'block';
-            pvpReadyBtn.classList.add('active'); // У Гостя кнопка старт сразу активна
-            pvpReadyBtn.textContent = 'СТАРТ';
+            pvpReadyBtn.textContent = 'ГОТОВО';
+            pvpReadyBtn.classList.add('active');
             pvpRoomRef = db.ref('rooms/' + code);
             pvpRoomRef.once('value', function(snapshot) {
                 const data = snapshot.val();
@@ -1413,18 +1411,18 @@
         pvpJoinBtn.addEventListener('click', () => { pvpIsCreator = false; pvpSelectionButtons.style.display = 'none'; pvpCodeEntry.style.display = 'block'; pvpCharacterBlock.style.display = 'none'; pvpPasteBtn.style.display = 'block'; pvpClearBtn.style.display = 'block'; pvpCopyBtn.style.display = 'block'; pvpRoomInput.value = ''; pvpRoomInput.disabled = false; pvpCancelBtn.style.display = 'block'; pvpReadyBtn.style.display = 'block'; });
         pvpCancelBtn.addEventListener('click', () => { cancelPvp(); });
         
-        // Главное изменение: Овнер стартует сам, когда появился Гость
+        // Главная логика кнопки Старт/Готово
         pvpReadyBtn.addEventListener('click', () => {
             if (pvpIsCreator) {
-                if (pvpReadyBtn.classList.contains('inactive')) {
-                    alert('Ожидание второго игрока...');
-                    return;
-                }
+                // Овнер: проверяем, готов ли гость, и запускаем
                 if (pvpRoomRef) {
                     pvpRoomRef.update({ status: 'ready' });
-                    if (pvpConnected) startHockeyDuel();
+                    if (pvpConnected) {
+                        startHockeyDuel();
+                    }
                 }
             } else {
+                // Гость: отправляем готовность и соединяемся
                 if (pvpConnected) {
                     pvpRoomRef.update({ status: 'ready' });
                     startHockeyDuel();
