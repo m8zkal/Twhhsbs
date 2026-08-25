@@ -864,7 +864,7 @@
             setTimeout(() => { if (countdownActive) { countdown = 0; countdownActive = false; } }, 3000);
         }
 
-        // СЕРВЕРЫ ДЛЯ ОНЛАЙНА (ПРОБИВАЮТ ЛЮБОЙ NAT)
+        // Серверы для стабильного P2P соединения между городами
         const iceServers = [
             { urls: 'stun:stun.l.google.com:19302' },
             { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
@@ -955,7 +955,7 @@
                 }
             });
             pvpPeer.on('data', function(data) { try { const parsed = JSON.parse(data); handlePvpData(parsed); } catch(e) {} });
-            pvpPeer.on('error', function(err) { console.error('PvP ошибка:', err); alert('Ошибка соединения: ' + err.message); cancelPvp(); goToMenu(); });
+            pvpPeer.on('error', function(err) { console.error('PvP ошибка (не критично):', err.message); cancelPvp(); goToMenu(); });
             pvpPeer.on('close', function() { pvpConnected = false; cancelPvp(); });
         }
         function startHockeyDuel() {
