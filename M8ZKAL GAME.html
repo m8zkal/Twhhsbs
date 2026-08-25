@@ -49,32 +49,6 @@
         
         h1 { font-size: clamp(20px, 5vw, 32px); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; text-align: center; color: #fff; text-shadow: 0 0 20px rgba(255,255,255,0.5); }
         
-        #pvp-ready-btn {
-            display: block;
-            width: 100%;
-            padding: 16px;
-            background: #555;
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 5px;
-            transition: all 0.3s ease;
-        }
-        #pvp-ready-btn.active {
-            background: linear-gradient(135deg, #34c759 0%, #28a745 100%);
-            animation: readyPulse 1.5s infinite;
-        }
-        @keyframes readyPulse {
-            0% { box-shadow: 0 0 10px rgba(52,199,89,0.5); }
-            50% { box-shadow: 0 0 30px rgba(52,199,89,1); }
-            100% { box-shadow: 0 0 10px rgba(52,199,89,0.5); }
-        }
-        
         .player-input-group { background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%); padding: 20px; border-radius: 15px; width: 100%; border: 2px solid #333; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
         .p1-border { border-left: 6px solid #ff3b30; }
         .p2-border { border-left: 6px solid #007aff; }
@@ -157,8 +131,10 @@
         .pvp-cancel-btn { background: #ff3b30; box-shadow: 0 4px 15px rgba(255, 59, 48, 0.4); }
         .pvp-cancel-btn:hover { background: #cc0000; }
         .pvp-character-block { width: 100%; }
-        
-        .offline-hockey-block > *:last-child, .online-hockey-block > *:last-child { margin-bottom: 0; }
+        #pvp-ready-btn { display: none; width: 100%; padding: 16px; background: #ff9500; box-shadow: 0 4px 15px rgba(255,149,0,0.4); font-size: 18px; margin-top: 5px; }
+        #pvp-ready-btn:disabled { opacity: 0.5; pointer-events: none; }
+        @keyframes readyPulse { 0% { box-shadow: 0 0 10px rgba(255, 149, 0, 0.5); } 50% { box-shadow: 0 0 30px rgba(255, 149, 0, 1); } 100% { box-shadow: 0 0 10px rgba(255, 149, 0, 0.5); } }
+        #pvp-ready-btn.ready { animation: readyPulse 1.5s infinite; background: #ffaa00; }
     </style>
 </head>
 <body>
@@ -273,7 +249,7 @@
                                 <div class="image-preview" id="preview-pvp" onclick="document.getElementById('file-pvp').click()"><span class="placeholder">📱 Нажми, чтобы выбрать фото</span><img id="preview-pvp-img" src="" alt="Preview" style="display:none;"></div>
                                 <input type="file" id="file-pvp" accept="image/*" style="display:none;" onchange="loadPhoto('file-pvp', 'preview-pvp', 'preview-pvp-img')">
                             </div>
-                            <button id="pvp-ready-btn">СТАРТ</button>
+                            <button id="pvp-ready-btn">Готово</button>
                         </div>
                     </div>
                 </div>
@@ -902,10 +878,7 @@
             pvpSelectionButtons.style.display = 'none'; pvpCodeEntry.style.display = 'block'; pvpCharacterBlock.style.display = 'none';
             pvpPasteBtn.style.display = 'none'; pvpClearBtn.style.display = 'none'; pvpCopyBtn.style.display = 'block';
             pvpRoomInput.value = code; pvpRoomInput.disabled = true;
-            pvpCancelBtn.style.display = 'block';
-            pvpReadyBtn.style.display = 'block';
-            pvpReadyBtn.textContent = 'СТАРТ';
-            pvpReadyBtn.classList.remove('active'); // Кнопка не активна, пока гость не нажмет готово
+            pvpCancelBtn.style.display = 'block'; pvpReadyBtn.style.display = 'block'; pvpReadyBtn.disabled = false; pvpReadyBtn.classList.remove('ready');
             pvpRoomRef = db.ref('rooms/' + code);
             pvpRoomRef.set({ status: 'waiting', creatorReady: true, joinerReady: false, offer: null, answer: null, ice: [] });
             pvpPeer = new SimplePeer({ initiator: true, trickle: true, config: { iceServers: iceServers } });
@@ -913,10 +886,8 @@
             pvpRoomRef.on('value', function(snapshot) {
                 const data = snapshot.val();
                 if (!data) return;
-                // Если гость готов, активируем кнопку старт у овнера
-                if (data.joinerReady) {
-                    pvpReadyBtn.classList.add('active');
-                }
+                // Ждем, пока гость не нажмет ГОТОВО
+                if (data.status === 'ready' && !pvpConnected) startHockeyDuel();
                 if (!pvpConnected && !pvpProcessingSignal && pvpPeer && !pvpPeer.destroyed) {
                     if (pvpIsCreator && data.answer) { pvpProcessingSignal = true; try { pvpPeer.signal(JSON.parse(data.answer)); pvpRoomRef.child('answer').set(null); } catch(e) {} pvpProcessingSignal = false; }
                     if (!pvpIsCreator && data.offer) { pvpProcessingSignal = true; try { pvpPeer.signal(JSON.parse(data.offer)); } catch(e) {} pvpProcessingSignal = false; }
@@ -930,10 +901,7 @@
             pvpSelectionButtons.style.display = 'none'; pvpCodeEntry.style.display = 'block'; pvpCharacterBlock.style.display = 'none';
             pvpPasteBtn.style.display = 'block'; pvpClearBtn.style.display = 'block'; pvpCopyBtn.style.display = 'block';
             pvpRoomInput.value = code; pvpRoomInput.disabled = true;
-            pvpCancelBtn.style.display = 'block';
-            pvpReadyBtn.style.display = 'block';
-            pvpReadyBtn.textContent = 'ГОТОВО';
-            pvpReadyBtn.classList.add('active');
+            pvpCancelBtn.style.display = 'block'; pvpReadyBtn.style.display = 'block'; pvpReadyBtn.disabled = false;
             pvpRoomRef = db.ref('rooms/' + code);
             pvpRoomRef.once('value', function(snapshot) {
                 const data = snapshot.val();
@@ -1407,28 +1375,29 @@
         pvpClearBtn.addEventListener('click', () => { pvpRoomInput.value = ''; pvpRoomInput.focus(); });
         pvpCopyBtn.addEventListener('click', () => { pvpRoomInput.select(); document.execCommand('copy'); pvpCopyBtn.textContent = '✅'; setTimeout(() => { pvpCopyBtn.textContent = '📃'; }, 2000); });
         pvpCreateBtn.addEventListener('click', () => { if (!pvpPeer) createPvpRoom(); });
-        pvpJoinBtn.addEventListener('click', () => { pvpIsCreator = false; pvpSelectionButtons.style.display = 'none'; pvpCodeEntry.style.display = 'block'; pvpCharacterBlock.style.display = 'none'; pvpPasteBtn.style.display = 'block'; pvpClearBtn.style.display = 'block'; pvpCopyBtn.style.display = 'block'; pvpRoomInput.value = ''; pvpRoomInput.disabled = false; pvpCancelBtn.style.display = 'block'; pvpReadyBtn.style.display = 'block'; });
+        pvpJoinBtn.addEventListener('click', () => { pvpIsCreator = false; pvpSelectionButtons.style.display = 'none'; pvpCodeEntry.style.display = 'block'; pvpCharacterBlock.style.display = 'none'; pvpPasteBtn.style.display = 'block'; pvpClearBtn.style.display = 'block'; pvpCopyBtn.style.display = 'block'; pvpRoomInput.value = ''; pvpRoomInput.disabled = false; pvpCancelBtn.style.display = 'block'; pvpReadyBtn.style.display = 'block'; pvpReadyBtn.disabled = false; pvpReadyBtn.classList.remove('ready'); });
         pvpCancelBtn.addEventListener('click', () => { cancelPvp(); });
         
-        // Главная логика кнопки Старт/Готово
+        // Кнопка ГОТОВО (Овнер и Гость нажимают одинаково)
         pvpReadyBtn.addEventListener('click', () => {
-            if (pvpIsCreator) {
-                // Овнер: проверяем, готов ли гость, и запускаем
-                if (pvpRoomRef) {
-                    pvpRoomRef.update({ status: 'ready' });
-                    if (pvpConnected) {
-                        startHockeyDuel();
-                    }
-                }
-            } else {
-                // Гость: отправляем готовность и соединяемся
-                if (pvpConnected) {
-                    pvpRoomRef.update({ status: 'ready' });
-                    startHockeyDuel();
-                } else {
+            if (pvpRoomRef) {
+                // Сначала гость отправляет свою готовность
+                if (!pvpIsCreator) {
                     pvpRoomRef.update({ joinerReady: true });
-                    pvpRoomRef.once('value', function(snap) { const d = snap.val(); if (d && d.creatorReady && d.joinerReady) pvpRoomRef.update({ status: 'ready' }); });
                 }
+                // Затем создатель отправляет свою
+                if (pvpIsCreator) {
+                    pvpRoomRef.update({ creatorReady: true });
+                }
+                
+                // Проверяем, готовы ли оба, чтобы запустить игру
+                pvpRoomRef.once('value', function(snap) {
+                    const d = snap.val();
+                    if (d && d.creatorReady && d.joinerReady) {
+                        pvpRoomRef.update({ status: 'ready' });
+                        if (pvpConnected) startHockeyDuel();
+                    }
+                });
             }
         });
         
