@@ -49,9 +49,8 @@
         
         h1 { font-size: clamp(20px, 5vw, 32px); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; text-align: center; color: #fff; text-shadow: 0 0 20px rgba(255,255,255,0.5); }
         
-        /* Кнопка готовности/старта */
         #pvp-ready-btn {
-            display: none;
+            display: block;
             width: 100%;
             padding: 16px;
             background: #555;
@@ -274,7 +273,7 @@
                                 <div class="image-preview" id="preview-pvp" onclick="document.getElementById('file-pvp').click()"><span class="placeholder">📱 Нажми, чтобы выбрать фото</span><img id="preview-pvp-img" src="" alt="Preview" style="display:none;"></div>
                                 <input type="file" id="file-pvp" accept="image/*" style="display:none;" onchange="loadPhoto('file-pvp', 'preview-pvp', 'preview-pvp-img')">
                             </div>
-                            <button id="pvp-ready-btn">Старт</button>
+                            <button id="pvp-ready-btn">СТАРТ</button>
                         </div>
                     </div>
                 </div>
