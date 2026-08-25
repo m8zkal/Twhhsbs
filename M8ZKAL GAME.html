@@ -49,6 +49,33 @@
         
         h1 { font-size: clamp(20px, 5vw, 32px); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; text-align: center; color: #fff; text-shadow: 0 0 20px rgba(255,255,255,0.5); }
         
+        /* Кнопка "СТАРТ" у Овнера */
+        #pvp-ready-btn {
+            display: none;
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #34c759 0%, #28a745 100%);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(52,199,89,0.4);
+            margin-top: 5px;
+        }
+        #pvp-ready-btn.active { display: block; opacity: 1; pointer-events: auto; animation: readyPulse 1.5s infinite; }
+        #pvp-ready-btn.inactive { display: block; opacity: 0.6; pointer-events: none; }
+        #pvp-ready-btn.ready { animation: readyPulse 1.5s infinite; }
+        
+        @keyframes readyPulse {
+            0% { box-shadow: 0 0 10px rgba(52,199,89,0.5); transform: scale(1); }
+            50% { box-shadow: 0 0 30px rgba(52,199,89,1); transform: scale(1.05); }
+            100% { box-shadow: 0 0 10px rgba(52,199,89,0.5); transform: scale(1); }
+        }
+        
         .player-input-group { background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%); padding: 20px; border-radius: 15px; width: 100%; border: 2px solid #333; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
         .p1-border { border-left: 6px solid #ff3b30; }
         .p2-border { border-left: 6px solid #007aff; }
@@ -131,10 +158,8 @@
         .pvp-cancel-btn { background: #ff3b30; box-shadow: 0 4px 15px rgba(255, 59, 48, 0.4); }
         .pvp-cancel-btn:hover { background: #cc0000; }
         .pvp-character-block { width: 100%; }
-        #pvp-ready-btn { display: none; width: 100%; padding: 16px; background: #ff9500; box-shadow: 0 4px 15px rgba(255,149,0,0.4); font-size: 18px; margin-top: 5px; }
-        #pvp-ready-btn:disabled { opacity: 0.5; pointer-events: none; }
-        @keyframes readyPulse { 0% { box-shadow: 0 0 10px rgba(255, 149, 0, 0.5); } 50% { box-shadow: 0 0 30px rgba(255, 149, 0, 1); } 100% { box-shadow: 0 0 10px rgba(255, 149, 0, 0.5); } }
-        #pvp-ready-btn.ready { animation: readyPulse 1.5s infinite; background: #ffaa00; }
+        
+        .offline-hockey-block > *:last-child, .online-hockey-block > *:last-child { margin-bottom: 0; }
     </style>
 </head>
 <body>
@@ -249,7 +274,7 @@
                                 <div class="image-preview" id="preview-pvp" onclick="document.getElementById('file-pvp').click()"><span class="placeholder">📱 Нажми, чтобы выбрать фото</span><img id="preview-pvp-img" src="" alt="Preview" style="display:none;"></div>
                                 <input type="file" id="file-pvp" accept="image/*" style="display:none;" onchange="loadPhoto('file-pvp', 'preview-pvp', 'preview-pvp-img')">
                             </div>
-                            <button id="pvp-ready-btn">Готов</button>
+                            <button id="pvp-ready-btn">Старт</button>
                         </div>
                     </div>
                 </div>
@@ -864,7 +889,6 @@
             setTimeout(() => { if (countdownActive) { countdown = 0; countdownActive = false; } }, 3000);
         }
 
-        // Серверы для стабильного P2P соединения между городами
         const iceServers = [
             { urls: 'stun:stun.l.google.com:19302' },
             { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
@@ -879,15 +903,23 @@
             pvpSelectionButtons.style.display = 'none'; pvpCodeEntry.style.display = 'block'; pvpCharacterBlock.style.display = 'none';
             pvpPasteBtn.style.display = 'none'; pvpClearBtn.style.display = 'none'; pvpCopyBtn.style.display = 'block';
             pvpRoomInput.value = code; pvpRoomInput.disabled = true;
-            pvpCancelBtn.style.display = 'block'; pvpReadyBtn.style.display = 'block'; pvpReadyBtn.disabled = false; pvpReadyBtn.classList.remove('ready');
+            pvpCancelBtn.style.display = 'block';
+            pvpReadyBtn.style.display = 'block';
+            pvpReadyBtn.classList.add('inactive'); // Кнопка старт неактивна до подключения Гостя
+            pvpReadyBtn.classList.remove('active', 'ready');
             pvpRoomRef = db.ref('rooms/' + code);
-            pvpRoomRef.set({ status: 'waiting', creatorReady: false, joinerReady: false, offer: null, answer: null, ice: [] });
+            pvpRoomRef.set({ status: 'waiting', creatorReady: true, joinerReady: false, offer: null, answer: null, ice: [] });
             pvpPeer = new SimplePeer({ initiator: true, trickle: true, config: { iceServers: iceServers } });
             setupPvpPeerEvents();
             pvpRoomRef.on('value', function(snapshot) {
                 const data = snapshot.val();
                 if (!data) return;
-                if (data.status === 'ready' && !pvpConnected) startHockeyDuel();
+                // Когда гость нажал готово, активируем кнопку старт
+                if (data.joinerReady && data.creatorReady) {
+                    pvpReadyBtn.classList.remove('inactive');
+                    pvpReadyBtn.classList.add('active');
+                    pvpReadyBtn.textContent = 'СТАРТ';
+                }
                 if (!pvpConnected && !pvpProcessingSignal && pvpPeer && !pvpPeer.destroyed) {
                     if (pvpIsCreator && data.answer) { pvpProcessingSignal = true; try { pvpPeer.signal(JSON.parse(data.answer)); pvpRoomRef.child('answer').set(null); } catch(e) {} pvpProcessingSignal = false; }
                     if (!pvpIsCreator && data.offer) { pvpProcessingSignal = true; try { pvpPeer.signal(JSON.parse(data.offer)); } catch(e) {} pvpProcessingSignal = false; }
@@ -901,7 +933,10 @@
             pvpSelectionButtons.style.display = 'none'; pvpCodeEntry.style.display = 'block'; pvpCharacterBlock.style.display = 'none';
             pvpPasteBtn.style.display = 'block'; pvpClearBtn.style.display = 'block'; pvpCopyBtn.style.display = 'block';
             pvpRoomInput.value = code; pvpRoomInput.disabled = true;
-            pvpCancelBtn.style.display = 'block'; pvpReadyBtn.style.display = 'block'; pvpReadyBtn.disabled = false;
+            pvpCancelBtn.style.display = 'block';
+            pvpReadyBtn.style.display = 'block';
+            pvpReadyBtn.classList.add('active'); // У Гостя кнопка старт сразу активна
+            pvpReadyBtn.textContent = 'СТАРТ';
             pvpRoomRef = db.ref('rooms/' + code);
             pvpRoomRef.once('value', function(snapshot) {
                 const data = snapshot.val();
@@ -955,7 +990,7 @@
                 }
             });
             pvpPeer.on('data', function(data) { try { const parsed = JSON.parse(data); handlePvpData(parsed); } catch(e) {} });
-            pvpPeer.on('error', function(err) { console.error('PvP ошибка (не критично):', err.message); cancelPvp(); goToMenu(); });
+            pvpPeer.on('error', function(err) { console.error('Ошибка WebRTC (не критично):', err.message); });
             pvpPeer.on('close', function() { pvpConnected = false; cancelPvp(); });
         }
         function startHockeyDuel() {
@@ -1375,13 +1410,31 @@
         pvpClearBtn.addEventListener('click', () => { pvpRoomInput.value = ''; pvpRoomInput.focus(); });
         pvpCopyBtn.addEventListener('click', () => { pvpRoomInput.select(); document.execCommand('copy'); pvpCopyBtn.textContent = '✅'; setTimeout(() => { pvpCopyBtn.textContent = '📃'; }, 2000); });
         pvpCreateBtn.addEventListener('click', () => { if (!pvpPeer) createPvpRoom(); });
-        pvpJoinBtn.addEventListener('click', () => { pvpIsCreator = false; pvpSelectionButtons.style.display = 'none'; pvpCodeEntry.style.display = 'block'; pvpCharacterBlock.style.display = 'none'; pvpPasteBtn.style.display = 'block'; pvpClearBtn.style.display = 'block'; pvpCopyBtn.style.display = 'block'; pvpRoomInput.value = ''; pvpRoomInput.disabled = false; pvpCancelBtn.style.display = 'block'; pvpReadyBtn.style.display = 'block'; pvpReadyBtn.disabled = false; pvpReadyBtn.classList.remove('ready'); });
+        pvpJoinBtn.addEventListener('click', () => { pvpIsCreator = false; pvpSelectionButtons.style.display = 'none'; pvpCodeEntry.style.display = 'block'; pvpCharacterBlock.style.display = 'none'; pvpPasteBtn.style.display = 'block'; pvpClearBtn.style.display = 'block'; pvpCopyBtn.style.display = 'block'; pvpRoomInput.value = ''; pvpRoomInput.disabled = false; pvpCancelBtn.style.display = 'block'; pvpReadyBtn.style.display = 'block'; });
         pvpCancelBtn.addEventListener('click', () => { cancelPvp(); });
+        
+        // Главное изменение: Овнер стартует сам, когда появился Гость
         pvpReadyBtn.addEventListener('click', () => {
             if (pvpIsCreator) {
-                if (pvpRoomRef) { pvpRoomRef.update({ creatorReady: true }); pvpRoomRef.once('value', function(snap) { const d = snap.val(); if (d && d.creatorReady && d.joinerReady) pvpRoomRef.update({ status: 'ready' }); }); pvpReadyBtn.disabled = true; pvpReadyBtn.classList.add('ready'); }
-            } else { const code = pvpRoomInput.value.trim(); if (code) { joinPvpRoom(code); pvpReadyBtn.disabled = true; pvpReadyBtn.classList.add('ready'); } else { alert('Введите код комнаты'); } }
+                if (pvpReadyBtn.classList.contains('inactive')) {
+                    alert('Ожидание второго игрока...');
+                    return;
+                }
+                if (pvpRoomRef) {
+                    pvpRoomRef.update({ status: 'ready' });
+                    if (pvpConnected) startHockeyDuel();
+                }
+            } else {
+                if (pvpConnected) {
+                    pvpRoomRef.update({ status: 'ready' });
+                    startHockeyDuel();
+                } else {
+                    pvpRoomRef.update({ joinerReady: true });
+                    pvpRoomRef.once('value', function(snap) { const d = snap.val(); if (d && d.creatorReady && d.joinerReady) pvpRoomRef.update({ status: 'ready' }); });
+                }
+            }
         });
+        
         offlineStartBtn.addEventListener('click', () => { startOfflineHockey(); });
         addPlayerBtn.addEventListener('click', () => { if (currentPlayerCount < 4) { currentPlayerCount++; if (currentPlayerCount === 3) { p3Group.style.display = 'block'; removePlayerBtn.style.display = 'block'; } else if (currentPlayerCount === 4) { p4Group.style.display = 'block'; addPlayerBtn.style.display = 'none'; } } });
         removePlayerBtn.addEventListener('click', () => { if (currentPlayerCount > 2) { if (currentPlayerCount === 4) { p4Group.style.display = 'none'; addPlayerBtn.style.display = 'block'; } else if (currentPlayerCount === 3) { p3Group.style.display = 'none'; removePlayerBtn.style.display = 'none'; } currentPlayerCount--; } });
