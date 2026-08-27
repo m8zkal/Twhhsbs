@@ -411,6 +411,8 @@
         let botDashTimer = 0;
         let botDashCooldown = 0;
         let botAvoidTimer = 0;
+        let botHitTimer = 0;
+        let botHitCount = 0;
 
         const MAX_PARTICLES = 80;
         const MAX_TRAIL_POINTS = 5;
@@ -437,6 +439,12 @@
             { color: '#f57c00', border: '#ff9500', name: 'Игрок 4' }
         ];
         recordDisplay.textContent = '🏆 Рекорд волн: ' + waveRecord;
+
+        const iceServers = [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
+            { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' }
+        ];
 
         window.loadPhoto = function(inputId, previewId, imgId) {
             const fileInput = document.getElementById(inputId);
@@ -609,11 +617,10 @@
                 this.randomAngle = Math.random() * Math.PI * 2; this.randomChangeTimer = 0; this.randomForce = 0;
                 this.imageLoaded = false; this.image = new Image();
                 this.weapon = 'sword'; this.weaponDamage = 12; this.speedMultiplier = 1;
-                this.shootCooldown = 0; this.invulnerableTimer = 0;
+                this.shootCooldown = 0;
             }
             update() {
                 this.angle += this.rotSpeed * this.speedMultiplier;
-                if (this.invulnerableTimer > 0) this.invulnerableTimer--;
                 this.randomChangeTimer--;
                 if (this.randomChangeTimer <= 0) { this.randomAngle += (Math.random() - 0.5) * 1.5; this.randomForce = Math.random() * 0.3 + 0.1; this.randomChangeTimer = Math.floor(Math.random() * 30) + 15; }
                 this.vx += Math.cos(this.randomAngle) * this.randomForce; this.vy += Math.sin(this.randomAngle) * this.randomForce;
@@ -717,7 +724,6 @@
         }
         function checkSwordHit(attacker, defender) {
             if (attacker.dead || defender.dead) return;
-            if (defender.invulnerableTimer > 0) return;
             const tip = attacker.getSwordTip(); const dx = defender.x - tip.x, dy = defender.y - tip.y;
             const distSq = dx * dx + dy * dy; const hitRadius = defender.radius + 15;
             if (distSq >= hitRadius * hitRadius) return;
@@ -726,7 +732,6 @@
             attacker.rotSpeed = -attacker.rotSpeed;
             const damage = attacker.weaponDamage; defender.hp -= damage;
             if (defender.hp < 0) defender.hp = 0;
-            defender.invulnerableTimer = 90;
             const pushAngle = Math.atan2(dy, dx); const pushForce = 15;
             defender.vx += Math.cos(pushAngle) * pushForce; defender.vy += Math.sin(pushAngle) * pushForce; defender.randomAngle = Math.random() * Math.PI * 2;
             createImpactParticles(tip.x, tip.y, defender.borderColor); createImpactParticles(defender.x, defender.y, '#ffdd00'); playSound('hit');
@@ -855,6 +860,7 @@
             ball.lastTouchedBy = null;
             goalCooldown = 0; dashTimer = 0; dashCooldown = 0;
             botDashTimer = 0; botDashCooldown = 0;
+            botHitTimer = 0; botHitCount = 0;
             countdown = 3; countdownActive = true;
         }
         function startCountdown() {
@@ -863,12 +869,6 @@
             setTimeout(() => { if (countdownActive) countdown = 1; }, 2000);
             setTimeout(() => { if (countdownActive) { countdown = 0; countdownActive = false; } }, 3000);
         }
-
-        const iceServers = [
-            { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
-            { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' }
-        ];
 
         // ===== ОНЛАЙН PVP =====
         function generateRoomCode() { return 'room-' + Math.random().toString(36).substring(2, 8); }
@@ -886,7 +886,6 @@
             pvpRoomRef.on('value', function(snapshot) {
                 const data = snapshot.val();
                 if (!data) return;
-                // Ждем, пока гость не нажмет ГОТОВО
                 if (data.status === 'ready' && !pvpConnected) startHockeyDuel();
                 if (!pvpConnected && !pvpProcessingSignal && pvpPeer && !pvpPeer.destroyed) {
                     if (pvpIsCreator && data.answer) { pvpProcessingSignal = true; try { pvpPeer.signal(JSON.parse(data.answer)); pvpRoomRef.child('answer').set(null); } catch(e) {} pvpProcessingSignal = false; }
@@ -984,10 +983,6 @@
             else if (data.type === 'goal') { if (data.scorer === 'player') scoreMy++; else scoreOpponent++; resetHockeyPositions(); updateHockeyScore(); playSound('goal'); startCountdown(); if (scoreMy >= WIN_SCORE || scoreOpponent >= WIN_SCORE) endHockeyMatch(); }
             else if (data.type === 'victory') { gameActive = false; victoryCup.textContent = '💀'; victoryText.innerText = 'Вы проиграли!'; victoryText.style.color = '#ff3b30'; victoryRecord.innerText = `Счёт: ${scoreMy} : ${scoreOpponent}`; playSound('victory'); setTimeout(() => { gameContainer.style.display = 'none'; screenVictory.style.display = 'flex'; }, 800); }
         }
-        function updateHockeyScore() {
-            hockeyScore.textContent = `СЧЁТ: ${scoreMy} : ${scoreOpponent}`;
-            hockeyRound.textContent = `РАУНД: ${Math.max(scoreMy, scoreOpponent) + 1}`;
-        }
         function hockeyGameLoop() {
             if (!gameActive) { if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; } return; }
             if (isPaused) { animationFrameId = requestAnimationFrame(hockeyGameLoop); return; }
@@ -1068,8 +1063,6 @@
         }
 
         // ===== ОФФЛАЙН ХОККЕЙ =====
-        let botHitCount = 0;
-        let botHitTimer = 0;
         function startOfflineHockey() {
             myHockeyPlayer = { x: FIELD_W/2, y: FIELD_H - 120, radius: PLAYER_RADIUS_HOCKEY, color: '#d32f2f', borderColor: '#ff3b30', name: document.getElementById('offline-player-name').value || 'Игрок 1', isMe: true, image: new Image(), imageLoaded: false };
             const img1 = document.getElementById('preview-offline-player')?.dataset.imageData;
@@ -1088,18 +1081,19 @@
             if (animationFrameId) cancelAnimationFrame(animationFrameId);
             startCountdown(); animationFrameId = requestAnimationFrame(offlineHockeyLoop);
         }
+        
         function offlineHockeyLoop() {
             if (!gameActive) { if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; } return; }
             if (isPaused) { animationFrameId = requestAnimationFrame(offlineHockeyLoop); return; }
             drawHockeyField();
+            
             if (countdownActive) {
                 ctx.save();
                 ctx.font = 'bold 100px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
                 ctx.lineWidth = 10; ctx.strokeStyle = '#000'; ctx.strokeText(countdown > 0 ? countdown : '', FIELD_W/2, FIELD_H * 0.25);
                 ctx.fillStyle = '#fff'; ctx.fillText(countdown > 0 ? countdown : '', FIELD_W/2, FIELD_H * 0.25);
                 ctx.restore();
-            }
-            else {
+            } else {
                 if (myHockeyPlayer && !myHockeyPlayer.dead) {
                     let dx = 0, dy = 0;
                     if (joystickActive) { dx = joystickX; dy = joystickY; }
@@ -1118,54 +1112,70 @@
                     }
                 }
                 if (dashCooldown > 0) dashCooldown--;
+                
+                // Умный бот
                 if (offlineBot && !offlineBot.dead) {
-                    const dxToBall = ball.x - offlineBot.x, dyToBall = ball.y - offlineBot.y; const distToBall = Math.hypot(dxToBall, dyToBall);
-                    let botSpeed = 3.5; if (botDashTimer > 0) { botSpeed *= 3; botDashTimer--; } if (botDashCooldown > 0) botDashCooldown--;
-                    botHitTimer--;
-                    if (botHitTimer <= 0) { botHitCount = 0; botHitTimer = 30; }
-                    let forceRetreat = false;
-                    if (botHitCount > 3) { forceRetreat = true; botHitCount = 0; }
-                    if (forceRetreat) {
-                        const dxCenter = FIELD_W/2 - offlineBot.x;
-                        const dyCenter = FIELD_H/2 - offlineBot.y;
-                        const distCenter = Math.hypot(dxCenter, dyCenter);
-                        if (distCenter > 0) {
-                            offlineBot.x += (dxCenter / distCenter) * botSpeed * 2;
-                            offlineBot.y += (dyCenter / distCenter) * botSpeed * 2;
-                        }
-                        ball.x += (dxCenter / distCenter) * 8;
-                        ball.y += (dyCenter / distCenter) * 8;
-                        ball.vx = (dxCenter / distCenter) * 10;
-                        ball.vy = (dyCenter / distCenter) * 10;
-                        ball.lastTouchedBy = 'blue';
+                    const dxToBall = ball.x - offlineBot.x, dyToBall = ball.y - offlineBot.y; 
+                    const distToBall = Math.hypot(dxToBall, dyToBall);
+                    const botSpeed = 4.5;
+                    
+                    const predictedBallX = ball.x + ball.vx * 20;
+                    const predictedBallY = ball.y + ball.vy * 20;
+                    const dxToPredicted = predictedBallX - offlineBot.x;
+                    const dyToPredicted = predictedBallY - offlineBot.y;
+                    const distToPredicted = Math.hypot(dxToPredicted, dyToPredicted);
+                    
+                    let avoidX = 0, avoidY = 0; const margin = 120;
+                    if (offlineBot.x < margin) avoidX = 1; else if (offlineBot.x > FIELD_W - margin) avoidX = -1;
+                    if (offlineBot.y < margin) avoidY = 1; else if (offlineBot.y > FIELD_H - margin) avoidY = -1;
+                    
+                    if (avoidX !== 0 || avoidY !== 0) {
+                        const avoidSpeed = botSpeed * 2.5;
+                        const lenAvoid = Math.hypot(avoidX, avoidY) || 1;
+                        offlineBot.x += (avoidX / lenAvoid) * avoidSpeed;
+                        offlineBot.y += (avoidY / lenAvoid) * avoidSpeed;
+                        botAvoidTimer = 40;
+                    } else if (botAvoidTimer > 0) {
+                        botAvoidTimer--;
                     } else {
-                        let avoidX = 0, avoidY = 0; const margin = 100;
-                        if (offlineBot.x < margin) avoidX = 1; else if (offlineBot.x > FIELD_W - margin) avoidX = -1;
-                        if (offlineBot.y < margin) avoidY = 1; else if (offlineBot.y > FIELD_H - margin) avoidY = -1;
-                        if (avoidX !== 0 || avoidY !== 0) {
-                            const avoidSpeed = botSpeed * 2;
-                            const lenAvoid = Math.hypot(avoidX, avoidY) || 1;
-                            offlineBot.x += (avoidX / lenAvoid) * avoidSpeed;
-                            offlineBot.y += (avoidY / lenAvoid) * avoidSpeed;
-                            botAvoidTimer = 30;
-                        } else if (botAvoidTimer > 0) { botAvoidTimer--; }
-                        else if (distToBall > 1) {
-                            offlineBot.x += (dxToBall / distToBall) * botSpeed;
-                            offlineBot.y += (dyToBall / distToBall) * botSpeed;
-                            if (distToBall < 250 && botDashCooldown <= 0) { botDashTimer = 12; botDashCooldown = 60; }
+                        if (distToPredicted > 10) {
+                            const norm = distToPredicted;
+                            let moveSpeed = botSpeed;
+                            if (botDashTimer > 0) { moveSpeed *= 2.5; botDashTimer--; }
+                            if (botDashCooldown > 0) botDashCooldown--;
+                            
+                            offlineBot.x += (dxToPredicted / norm) * moveSpeed;
+                            offlineBot.y += (dyToPredicted / norm) * moveSpeed;
+                            
+                            if (distToPredicted < 200 && botDashCooldown <= 0) {
+                                botDashTimer = 15; botDashCooldown = 50;
+                            }
                         }
                     }
-                    if (distToBall < PLAYER_RADIUS_HOCKEY + BALL_RADIUS_HOCKEY + 10 && !forceRetreat) {
-                        const angle = Math.PI / 2 + (Math.random() - 0.5) * 0.8; const force = 15;
-                        ball.vx = Math.cos(angle) * force; ball.vy = Math.sin(angle) * force; ball.lastTouchedBy = 'blue'; playSound('collision');
-                        ball.x += Math.cos(angle) * (PLAYER_RADIUS_HOCKEY + BALL_RADIUS_HOCKEY + 5); ball.y += Math.sin(angle) * (PLAYER_RADIUS_HOCKEY + BALL_RADIUS_HOCKEY + 5);
-                        botHitCount++;
+                    
+                    if (distToBall < PLAYER_RADIUS_HOCKEY + BALL_RADIUS_HOCKEY + 15) {
+                        const goalCenterX = GOAL_X_LEFT + GOAL_WIDTH / 2;
+                        const goalCenterY = FIELD_H - 10;
+                        const dxGoal = goalCenterX - ball.x;
+                        const dyGoal = goalCenterY - ball.y;
+                        const distGoal = Math.hypot(dxGoal, dyGoal) || 1;
+                        const force = 18;
+                        const angle = Math.atan2(dyGoal, dxGoal);
+                        ball.vx = Math.cos(angle) * force;
+                        ball.vy = Math.sin(angle) * force;
+                        ball.lastTouchedBy = 'blue';
+                        playSound('collision');
+                        ball.x += Math.cos(angle) * (PLAYER_RADIUS_HOCKEY + BALL_RADIUS_HOCKEY + 5);
+                        ball.y += Math.sin(angle) * (PLAYER_RADIUS_HOCKEY + BALL_RADIUS_HOCKEY + 5);
+                        botHitTimer = 20;
                     }
+                    
                     if (offlineBot.x - PLAYER_RADIUS_HOCKEY < 0) offlineBot.x = PLAYER_RADIUS_HOCKEY;
                     if (offlineBot.x + PLAYER_RADIUS_HOCKEY > FIELD_W) offlineBot.x = FIELD_W - PLAYER_RADIUS_HOCKEY;
                     if (offlineBot.y - PLAYER_RADIUS_HOCKEY < 0) offlineBot.y = PLAYER_RADIUS_HOCKEY;
                     if (offlineBot.y + PLAYER_RADIUS_HOCKEY > FIELD_H) offlineBot.y = FIELD_H - PLAYER_RADIUS_HOCKEY;
                 }
+                
                 if (goalCooldown > 0) goalCooldown--;
                 else {
                     ball.x += ball.vx; ball.y += ball.vy;
@@ -1199,6 +1209,7 @@
             updateParticles(); drawParticles();
             animationFrameId = requestAnimationFrame(offlineHockeyLoop);
         }
+        
         function endOfflineHockeyMatch(winner) {
             if (!gameActive) return; gameActive = false;
             if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
@@ -1206,6 +1217,10 @@
             else { victoryCup.textContent = '💀'; victoryText.innerText = 'Вы проиграли!'; victoryText.style.color = '#ff3b30'; victoryRecord.innerText = `Счёт: ${scoreMy} : ${scoreOpponent}`; playSound('victory'); }
             fireBtn.style.display = 'flex'; dashBtn.classList.add('hidden'); hockeyHud.style.display = 'none'; pauseBtn.classList.remove('visible');
             setTimeout(() => { gameContainer.style.display = 'none'; screenVictory.style.display = 'flex'; }, 800);
+        }
+        function updateHockeyScore() {
+            hockeyScore.textContent = `СЧЁТ: ${scoreMy} : ${scoreOpponent}`;
+            hockeyRound.textContent = `РАУНД: ${Math.max(scoreMy, scoreOpponent) + 1}`;
         }
 
         function gameLoop() {
@@ -1350,10 +1365,10 @@
                 hockeyOfflineSection.querySelector('.hockey-section-content').style.display = 'none';
                 hockeyOnlineSection.classList.remove('active');
                 hockeyOnlineSection.querySelector('.hockey-section-content').style.display = 'none';
-                currentMode = 'offline-hockey';
                 cancelPvp();
             }
         }
+
         function toggleSection(section) {
             const content = section.querySelector('.hockey-section-content');
             const isActive = section.classList.contains('active');
@@ -1366,6 +1381,7 @@
                 content.style.display = 'flex';
             }
         }
+
         hockeyOfflineHeader.addEventListener('click', () => { toggleSection(hockeyOfflineSection); currentMode = 'offline-hockey'; cancelPvp(); });
         hockeyOnlineHeader.addEventListener('click', () => { toggleSection(hockeyOnlineSection); currentMode = 'pvp'; });
         tabBattle.addEventListener('click', () => { switchMode('battle'); });
@@ -1377,20 +1393,10 @@
         pvpCreateBtn.addEventListener('click', () => { if (!pvpPeer) createPvpRoom(); });
         pvpJoinBtn.addEventListener('click', () => { pvpIsCreator = false; pvpSelectionButtons.style.display = 'none'; pvpCodeEntry.style.display = 'block'; pvpCharacterBlock.style.display = 'none'; pvpPasteBtn.style.display = 'block'; pvpClearBtn.style.display = 'block'; pvpCopyBtn.style.display = 'block'; pvpRoomInput.value = ''; pvpRoomInput.disabled = false; pvpCancelBtn.style.display = 'block'; pvpReadyBtn.style.display = 'block'; pvpReadyBtn.disabled = false; pvpReadyBtn.classList.remove('ready'); });
         pvpCancelBtn.addEventListener('click', () => { cancelPvp(); });
-        
-        // Кнопка ГОТОВО (Овнер и Гость нажимают одинаково)
         pvpReadyBtn.addEventListener('click', () => {
             if (pvpRoomRef) {
-                // Сначала гость отправляет свою готовность
-                if (!pvpIsCreator) {
-                    pvpRoomRef.update({ joinerReady: true });
-                }
-                // Затем создатель отправляет свою
-                if (pvpIsCreator) {
-                    pvpRoomRef.update({ creatorReady: true });
-                }
-                
-                // Проверяем, готовы ли оба, чтобы запустить игру
+                if (!pvpIsCreator) { pvpRoomRef.update({ joinerReady: true }); }
+                if (pvpIsCreator) { pvpRoomRef.update({ creatorReady: true }); }
                 pvpRoomRef.once('value', function(snap) {
                     const d = snap.val();
                     if (d && d.creatorReady && d.joinerReady) {
@@ -1400,7 +1406,6 @@
                 });
             }
         });
-        
         offlineStartBtn.addEventListener('click', () => { startOfflineHockey(); });
         addPlayerBtn.addEventListener('click', () => { if (currentPlayerCount < 4) { currentPlayerCount++; if (currentPlayerCount === 3) { p3Group.style.display = 'block'; removePlayerBtn.style.display = 'block'; } else if (currentPlayerCount === 4) { p4Group.style.display = 'block'; addPlayerBtn.style.display = 'none'; } } });
         removePlayerBtn.addEventListener('click', () => { if (currentPlayerCount > 2) { if (currentPlayerCount === 4) { p4Group.style.display = 'none'; addPlayerBtn.style.display = 'block'; } else if (currentPlayerCount === 3) { p3Group.style.display = 'none'; removePlayerBtn.style.display = 'none'; } currentPlayerCount--; } });
