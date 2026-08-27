@@ -135,9 +135,29 @@
         #pvp-ready-btn:disabled { opacity: 0.5; pointer-events: none; }
         @keyframes readyPulse { 0% { box-shadow: 0 0 10px rgba(255, 149, 0, 0.5); } 50% { box-shadow: 0 0 30px rgba(255, 149, 0, 1); } 100% { box-shadow: 0 0 10px rgba(255, 149, 0, 0.5); } }
         #pvp-ready-btn.ready { animation: readyPulse 1.5s infinite; background: #ffaa00; }
+        
+        #registration-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; display: flex; align-items: center; justify-content: center; }
+        .registration-content { background: #1a1a1a; border: 2px solid #ffd700; border-radius: 20px; padding: 30px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 0 50px rgba(255,215,0,0.3); }
+        .registration-content h2 { color: #ffd700; font-size: 28px; margin-bottom: 10px; text-transform: uppercase; }
+        .registration-content p { color: #aaa; margin-bottom: 20px; }
+        #register-name { width: 100%; padding: 15px; background: #2c2c2c; border: 2px solid #ffd700; border-radius: 10px; color: #fff; font-size: 18px; text-align: center; outline: none; margin-bottom: 20px; }
+        #register-btn { width: 100%; padding: 15px; background: linear-gradient(135deg, #ffd700, #ffaa00); color: #000; border: none; border-radius: 10px; font-size: 20px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        #register-error { color: #ff3b30; margin-top: 10px; display: none; }
     </style>
 </head>
 <body>
+    <!-- Модалка регистрации -->
+    <div id="registration-modal" style="display: none;">
+        <div class="registration-content">
+            <div style="font-size: 80px; margin-bottom: 20px;">⚔️</div>
+            <h2>Регистрация</h2>
+            <p>Создай свой профиль для сохранения статистики</p>
+            <input type="text" id="register-name" placeholder="Введи имя игрока" maxlength="15">
+            <button id="register-btn">Создать профиль</button>
+            <p id="register-error">Имя уже занято!</p>
+        </div>
+    </div>
+
     <div id="menu">
         <h1>⚔️ M8ZKAL GAME ⚔️</h1>
 
@@ -439,6 +459,202 @@
             { color: '#f57c00', border: '#ff9500', name: 'Игрок 4' }
         ];
         recordDisplay.textContent = '🏆 Рекорд волн: ' + waveRecord;
+
+        // ===== СИСТЕМА ПРОФИЛЕЙ =====
+        let currentUser = null;
+        const registrationModal = document.getElementById('registration-modal');
+        const registerName = document.getElementById('register-name');
+        const registerBtn = document.getElementById('register-btn');
+        const registerError = document.getElementById('register-error');
+        let countKillsThisGame = 0;
+
+        function generateUserId() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let id = 'Игрок-';
+            for (let i = 0; i < 6; i++) {
+                id += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return id;
+        }
+
+        async function isNameTaken(name) {
+            if (!db) return false;
+            const snapshot = await db.ref('users').orderByChild('name').equalTo(name).once('value');
+            return snapshot.exists();
+        }
+
+        async function registerUser(name) {
+            if (!db) {
+                alert('Firebase недоступен. Проверьте интернет.');
+                return null;
+            }
+            
+            if (await isNameTaken(name)) {
+                registerError.style.display = 'block';
+                return null;
+            }
+            
+            const userId = generateUserId();
+            const userData = {
+                name: name,
+                avatar: null,
+                createdAt: firebase.database.ServerValue.TIMESTAMP,
+                lastLogin: firebase.database.ServerValue.TIMESTAMP,
+                stats: {
+                    survival: {
+                        bestWaves: 0,
+                        bestKills: 0,
+                        totalKills: 0,
+                        games: 0
+                    },
+                    hockey: {
+                        wins: 0,
+                        losses: 0,
+                        games: 0
+                    }
+                },
+                titles: {
+                    unlocked: [],
+                    current: null
+                }
+            };
+            
+            await db.ref('users/' + userId).set(userData);
+            
+            localStorage.setItem('m8zkal_userId', userId);
+            localStorage.setItem('m8zkal_name', name);
+            
+            return { id: userId, ...userData };
+        }
+
+        async function loadProfile(userId) {
+            if (!db) return null;
+            const snapshot = await db.ref('users/' + userId).once('value');
+            return snapshot.val();
+        }
+
+        async function checkExistingProfile() {
+            const userId = localStorage.getItem('m8zkal_userId');
+            
+            if (userId) {
+                const profile = await loadProfile(userId);
+                if (profile) {
+                    currentUser = { id: userId, ...profile };
+                    console.log('Профиль загружен:', currentUser.name);
+                    return true;
+                } else {
+                    if (confirm('Ваш профиль не найден. Создать новый?')) {
+                        localStorage.removeItem('m8zkal_userId');
+                        localStorage.removeItem('m8zkal_name');
+                    }
+                }
+            }
+            
+            if (!currentUser) {
+                registrationModal.style.display = 'flex';
+            }
+            
+            return false;
+        }
+
+        async function saveSurvivalStats(waves, kills) {
+            if (!db || !currentUser) return;
+            
+            const userId = currentUser.id;
+            const snapshot = await db.ref('users/' + userId + '/stats/survival').once('value');
+            const stats = snapshot.val() || { bestWaves: 0, bestKills: 0, totalKills: 0, games: 0 };
+            
+            const updated = {
+                bestWaves: Math.max(stats.bestWaves || 0, waves),
+                bestKills: Math.max(stats.bestKills || 0, kills),
+                totalKills: (stats.totalKills || 0) + kills,
+                games: (stats.games || 0) + 1
+            };
+            
+            await db.ref('users/' + userId + '/stats/survival').update(updated);
+            
+            await checkAndUpdateTitles(userId, updated, null);
+            
+            if (currentUser.stats) {
+                currentUser.stats.survival = updated;
+            }
+        }
+
+        async function saveHockeyStats(win, loss) {
+            if (!db || !currentUser) return;
+            
+            const userId = currentUser.id;
+            const snapshot = await db.ref('users/' + userId + '/stats/hockey').once('value');
+            const stats = snapshot.val() || { wins: 0, losses: 0, games: 0 };
+            
+            const updated = {
+                wins: (stats.wins || 0) + win,
+                losses: (stats.losses || 0) + loss,
+                games: (stats.games || 0) + 1
+            };
+            
+            await db.ref('users/' + userId + '/stats/hockey').update(updated);
+            
+            await checkAndUpdateTitles(userId, null, updated);
+            
+            if (currentUser.stats) {
+                currentUser.stats.hockey = updated;
+            }
+        }
+
+        async function checkAndUpdateTitles(userId, survivalStats, hockeyStats) {
+            const titlesSnapshot = await db.ref('users/' + userId + '/titles').once('value');
+            const titles = titlesSnapshot.val() || { unlocked: [], current: null };
+            
+            const unlocked = titles.unlocked || [];
+            const newTitles = [...unlocked];
+            
+            if (survivalStats) {
+                if (survivalStats.bestKills >= 333 && !newTitles.includes('☢')) newTitles.push('☢');
+                if (survivalStats.bestWaves >= 15 && !newTitles.includes('💀')) newTitles.push('💀');
+                if (survivalStats.bestWaves >= 30 && !newTitles.includes('☠')) newTitles.push('☠');
+            }
+            
+            if (hockeyStats) {
+                if (hockeyStats.wins >= 50 && !newTitles.includes('🏒')) newTitles.push('🏒');
+                if (hockeyStats.wins >= 100 && !newTitles.includes('🏆')) newTitles.push('🏆');
+            }
+            
+            const priority = ['🥇', '🥈', '🥉', '☠', '☢', '🏆', '💀', '🏒'];
+            let currentTitle = titles.current;
+            
+            for (const title of newTitles) {
+                const currentIndex = priority.indexOf(currentTitle);
+                const newIndex = priority.indexOf(title);
+                if (currentIndex === -1 || newIndex < currentIndex) {
+                    currentTitle = title;
+                }
+            }
+            
+            await db.ref('users/' + userId + '/titles').update({
+                unlocked: newTitles,
+                current: currentTitle
+            });
+        }
+
+        registerBtn.addEventListener('click', async () => {
+            const name = registerName.value.trim();
+            if (name.length < 2) {
+                alert('Имя должно быть минимум 2 символа');
+                return;
+            }
+            
+            const user = await registerUser(name);
+            if (user) {
+                currentUser = user;
+                registrationModal.style.display = 'none';
+                console.log('Профиль создан:', currentUser.name);
+            }
+        });
+
+        registerName.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') registerBtn.click();
+        });
 
         const iceServers = [
             { urls: 'stun:stun.l.google.com:19302' },
@@ -782,6 +998,7 @@
                     if (wave > waveRecord) { waveRecord = wave; localStorage.setItem('waveRecord', waveRecord); }
                     victoryCup.textContent = '💀'; victoryText.innerText = 'Вы погибли!'; victoryText.style.color = '#ff3b30';
                     victoryRecord.innerText = `🇮🇱 Волн пройдено: ${wave}  |  🏆 Рекорд: ${waveRecord}`; playSound('victory');
+                    saveSurvivalStats(wave, countKillsThisGame);
                     setTimeout(() => { gameContainer.style.display = 'none'; screenVictory.style.display = 'flex'; }, 800);
                 }
             }
@@ -981,7 +1198,7 @@
             else if (data.type === 'move') { opponentHockeyPlayer.x = data.x; opponentHockeyPlayer.y = FIELD_H - data.y; }
             else if (data.type === 'ball') { if (!pvpIsCreator) { ball.x = data.x; ball.y = FIELD_H - data.y; ball.vx = data.vx; ball.vy = -data.vy; ball.lastTouchedBy = data.lastTouchedBy; } }
             else if (data.type === 'goal') { if (data.scorer === 'player') scoreMy++; else scoreOpponent++; resetHockeyPositions(); updateHockeyScore(); playSound('goal'); startCountdown(); if (scoreMy >= WIN_SCORE || scoreOpponent >= WIN_SCORE) endHockeyMatch(); }
-            else if (data.type === 'victory') { gameActive = false; victoryCup.textContent = '💀'; victoryText.innerText = 'Вы проиграли!'; victoryText.style.color = '#ff3b30'; victoryRecord.innerText = `Счёт: ${scoreMy} : ${scoreOpponent}`; playSound('victory'); setTimeout(() => { gameContainer.style.display = 'none'; screenVictory.style.display = 'flex'; }, 800); }
+            else if (data.type === 'victory') { gameActive = false; victoryCup.textContent = '💀'; victoryText.innerText = 'Вы проиграли!'; victoryText.style.color = '#ff3b30'; victoryRecord.innerText = `Счёт: ${scoreMy} : ${scoreOpponent}`; playSound('victory'); saveHockeyStats(0, 1); setTimeout(() => { gameContainer.style.display = 'none'; screenVictory.style.display = 'flex'; }, 800); }
         }
         function hockeyGameLoop() {
             if (!gameActive) { if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; } return; }
@@ -1055,8 +1272,8 @@
         function endHockeyMatch(winner) {
             if (!gameActive) return; gameActive = false;
             if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
-            if (winner === 'player') { victoryCup.textContent = '🏆'; victoryText.innerText = 'Вы победили!'; victoryText.style.color = '#ffd700'; victoryRecord.innerText = `Счёт: ${scoreMy} : ${scoreOpponent}`; playSound('victory'); sendPvpData({ type: 'victory' }); }
-            else if (winner === 'opponent') { victoryCup.textContent = '💀'; victoryText.innerText = 'Вы проиграли!'; victoryText.style.color = '#ff3b30'; victoryRecord.innerText = `Счёт: ${scoreMy} : ${scoreOpponent}`; playSound('victory'); }
+            if (winner === 'player') { victoryCup.textContent = '🏆'; victoryText.innerText = 'Вы победили!'; victoryText.style.color = '#ffd700'; victoryRecord.innerText = `Счёт: ${scoreMy} : ${scoreOpponent}`; playSound('victory'); sendPvpData({ type: 'victory' }); saveHockeyStats(1, 0); }
+            else if (winner === 'opponent') { victoryCup.textContent = '💀'; victoryText.innerText = 'Вы проиграли!'; victoryText.style.color = '#ff3b30'; victoryRecord.innerText = `Счёт: ${scoreMy} : ${scoreOpponent}`; playSound('victory'); saveHockeyStats(0, 1); }
             else { victoryCup.textContent = '🏆'; victoryText.innerText = 'Игра окончена'; victoryText.style.color = '#ffffff'; victoryRecord.innerText = `Счёт: ${scoreMy} : ${scoreOpponent}`; }
             fireBtn.style.display = 'flex'; dashBtn.classList.add('hidden'); hockeyHud.style.display = 'none'; pauseBtn.classList.remove('visible');
             setTimeout(() => { gameContainer.style.display = 'none'; screenVictory.style.display = 'flex'; }, 800);
@@ -1113,7 +1330,6 @@
                 }
                 if (dashCooldown > 0) dashCooldown--;
                 
-                // Умный бот
                 if (offlineBot && !offlineBot.dead) {
                     const dxToBall = ball.x - offlineBot.x, dyToBall = ball.y - offlineBot.y; 
                     const distToBall = Math.hypot(dxToBall, dyToBall);
@@ -1213,8 +1429,8 @@
         function endOfflineHockeyMatch(winner) {
             if (!gameActive) return; gameActive = false;
             if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
-            if (winner === 'player') { victoryCup.textContent = '🏆'; victoryText.innerText = 'Вы победили!'; victoryText.style.color = '#ffd700'; victoryRecord.innerText = `Счёт: ${scoreMy} : ${scoreOpponent}`; playSound('victory'); }
-            else { victoryCup.textContent = '💀'; victoryText.innerText = 'Вы проиграли!'; victoryText.style.color = '#ff3b30'; victoryRecord.innerText = `Счёт: ${scoreMy} : ${scoreOpponent}`; playSound('victory'); }
+            if (winner === 'player') { victoryCup.textContent = '🏆'; victoryText.innerText = 'Вы победили!'; victoryText.style.color = '#ffd700'; victoryRecord.innerText = `Счёт: ${scoreMy} : ${scoreOpponent}`; playSound('victory'); saveHockeyStats(1, 0); }
+            else { victoryCup.textContent = '💀'; victoryText.innerText = 'Вы проиграли!'; victoryText.style.color = '#ff3b30'; victoryRecord.innerText = `Счёт: ${scoreMy} : ${scoreOpponent}`; playSound('victory'); saveHockeyStats(0, 1); }
             fireBtn.style.display = 'flex'; dashBtn.classList.add('hidden'); hockeyHud.style.display = 'none'; pauseBtn.classList.remove('visible');
             setTimeout(() => { gameContainer.style.display = 'none'; screenVictory.style.display = 'flex'; }, 800);
         }
@@ -1269,7 +1485,7 @@
                                 if (d < enemy.radius + b.radius) {
                                     const damage = PLAYER_DAMAGE; enemy.hp -= damage; createImpactParticles(b.x, b.y, '#ffdd44', 6);
                                     enemy.vx += (b.vx / BULLET_SPEED) * 8; enemy.vy += (b.vy / BULLET_SPEED) * 8;
-                                    if (enemy.hp <= 0) { enemy.dead = true; if (enemy.isBoss) { isWaveInProgress = false; waveDelay = WAVE_DELAY; spawnMedkit(enemy.x, enemy.y); } createImpactParticles(enemy.x, enemy.y, '#ffffff', 15); playSound('hit'); updateHUD(); checkGameOver(); }
+                                    if (enemy.hp <= 0) { enemy.dead = true; countKillsThisGame++; if (enemy.isBoss) { isWaveInProgress = false; waveDelay = WAVE_DELAY; spawnMedkit(enemy.x, enemy.y); } createImpactParticles(enemy.x, enemy.y, '#ffffff', 15); playSound('hit'); updateHUD(); checkGameOver(); }
                                     bullets.splice(i, 1); break;
                                 }
                             }
@@ -1322,7 +1538,7 @@
             menu.style.display = 'none';
             gameContainer.style.display = 'flex';
             if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
-            initAudio(); particles = []; players = []; enemies = []; bullets = []; items = []; wave = 0; enemiesPerWave = 0; enemiesSpawnedInWave = 0; waveDelay = 0; isWaveInProgress = false; bossSpawned = false; spawnTimer = 0; spawnInterval = 35; gameStarted = false; redOverlay.classList.remove('active'); redScreenTimer = 0; waveMessage = ''; waveMessageTimer = 0;
+            initAudio(); particles = []; players = []; enemies = []; bullets = []; items = []; wave = 0; enemiesPerWave = 0; enemiesSpawnedInWave = 0; waveDelay = 0; isWaveInProgress = false; bossSpawned = false; spawnTimer = 0; spawnInterval = 35; gameStarted = false; redOverlay.classList.remove('active'); redScreenTimer = 0; waveMessage = ''; waveMessageTimer = 0; countKillsThisGame = 0;
             isPaused = false; pauseBtn.textContent = '⏸️'; pauseBtn.style.background = '#333'; pauseBtn.classList.remove('visible');
             scoreMy = 0; scoreOpponent = 0;
             updateHockeyScore();
@@ -1411,7 +1627,7 @@
         removePlayerBtn.addEventListener('click', () => { if (currentPlayerCount > 2) { if (currentPlayerCount === 4) { p4Group.style.display = 'none'; addPlayerBtn.style.display = 'block'; } else if (currentPlayerCount === 3) { p3Group.style.display = 'none'; removePlayerBtn.style.display = 'none'; } currentPlayerCount--; } });
         startBtn.addEventListener('click', function(e) {
             e.preventDefault(); if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
-            initAudio(); particles = []; players = []; enemies = []; bullets = []; items = []; wave = 0; enemiesPerWave = 0; enemiesSpawnedInWave = 0; waveDelay = 0; isWaveInProgress = false; bossSpawned = false; spawnTimer = 0; spawnInterval = 35; gameStarted = false; redOverlay.classList.remove('active'); redScreenTimer = 0; waveMessage = ''; waveMessageTimer = 0;
+            initAudio(); particles = []; players = []; enemies = []; bullets = []; items = []; wave = 0; enemiesPerWave = 0; enemiesSpawnedInWave = 0; waveDelay = 0; isWaveInProgress = false; bossSpawned = false; spawnTimer = 0; spawnInterval = 35; gameStarted = false; redOverlay.classList.remove('active'); redScreenTimer = 0; waveMessage = ''; waveMessageTimer = 0; countKillsThisGame = 0;
             isPaused = false; pauseBtn.textContent = '⏸️'; pauseBtn.style.background = '#333'; pauseBtn.classList.remove('visible');
             scoreMy = 0; scoreOpponent = 0; updateHockeyScore(); botHitCount = 0; botHitTimer = 0;
             if (currentMode === 'battle') {
@@ -1450,6 +1666,7 @@
         menu.style.display = 'flex'; gameContainer.style.display = 'none'; screenVictory.style.display = 'none'; mobileControls.classList.remove('visible');
         startBtn.style.display = 'block';
         checkUrlForRoom();
+        checkExistingProfile();
     })();
     </script>
 </body>
