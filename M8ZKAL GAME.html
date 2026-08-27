@@ -36,9 +36,9 @@
         .hp-bar { height: 100%; width: 100%; transition: width 0.2s ease-out; position: absolute; top: 0; left: 0; border-radius: 4px; box-shadow: 0 0 4px rgba(255,255,255,0.2); }
         .hp-text { position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: bold; color: rgba(255,255,255,0.9); text-shadow: 1px 1px 2px #000; width: 100%; height: 100%; }
         
-        #battle-settings, #survival-settings, #pvp-settings { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 500px; margin: 0 auto 40px auto; }
-        #battle-settings > *, #survival-settings > *, #pvp-settings > * { margin-bottom: 25px; }
-        #battle-settings > *:last-child, #survival-settings > *:last-child, #pvp-settings > *:last-child { margin-bottom: 0; }
+        #battle-settings, #survival-settings, #pvp-settings, #profile-settings { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 500px; margin: 0 auto 40px auto; }
+        #battle-settings > *, #survival-settings > *, #pvp-settings > *, #profile-settings > * { margin-bottom: 25px; }
+        #battle-settings > *:last-child, #survival-settings > *:last-child, #pvp-settings > *:last-child, #profile-settings > *:last-child { margin-bottom: 0; }
         
         #mode-tabs-wrap { width: 100%; max-width: 500px; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; margin-bottom: 35px; border-radius: 15px; border: 1px solid #333; background: #1a1a1a; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         #mode-tabs-wrap::-webkit-scrollbar { display: none; }
@@ -143,6 +143,17 @@
         #register-name { width: 100%; padding: 15px; background: #2c2c2c; border: 2px solid #ffd700; border-radius: 10px; color: #fff; font-size: 18px; text-align: center; outline: none; margin-bottom: 20px; }
         #register-btn { width: 100%; padding: 15px; background: linear-gradient(135deg, #ffd700, #ffaa00); color: #000; border: none; border-radius: 10px; font-size: 20px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
         #register-error { color: #ff3b30; margin-top: 10px; display: none; }
+        
+        .profile-info { width: 100%; }
+        #profile-stats { background: #1a1a1a; border-radius: 12px; padding: 15px; width: 100%; }
+        .stat-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #333; }
+        .stat-row:last-child { border-bottom: none; }
+        .leaderboard-table { width: 100%; border-collapse: collapse; }
+        .leaderboard-table th { background: #2a2a2a; padding: 10px; text-align: left; color: #ffd700; }
+        .leaderboard-table td { padding: 10px; border-bottom: 1px solid #333; }
+        #leaderboard { width: 100%; }
+        #change-name-btn { background: #007aff; box-shadow: 0 4px 15px rgba(0,122,255,0.4); }
+        #change-name-btn:hover { background: #0056b3; }
     </style>
 </head>
 <body>
@@ -166,6 +177,7 @@
                 <div class="mode-tab active" id="tab-battle">Королевская битва</div>
                 <div class="mode-tab" id="tab-survival">Выживание</div>
                 <div class="mode-tab" id="tab-pvp">Хоккей</div>
+                <div class="mode-tab" id="tab-profile">Профиль</div>
             </div>
         </div>
 
@@ -275,6 +287,16 @@
                 </div>
             </div>
         </div>
+        <div id="profile-settings" style="display: none;">
+            <div class="profile-info">
+                <div id="profile-avatar" style="font-size: 80px; text-align: center; margin-bottom: 20px;">👤</div>
+                <div id="profile-name" style="font-size: 28px; text-align: center; color: #ffd700; margin-bottom: 10px;">Игрок</div>
+                <div id="profile-title" style="font-size: 20px; text-align: center; color: #aaa; margin-bottom: 20px;"></div>
+                <button id="change-name-btn">Сменить имя</button>
+                <div id="profile-stats" style="margin-top: 20px;"></div>
+                <div id="leaderboard" style="margin-top: 30px;"></div>
+            </div>
+        </div>
         <button id="start-btn">Старт</button>
     </div>
     <div id="game-container">
@@ -337,9 +359,11 @@
         const tabBattle = document.getElementById('tab-battle');
         const tabSurvival = document.getElementById('tab-survival');
         const tabPvp = document.getElementById('tab-pvp');
+        const tabProfile = document.getElementById('tab-profile');
         const battleSettings = document.getElementById('battle-settings');
         const survivalSettings = document.getElementById('survival-settings');
         const pvpSettings = document.getElementById('pvp-settings');
+        const profileSettings = document.getElementById('profile-settings');
         const p3Group = document.getElementById('p3-group');
         const p4Group = document.getElementById('p4-group');
         const recordDisplay = document.getElementById('record-display');
@@ -365,6 +389,12 @@
         const pvpClearBtn = document.getElementById('pvp-clear-btn');
         const pvpCopyBtn = document.getElementById('pvp-copy-btn');
         const pvpCharacterBlock = document.getElementById('pvp-character-block');
+        const profileName = document.getElementById('profile-name');
+        const profileTitle = document.getElementById('profile-title');
+        const profileStats = document.getElementById('profile-stats');
+        const profileAvatar = document.getElementById('profile-avatar');
+        const changeNameBtn = document.getElementById('change-name-btn');
+        const leaderboard = document.getElementById('leaderboard');
         
         const hockeyOfflineSection = document.getElementById('hockey-offline-section');
         const hockeyOnlineSection = document.getElementById('hockey-online-section');
@@ -635,6 +665,10 @@
                 unlocked: newTitles,
                 current: currentTitle
             });
+            
+            if (currentUser) {
+                currentUser.titles = { unlocked: newTitles, current: currentTitle };
+            }
         }
 
         registerBtn.addEventListener('click', async () => {
@@ -654,6 +688,56 @@
 
         registerName.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') registerBtn.click();
+        });
+
+        async function loadProfileData() {
+            if (!currentUser) return;
+            profileName.textContent = currentUser.name;
+            profileTitle.textContent = currentUser.titles?.current || '';
+            profileAvatar.textContent = currentUser.avatar || '👤';
+            
+            const stats = currentUser.stats || {};
+            profileStats.innerHTML = `
+                <div class="stat-row"><span>🏆 Лучшие волны:</span><span>${stats.survival?.bestWaves || 0}</span></div>
+                <div class="stat-row"><span>💀 Лучшие убийства:</span><span>${stats.survival?.bestKills || 0}</span></div>
+                <div class="stat-row"><span>⚔️ Всего убийств:</span><span>${stats.survival?.totalKills || 0}</span></div>
+                <div class="stat-row"><span>🎮 Игр в выживании:</span><span>${stats.survival?.games || 0}</span></div>
+                <div class="stat-row"><span>🏒 Побед в хоккее:</span><span>${stats.hockey?.wins || 0}</span></div>
+                <div class="stat-row"><span>💀 Поражений в хоккее:</span><span>${stats.hockey?.losses || 0}</span></div>
+                <div class="stat-row"><span>🎮 Игр в хоккее:</span><span>${stats.hockey?.games || 0}</span></div>
+            `;
+            
+            loadLeaderboard();
+        }
+
+        async function loadLeaderboard() {
+            if (!db) return;
+            const snapshot = await db.ref('users').orderByChild('stats/survival/bestWaves').limitToLast(10).once('value');
+            const users = snapshot.val();
+            if (!users) return;
+            
+            const sorted = Object.values(users).sort((a, b) => (b.stats?.survival?.bestWaves || 0) - (a.stats?.survival?.bestWaves || 0));
+            
+            leaderboard.innerHTML = '<h3 style="color: #ffd700; margin-bottom: 15px;">🏆 Топ-10 по волнам</h3><table class="leaderboard-table"><tr><th>#</th><th>Имя</th><th>Волны</th></tr>';
+            sorted.forEach((user, index) => {
+                leaderboard.innerHTML += `<tr><td>${index + 1}</td><td>${user.name}</td><td>${user.stats?.survival?.bestWaves || 0}</td></tr>`;
+            });
+            leaderboard.innerHTML += '</table>';
+        }
+
+        changeNameBtn.addEventListener('click', async () => {
+            const newName = prompt('Введи новое имя:', currentUser.name);
+            if (!newName || newName.length < 2) return;
+            
+            if (await isNameTaken(newName)) {
+                alert('Имя занято!');
+                return;
+            }
+            
+            await db.ref('users/' + currentUser.id).update({ name: newName });
+            localStorage.setItem('m8zkal_name', newName);
+            currentUser.name = newName;
+            profileName.textContent = newName;
         });
 
         const iceServers = [
@@ -1531,6 +1615,7 @@
             hud.style.display = 'none'; survivalHud.style.display = 'none'; hockeyHud.style.display = 'none';
             waveMessage = ''; waveMessageTimer = 0; cancelPvp();
             if (currentMode !== 'pvp' && currentMode !== 'offline-hockey') startBtn.style.display = 'block'; else startBtn.style.display = 'none';
+            if (currentMode === 'profile') startBtn.style.display = 'none';
         }
 
         function restartGame() {
@@ -1572,8 +1657,8 @@
 
         function switchMode(mode) {
             currentMode = mode;
-            tabBattle.classList.remove('active'); tabSurvival.classList.remove('active'); tabPvp.classList.remove('active');
-            battleSettings.style.display = 'none'; survivalSettings.style.display = 'none'; pvpSettings.style.display = 'none';
+            tabBattle.classList.remove('active'); tabSurvival.classList.remove('active'); tabPvp.classList.remove('active'); tabProfile.classList.remove('active');
+            battleSettings.style.display = 'none'; survivalSettings.style.display = 'none'; pvpSettings.style.display = 'none'; profileSettings.style.display = 'none';
             if (mode === 'battle') { tabBattle.classList.add('active'); battleSettings.style.display = 'flex'; mobileControls.classList.remove('visible'); invUI.classList.add('hidden'); fireBtn.style.display = 'flex'; dashBtn.classList.add('hidden'); startBtn.style.display = 'block'; }
             else if (mode === 'survival') { tabSurvival.classList.add('active'); survivalSettings.style.display = 'flex'; mobileControls.classList.add('visible'); invUI.classList.remove('hidden'); fireBtn.style.display = 'flex'; dashBtn.classList.add('hidden'); recordDisplay.textContent = '🏆 Рекорд волн: ' + waveRecord; startBtn.style.display = 'block'; }
             else if (mode === 'pvp') { tabPvp.classList.add('active'); pvpSettings.style.display = 'flex'; mobileControls.classList.add('visible'); invUI.classList.add('hidden'); fireBtn.style.display = 'none'; dashBtn.classList.remove('hidden'); startBtn.style.display = 'none'; 
@@ -1583,6 +1668,7 @@
                 hockeyOnlineSection.querySelector('.hockey-section-content').style.display = 'none';
                 cancelPvp();
             }
+            else if (mode === 'profile') { tabProfile.classList.add('active'); profileSettings.style.display = 'flex'; startBtn.style.display = 'none'; loadProfileData(); }
         }
 
         function toggleSection(section) {
@@ -1603,6 +1689,7 @@
         tabBattle.addEventListener('click', () => { switchMode('battle'); });
         tabSurvival.addEventListener('click', () => { switchMode('survival'); });
         tabPvp.addEventListener('click', () => { switchMode('pvp'); });
+        tabProfile.addEventListener('click', () => { switchMode('profile'); });
         pvpPasteBtn.addEventListener('click', async () => { try { const text = await navigator.clipboard.readText(); pvpRoomInput.value = text; } catch (err) { pvpRoomInput.focus(); } });
         pvpClearBtn.addEventListener('click', () => { pvpRoomInput.value = ''; pvpRoomInput.focus(); });
         pvpCopyBtn.addEventListener('click', () => { pvpRoomInput.select(); document.execCommand('copy'); pvpCopyBtn.textContent = '✅'; setTimeout(() => { pvpCopyBtn.textContent = '📃'; }, 2000); });
