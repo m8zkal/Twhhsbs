@@ -40,6 +40,7 @@
         #battle-settings > *, #survival-settings > *, #pvp-settings > *, #profile-settings > * { margin-bottom: 25px; }
         #battle-settings > *:last-child, #survival-settings > *:last-child, #pvp-settings > *:last-child, #profile-settings > *:last-child { margin-bottom: 0; }
         
+        /* Исправленный контейнер вкладок */
         #mode-tabs-wrap { width: 100%; max-width: 500px; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; margin-bottom: 35px; border-radius: 15px; border: 1px solid #333; background: #1a1a1a; box-shadow: 0 4px 15px rgba(0,0,0,0.5); scroll-behavior: smooth; }
         #mode-tabs-wrap::-webkit-scrollbar { display: none; }
         #mode-tabs { display: flex; width: max-content; min-width: 100%; margin: 0; padding: 5px; gap: 5px; }
@@ -177,7 +178,7 @@
         .profile-nav-btn { flex: 1; padding: 10px; font-size: 14px; background: #333; border: 1px solid #555; border-radius: 8px; color: #fff; cursor: pointer; text-align: center; margin: 0; }
         .profile-nav-btn:active { background: #444; }
         
-        /* Стили для раскрывающихся секций профиля */
+        /* Раскрывающиеся секции профиля (как в хоккее) */
         .profile-section { background: #1a1a1a; border-radius: 12px; padding: 10px; margin-bottom: 20px; }
         .profile-section.active { border: 2px solid #ffd700; background: #201a10; }
         .profile-section-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 15px; }
@@ -321,7 +322,7 @@
             </div>
         </div>
 
-        <!-- ПРОФИЛЬ ПО ПРИНЦИПУ ХОККЕЯ -->
+        <!-- ПРОФИЛЬ (Раскрывающиеся секции как в хоккее) -->
         <div id="profile-settings" style="display: none;">
             <div class="profile-info">
                 <div id="profile-avatar" class="image-preview-square" onclick="document.getElementById('avatar-input').click()"><span class="placeholder">👤</span><img id="avatar-preview-img" src="" alt="Preview" style="display:none;"></div>
@@ -880,7 +881,7 @@
             reader.readAsDataURL(file);
         });
 
-        // ================= СЕКЦИИ ПРОФИЛЯ (как в хоккее) =================
+        // ================= СЕКЦИИ ПРОФИЛЯ (раскрывающиеся, как в хоккее) =================
         function toggleProfileSection(sectionId) {
             const section = document.getElementById(sectionId);
             const isActive = section.classList.contains('active');
@@ -1380,8 +1381,8 @@
         
         function spawnBoss() { 
             const x = canvas.width/2 + (Math.random()-0.5)*200, y = canvas.height/2 + (Math.random()-0.5)*200; 
-            const hp = 30 + wave*15; 
-            const speed = 2.0 + wave*0.05; 
+            const hp = 50 + wave*15; 
+            const speed = 2.2 + wave*0.05; 
             enemies.push({ x, y, vx: 0, vy: 0, radius: BOSS_RADIUS * 1.2, hp, maxHp: hp, speed, dead: false, type: 'boss', isBoss: true, dashTimer: 0, shieldTimer: 0 }); 
             playSound('boss'); isWaveInProgress = true; 
             waveMessage = `Босс! Волна ${wave}`; waveMessageTimer = 90; 
@@ -1453,7 +1454,7 @@
             setTimeout(() => { if (countdownActive) { countdown = 0; countdownActive = false; } }, 3000);
         }
 
-        // ================= ХОККЕЙ (Твой старый умный бот) =================
+        // ================= ХОККЕЙ (Оффлайн - умный бот) =================
         function startOfflineHockey() {
             myHockeyPlayer = { x: FIELD_W/2, y: FIELD_H - 120, radius: PLAYER_RADIUS_HOCKEY, color: '#d32f2f', borderColor: '#ff3b30', name: cleanName(document.getElementById('offline-player-name').value) || 'Игрок 1', isMe: true, image: new Image(), imageLoaded: false };
             const img1 = document.getElementById('preview-offline-player')?.dataset.imageData;
@@ -1504,7 +1505,7 @@
                 }
                 if (dashCooldown > 0) dashCooldown--;
                 
-                // Умный бот (как ты просил)
+                // Умный бот из твоего кода
                 if (offlineBot && !offlineBot.dead) {
                     const dxToBall = ball.x - offlineBot.x, dyToBall = ball.y - offlineBot.y; 
                     const distToBall = Math.hypot(dxToBall, dyToBall);
@@ -1618,7 +1619,7 @@
             hockeyRound.textContent = `РАУНД: ${Math.max(scoreMy, scoreOpponent) + 1}`;
         }
 
-        // ================= ГЛАВНЫЙ ЦИКЛ (КБ и Выживание, защита от падения) =================
+        // ================= ГЛАВНЫЙ ЦИКЛ (КБ и Выживание) =================
         function gameLoop() {
             if (!gameActive) return; if (isPaused) { animationFrameId = requestAnimationFrame(gameLoop); return; }
             ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0, 0, canvas.width, canvas.height);
