@@ -40,7 +40,7 @@
         #battle-settings > *, #survival-settings > *, #pvp-settings > *, #profile-settings > *, #friends-settings > *, #leaderboard-settings > *, #suffix-settings > * { margin-bottom: 25px; }
         #battle-settings > *:last-child, #survival-settings > *:last-child, #pvp-settings > *:last-child, #profile-settings > *:last-child, #friends-settings > *:last-child, #leaderboard-settings > *:last-child, #suffix-settings > *:last-child { margin-bottom: 0; }
         
-        #mode-tabs-wrap { width: 100%; max-width: 500px; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; margin-bottom: 35px; border-radius: 15px; border: 1px solid #333; background: #1a1a1a; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        #mode-tabs-wrap { width: 100%; max-width: 500px; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; margin-bottom: 35px; border-radius: 15px; border: 1px solid #333; background: #1a1a1a; box-shadow: 0 4px 15px rgba(0,0,0,0.5); scroll-behavior: smooth; }
         #mode-tabs-wrap::-webkit-scrollbar { display: none; }
         #mode-tabs { display: flex; width: max-content; min-width: 100%; margin: 0; padding: 5px; gap: 5px; }
         .mode-tab { flex: 1 0 auto; padding: 10px 15px; background: transparent; border: none; border-radius: 10px; color: #aaa; font-size: 15px; font-weight: bold; cursor: pointer; text-align: center; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; white-space: nowrap; }
@@ -66,10 +66,15 @@
         .input-btn.paste-btn { color: #4da6ff; }
         .input-btn.copy-btn { color: #ffd700; }
         
-        /* Пункт 3: Квадратный аватар */
-        .image-preview { width: 100px; height: 100px; background: #1a1a1a; border: 2px dashed #444; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin: 10px auto; cursor: pointer; }
-        .image-preview img { max-width: 100%; max-height: 100%; object-fit: cover; display: none; }
-        .image-preview .placeholder { color: #666; font-size: 12px; pointer-events: none; text-align: center; padding: 5px; }
+        /* Широкие панели для режимов (КБ, Выживание, Хоккей) */
+        .image-preview-wide { width: 100%; height: 80px; background: #1a1a1a; border: 2px dashed #444; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-top: 10px; cursor: pointer; }
+        .image-preview-wide img { max-width: 100%; max-height: 100%; object-fit: cover; display: none; }
+        .image-preview-wide .placeholder { color: #666; font-size: 14px; pointer-events: none; }
+        
+        /* Компактный квадратный аватар в профиле */
+        .image-preview-square { width: 100px; height: 100px; background: #1a1a1a; border: 2px dashed #ffd700; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin: 10px auto; cursor: pointer; }
+        .image-preview-square img { max-width: 100%; max-height: 100%; object-fit: cover; display: none; }
+        .image-preview-square .placeholder { color: #666; font-size: 12px; pointer-events: none; text-align: center; padding: 5px; }
         
         button { width: 100%; padding: 16px; background: linear-gradient(135deg, #34c759 0%, #28a745 100%); color: #fff; border: none; border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(52,199,89,0.4); transition: all 0.3s ease; margin: 0 0 15px 0; }
         button:hover { background: linear-gradient(135deg, #2ec051 0%, #23923c 100%); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(52,199,89,0.6); }
@@ -161,7 +166,7 @@
         .friend-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #2a2a2a; border-radius: 10px; border: 1px solid #444; }
         .friend-name { font-size: 16px; font-weight: bold; }
         .friend-actions button { width: auto; padding: 8px 12px; font-size: 12px; margin: 0; }
-        #my-id-display { background: #2a2a2a; padding: 10px; border-radius: 8px; text-align: center; font-size: 20px; color: #ffd700; margin-bottom: 15px; }
+        #my-id-display { background: #2a2a2a; padding: 10px; border-radius: 8px; text-align: center; font-size: 20px; color: #ffd700; margin-bottom: 15px; user-select: all; }
         .achievements-list { width: 100%; display: flex; flex-direction: column; gap: 10px; }
         .achievement-item { background: #2a2a2a; padding: 12px; border-radius: 10px; border: 1px solid #444; }
         .achievement-item.locked { opacity: 0.5; }
@@ -171,7 +176,6 @@
         .suffix-btn { width: auto; flex: 1; min-width: 70px; padding: 10px; font-size: 18px; }
         .suffix-btn.selected { border: 2px solid #ffd700; background: #333; }
         
-        /* Стили для кнопок внутри профиля (Пункт 1) */
         .profile-nav-btn { flex: 1; padding: 10px; font-size: 14px; background: #333; border: 1px solid #555; border-radius: 8px; color: #fff; cursor: pointer; text-align: center; margin: 0; }
         .profile-nav-btn:active { background: #444; }
     </style>
@@ -197,7 +201,6 @@
                 <div class="mode-tab" id="tab-survival">Выживание</div>
                 <div class="mode-tab" id="tab-pvp">Хоккей</div>
                 <div class="mode-tab" id="tab-profile">Профиль</div>
-                <!-- Пункт 1: Убраны отдельные вкладки Друзей, Топов, Наград и Статистики -->
             </div>
         </div>
 
@@ -206,43 +209,45 @@
                 <label for="p1-name">Имя Игрока 1</label>
                 <input type="text" id="p1-name" value="Игрок 1">
                 <label style="margin-top:15px; margin-bottom:10px;">Загрузи фото</label>
-                <div class="image-preview" id="preview1" onclick="document.getElementById('file1').click()"><span class="placeholder">📱 Фото</span><img id="preview1-img" src="" alt="Preview" style="display:none;"></div>
+                <div class="image-preview-wide" id="preview1" onclick="document.getElementById('file1').click()"><span class="placeholder">📱 Нажми, чтобы выбрать фото</span><img id="preview1-img" src="" alt="Preview" style="display:none;"></div>
                 <input type="file" id="file1" accept="image/*" style="display:none;" onchange="loadPhoto('file1', 'preview1', 'preview1-img')">
             </div>
             <div class="player-input-group p2-border">
                 <label for="p2-name">Имя Игрока 2</label>
                 <input type="text" id="p2-name" value="Игрок 2">
                 <label style="margin-top:15px; margin-bottom:10px;">Загрузи фото</label>
-                <div class="image-preview" id="preview2" onclick="document.getElementById('file2').click()"><span class="placeholder">📱 Фото</span><img id="preview2-img" src="" alt="Preview" style="display:none;"></div>
+                <div class="image-preview-wide" id="preview2" onclick="document.getElementById('file2').click()"><span class="placeholder">📱 Нажми, чтобы выбрать фото</span><img id="preview2-img" src="" alt="Preview" style="display:none;"></div>
                 <input type="file" id="file2" accept="image/*" style="display:none;" onchange="loadPhoto('file2', 'preview2', 'preview2-img')">
             </div>
             <div class="player-input-group p3-border" id="p3-group">
                 <label for="p3-name">Имя Игрока 3</label>
                 <input type="text" id="p3-name" value="Игрок 3">
                 <label style="margin-top:15px; margin-bottom:10px;">Загрузи фото</label>
-                <div class="image-preview" id="preview3" onclick="document.getElementById('file3').click()"><span class="placeholder">📱 Фото</span><img id="preview3-img" src="" alt="Preview" style="display:none;"></div>
+                <div class="image-preview-wide" id="preview3" onclick="document.getElementById('file3').click()"><span class="placeholder">📱 Нажми, чтобы выбрать фото</span><img id="preview3-img" src="" alt="Preview" style="display:none;"></div>
                 <input type="file" id="file3" accept="image/*" style="display:none;" onchange="loadPhoto('file3', 'preview3', 'preview3-img')">
             </div>
             <div class="player-input-group p4-border" id="p4-group">
                 <label for="p4-name">Имя Игрока 4</label>
                 <input type="text" id="p4-name" value="Игрок 4">
                 <label style="margin-top:15px; margin-bottom:10px;">Загрузи фото</label>
-                <div class="image-preview" id="preview4" onclick="document.getElementById('file4').click()"><span class="placeholder">📱 Фото</span><img id="preview4-img" src="" alt="Preview" style="display:none;"></div>
+                <div class="image-preview-wide" id="preview4" onclick="document.getElementById('file4').click()"><span class="placeholder">📱 Нажми, чтобы выбрать фото</span><img id="preview4-img" src="" alt="Preview" style="display:none;"></div>
                 <input type="file" id="file4" accept="image/*" style="display:none;" onchange="loadPhoto('file4', 'preview4', 'preview4-img')">
             </div>
             <button id="add-player-btn">Добавить игрока</button>
             <button id="remove-player-btn">Убрать игрока</button>
         </div>
+
         <div id="survival-settings" style="display: none;">
             <div id="record-display">🏆 Рекорд волн: 0</div>
             <div class="player-input-group p1-border">
                 <label for="survival-name">Имя Игрока</label>
                 <input type="text" id="survival-name" value="Игрок 1">
                 <label style="margin-top:15px; margin-bottom:10px;">Загрузи фото</label>
-                <div class="image-preview" id="preview-survival" onclick="document.getElementById('file-survival').click()"><span class="placeholder">📱 Фото</span><img id="preview-survival-img" src="" alt="Preview" style="display:none;"></div>
+                <div class="image-preview-wide" id="preview-survival" onclick="document.getElementById('file-survival').click()"><span class="placeholder">📱 Нажми, чтобы выбрать фото</span><img id="preview-survival-img" src="" alt="Preview" style="display:none;"></div>
                 <input type="file" id="file-survival" accept="image/*" style="display:none;" onchange="loadPhoto('file-survival', 'preview-survival', 'preview-survival-img')">
             </div>
         </div>
+
         <div id="pvp-settings" style="display: none;">
             <div class="hockey-sections-container">
                 <div class="hockey-section" id="hockey-offline-section">
@@ -256,14 +261,14 @@
                                 <label for="offline-player-name">Имя игрока 1</label>
                                 <input type="text" id="offline-player-name" value="Игрок 1">
                                 <label style="margin-top:15px; margin-bottom:10px;">Загрузи фото</label>
-                                <div class="image-preview" id="preview-offline-player" onclick="document.getElementById('file-offline-player').click()"><span class="placeholder">📱 Фото</span><img id="preview-offline-player-img" src="" alt="Preview" style="display:none;"></div>
+                                <div class="image-preview-wide" id="preview-offline-player" onclick="document.getElementById('file-offline-player').click()"><span class="placeholder">📱 Нажми, чтобы выбрать фото</span><img id="preview-offline-player-img" src="" alt="Preview" style="display:none;"></div>
                                 <input type="file" id="file-offline-player" accept="image/*" style="display:none;" onchange="loadPhoto('file-offline-player', 'preview-offline-player', 'preview-offline-player-img')">
                             </div>
                             <div class="player-input-group p2-border">
                                 <label for="offline-bot-name">Имя игрока 2</label>
                                 <input type="text" id="offline-bot-name" value="Игрок 2">
                                 <label style="margin-top:15px; margin-bottom:10px;">Загрузи фото</label>
-                                <div class="image-preview" id="preview-offline-bot" onclick="document.getElementById('file-offline-bot').click()"><span class="placeholder">📱 Фото</span><img id="preview-offline-bot-img" src="" alt="Preview" style="display:none;"></div>
+                                <div class="image-preview-wide" id="preview-offline-bot" onclick="document.getElementById('file-offline-bot').click()"><span class="placeholder">📱 Нажми, чтобы выбрать фото</span><img id="preview-offline-bot-img" src="" alt="Preview" style="display:none;"></div>
                                 <input type="file" id="file-offline-bot" accept="image/*" style="display:none;" onchange="loadPhoto('file-offline-bot', 'preview-offline-bot', 'preview-offline-bot-img')">
                             </div>
                             <button id="offline-start-btn">Старт</button>
@@ -298,7 +303,7 @@
                                 <label for="pvp-name">Имя игрока</label>
                                 <input type="text" id="pvp-name" value="Игрок">
                                 <label style="margin-top:15px; margin-bottom:10px;">Загрузи фото</label>
-                                <div class="image-preview" id="preview-pvp" onclick="document.getElementById('file-pvp').click()"><span class="placeholder">📱 Фото</span><img id="preview-pvp-img" src="" alt="Preview" style="display:none;"></div>
+                                <div class="image-preview-wide" id="preview-pvp" onclick="document.getElementById('file-pvp').click()"><span class="placeholder">📱 Нажми, чтобы выбрать фото</span><img id="preview-pvp-img" src="" alt="Preview" style="display:none;"></div>
                                 <input type="file" id="file-pvp" accept="image/*" style="display:none;" onchange="loadPhoto('file-pvp', 'preview-pvp', 'preview-pvp-img')">
                             </div>
                             <button id="pvp-ready-btn">Готово</button>
@@ -308,26 +313,23 @@
             </div>
         </div>
 
-        <!-- Пункт 1, 2, 3: Обновленный профиль -->
+        <!-- Профиль: кнопка Сменить имя выше остальных -->
         <div id="profile-settings" style="display: none;">
             <div class="profile-info">
-                <!-- Пункт 3: Квадратный аватар -->
-                <div id="profile-avatar" style="width: 100px; height: 100px; border: 3px solid #ffd700; border-radius: 8px; background: #222; margin: 0 auto 20px auto; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 50px; cursor: pointer;" onclick="document.getElementById('avatar-input').click()">👤</div>
+                <div id="profile-avatar" class="image-preview-square" onclick="document.getElementById('avatar-input').click()"><span class="placeholder">👤</span><img id="avatar-preview-img" src="" alt="Preview" style="display:none;"></div>
                 <input type="file" id="avatar-input" accept="image/*" style="display: none;">
                 <div id="profile-name" style="font-size: 28px; text-align: center; color: #ffd700; margin-bottom: 5px;">Игрок</div>
                 <div id="profile-title" style="font-size: 20px; text-align: center; color: #aaa; margin-bottom: 20px;"></div>
-                <div id="my-id-display" style="background: #222; padding: 10px; border-radius: 8px; text-align: center; font-size: 18px; color: #fff; margin-bottom: 15px; user-select: all;"></div>
+                <div id="my-id-display" style="background: #222; padding: 10px; border-radius: 8px; text-align: center; font-size: 18px; color: #fff; margin-bottom: 15px;"></div>
                 
-                <!-- Пункт 1: Кнопки внутри профиля -->
-                <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;">
+                <button id="change-name-btn">Сменить имя</button>
+                
+                <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 25px; margin-bottom: 20px;">
                     <div class="profile-nav-btn" onclick="switchMode('friends')">👥 Друзья</div>
                     <div class="profile-nav-btn" onclick="switchMode('leaderboards')">🏆 Топы</div>
                     <div class="profile-nav-btn" onclick="switchMode('suffix')">🏅 Награды</div>
                     <div class="profile-nav-btn" onclick="toggleProfileStats()">📊 Статистика</div>
                 </div>
-
-                <!-- Пункт 2: Кнопка смены имени всегда активна -->
-                <button id="change-name-btn">Сменить имя</button>
                 
                 <div id="profile-stats" style="margin-top: 20px; display: none;"></div>
             </div>
@@ -353,7 +355,6 @@
         <div id="suffix-settings" style="display: none;">
             <h2 style="color: #ffd700; margin-bottom: 20px; text-align: center;">🏅 Награды</h2>
             <div id="achievements-list" class="achievements-list"></div>
-            <!-- Пункт 8: Заменили "Суффикс" на "Статус" -->
             <h3 style="color: #fff; margin-top: 20px; margin-bottom: 10px;">Выбери свой Статус:</h3>
             <div id="suffix-picker" class="suffix-picker"></div>
             <button id="clear-suffix-btn" style="background: #555;">Убрать статус</button>
@@ -361,6 +362,7 @@
 
         <button id="start-btn">Старт</button>
     </div>
+
     <div id="game-container">
         <div class="top-hud">
             <div id="hud"></div>
@@ -383,6 +385,7 @@
         </div>
         <button id="menu-btn">Меню</button>
     </div>
+
     <div id="screen-victory">
         <div id="victory-cup">🏆</div>
         <div id="victory-text">Победитель</div>
@@ -393,13 +396,13 @@
     
     <script>
     (function() {
-        console.log('Скрипт загружен');
         let db = null;
         try {
             const firebaseConfig = { apiKey: "AIzaSyAMPOydCdcTT5BhOALD5xf7AlIYlcYAPuM", authDomain: "project-14e2d5d5-c6f1-46a5-a7f.firebaseapp.com", databaseURL: "https://project-14e2d5d5-c6f1-46a5-a7f-default-rtdb.europe-west1.firebasedatabase.app", projectId: "project-14e2d5d5-c6f1-46a5-a7f", storageBucket: "project-14e2d5d5-c6f1-46a5-a7f.firebasestorage.app", messagingSenderId: "655633526126", appId: "1:655633526126:web:835086275cdfafd77f657f", measurementId: "G-MWB6KHF5VQ" };
-            if (typeof firebase !== 'undefined') { firebase.initializeApp(firebaseConfig); db = firebase.database(); } else { console.warn('Firebase не загружен'); }
+            if (typeof firebase !== 'undefined') { firebase.initializeApp(firebaseConfig); db = firebase.database(); }
         } catch (e) { console.warn('Ошибка Firebase:', e.message); }
 
+        // ================= ЭЛЕМЕНТЫ UI =================
         const menu = document.getElementById('menu');
         const gameContainer = document.getElementById('game-container');
         const screenVictory = document.getElementById('screen-victory');
@@ -422,6 +425,7 @@
         const tabSurvival = document.getElementById('tab-survival');
         const tabPvp = document.getElementById('tab-pvp');
         const tabProfile = document.getElementById('tab-profile');
+        const modeTabsWrap = document.getElementById('mode-tabs-wrap');
         const battleSettings = document.getElementById('battle-settings');
         const survivalSettings = document.getElementById('survival-settings');
         const pvpSettings = document.getElementById('pvp-settings');
@@ -454,14 +458,13 @@
         const pvpClearBtn = document.getElementById('pvp-clear-btn');
         const pvpCopyBtn = document.getElementById('pvp-copy-btn');
         const pvpCharacterBlock = document.getElementById('pvp-character-block');
-        
         const profileName = document.getElementById('profile-name');
         const profileTitle = document.getElementById('profile-title');
         const profileAvatar = document.getElementById('profile-avatar');
+        const avatarPreviewImg = document.getElementById('avatar-preview-img');
         const myIdDisplay = document.getElementById('my-id-display');
         const profileStats = document.getElementById('profile-stats');
         const changeNameBtn = document.getElementById('change-name-btn');
-        const changeAvatarBtn = document.getElementById('avatar-input');
         const avatarInput = document.getElementById('avatar-input');
         const leaderboard = document.getElementById('leaderboard');
         const friendsList = document.getElementById('friends-list');
@@ -473,13 +476,13 @@
         const achievementsList = document.getElementById('achievements-list');
         const suffixPicker = document.getElementById('suffix-picker');
         const clearSuffixBtn = document.getElementById('clear-suffix-btn');
-        
         const hockeyOfflineSection = document.getElementById('hockey-offline-section');
         const hockeyOnlineSection = document.getElementById('hockey-online-section');
         const hockeyOfflineHeader = document.getElementById('hockey-offline-header');
         const hockeyOnlineHeader = document.getElementById('hockey-online-header');
         const offlineStartBtn = document.getElementById('offline-start-btn');
 
+        // ================= ПЕРЕМЕННЫЕ =================
         let animationFrameId = null;
         let gameActive = false;
         let gameStarted = false;
@@ -576,18 +579,16 @@
         const registerError = document.getElementById('register-error');
         let countKillsThisGame = 0;
 
-        // Пункт 16, 17: Крутые названия наград, убраны старые
+        // ================= ДОСТИЖЕНИЯ (пункты 16, 17, 18) =================
         const achievementsDefs = [
             { id: 'kills_50', name: '🔥 Уничтожитель', desc: 'Убей 50 врагов за одну игру', icon: '🔥', check: (s) => s.totalKills >= 50 },
             { id: 'kills_100', name: '💀 Каратель', desc: 'Убей 100 врагов за одну игру', icon: '💀', check: (s) => s.totalKills >= 100 },
             { id: 'waves_10', name: '🌊 Шторм', desc: 'Пройди 10 волн', icon: '🌊', check: (s) => s.bestWaves >= 10 },
             { id: 'waves_20', name: '🐉 Легенда', desc: 'Пройди 20 волн', icon: '🐉', check: (s) => s.bestWaves >= 20 },
             { id: 'hockey_win_1', name: '🥅 Первый гол', desc: 'Выиграй матч в хоккее', icon: '🥅', check: (s) => s.hockeyWins >= 1 },
-            // Пункт 18: Хоккейный бог теперь за 100 матчей
             { id: 'hockey_win_100', name: '🏆 Хоккейный бог', desc: 'Выиграй 100 матчей в хоккее', icon: '🏆', check: (s) => s.hockeyWins >= 100 }
         ];
 
-        // Пункт 9: Убрана звезда, заменена на статусы
         const suffixDefs = ['🔥', '☠️', '💀', '⚔️', '🏒', '🏆'];
         const suffixUnlockConditions = {
             '🔥': () => true, 
@@ -598,12 +599,11 @@
             '🏆': (s) => s.hockeyWins >= 10
         };
 
+        // ================= ПРОФИЛЬ И АВТОРИЗАЦИЯ =================
         function generateUserId() {
             const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
             let id = '';
-            for (let i = 0; i < 8; i++) {
-                id += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
+            for (let i = 0; i < 8; i++) id += chars.charAt(Math.floor(Math.random() * chars.length));
             return id;
         }
 
@@ -614,32 +614,21 @@
         }
 
         async function registerUser(name) {
-            if (!db) {
-                alert('Firebase недоступен. Проверьте интернет.');
-                return null;
-            }
-            if (await isNameTaken(name)) {
-                registerError.style.display = 'block';
-                return null;
-            }
+            if (!db) { alert('Firebase недоступен. Проверьте интернет.'); return null; }
+            if (await isNameTaken(name)) { registerError.style.display = 'block'; return null; }
             
             const userId = generateUserId();
             const userData = {
-                name: name,
-                avatar: null,
+                name, avatar: null,
                 createdAt: firebase.database.ServerValue.TIMESTAMP,
                 lastLogin: firebase.database.ServerValue.TIMESTAMP,
-                suffix: '🔥',
-                friends: {},
+                suffix: '🔥', friends: {},
                 stats: {
                     survival: { bestWaves: 0, bestKills: 0, totalKills: 0, games: 0 },
                     hockey: { wins: 0, losses: 0, games: 0 }
                 },
-                achievements: {
-                    k_50: false, k_100: false, w_10: false, w_20: false, h_1: false, h_100: false
-                }
+                achievements: { k_50: false, k_100: false, w_10: false, w_20: false, h_1: false, h_100: false }
             };
-            
             await db.ref('users/' + userId).set(userData);
             localStorage.setItem('m8zkal_userId', userId);
             localStorage.setItem('m8zkal_name', name);
@@ -659,11 +648,9 @@
                 if (profile) {
                     currentUser = { id: userId, ...profile };
                     renderProfile();
+                    autoFillInputs();
                     return true;
-                } else {
-                    localStorage.removeItem('m8zkal_userId');
-                    localStorage.removeItem('m8zkal_name');
-                }
+                } else { localStorage.removeItem('m8zkal_userId'); localStorage.removeItem('m8zkal_name'); }
             }
             if (!currentUser) registrationModal.style.display = 'flex';
             return false;
@@ -682,8 +669,14 @@
             profileName.textContent = currentUser.name;
             profileTitle.textContent = currentUser.suffix || '';
             myIdDisplay.textContent = 'Ваш ID: ' + currentUser.id;
-            profileAvatar.textContent = currentUser.avatar ? '🖼️' : '👤';
-            if (currentUser.avatar) profileAvatar.innerHTML = `<img src="${currentUser.avatar}" style="width:100%; height:100%; object-fit:cover;">`;
+            if (currentUser.avatar) {
+                avatarPreviewImg.src = currentUser.avatar;
+                avatarPreviewImg.style.display = 'block';
+                profileAvatar.querySelector('.placeholder').style.display = 'none';
+            } else {
+                avatarPreviewImg.style.display = 'none';
+                profileAvatar.querySelector('.placeholder').style.display = 'block';
+            }
             
             const stats = currentUser.stats || {};
             profileStats.innerHTML = `
@@ -698,6 +691,43 @@
                 <div class="stat-row"><span>🎮 Игр сыграно:</span><span>${stats.hockey?.games || 0}</span></div>
             `;
             renderAchievements();
+        }
+
+        // Пункт про автозаполнение: данные профиля в Выживание и Хоккей
+        function autoFillInputs() {
+            if (!currentUser) return;
+            const name = currentUser.name;
+            const avatar = currentUser.avatar;
+
+            // Выживание (Только Игрок 1)
+            document.getElementById('survival-name').value = name;
+            if (avatar) {
+                const img = document.getElementById('preview-survival-img');
+                const cont = document.getElementById('preview-survival');
+                img.src = avatar; img.style.display = 'block';
+                cont.querySelector('.placeholder').style.display = 'none';
+                cont.dataset.imageData = avatar;
+            }
+
+            // Хоккей Оффлайн (Только Игрок 1)
+            document.getElementById('offline-player-name').value = name;
+            if (avatar) {
+                const img = document.getElementById('preview-offline-player-img');
+                const cont = document.getElementById('preview-offline-player');
+                img.src = avatar; img.style.display = 'block';
+                cont.querySelector('.placeholder').style.display = 'none';
+                cont.dataset.imageData = avatar;
+            }
+
+            // Хоккей Онлайн (Только Игрок)
+            document.getElementById('pvp-name').value = name;
+            if (avatar) {
+                const img = document.getElementById('preview-pvp-img');
+                const cont = document.getElementById('preview-pvp');
+                img.src = avatar; img.style.display = 'block';
+                cont.querySelector('.placeholder').style.display = 'none';
+                cont.dataset.imageData = avatar;
+            }
         }
 
         async function saveSurvivalStats(waves, kills) {
@@ -733,33 +763,25 @@
 
         async function checkAchievements(survivalStats, hockeyStats) {
             if (!db || !currentUser) return;
-            
-            const userId = currentUser.id;
             const combinedStats = {
                 totalKills: survivalStats ? survivalStats.totalKills : (currentUser.stats?.survival?.totalKills || 0),
                 bestWaves: survivalStats ? survivalStats.bestWaves : (currentUser.stats?.survival?.bestWaves || 0),
                 hockeyWins: hockeyStats ? hockeyStats.wins : (currentUser.stats?.hockey?.wins || 0)
             };
-            
-            const achievementsSnapshot = await db.ref('users/' + userId + '/achievements').once('value');
-            const userAchs = achievementsSnapshot.val() || {};
-            const updatedAchs = { ...userAchs };
-            
+            const updatedAchs = { ...(currentUser.achievements || {}) };
             if (combinedStats.totalKills >= 50) updatedAchs.k_50 = true;
             if (combinedStats.totalKills >= 100) updatedAchs.k_100 = true;
             if (combinedStats.bestWaves >= 10) updatedAchs.w_10 = true;
             if (combinedStats.bestWaves >= 20) updatedAchs.w_20 = true;
             if (combinedStats.hockeyWins >= 1) updatedAchs.h_1 = true;
             if (combinedStats.hockeyWins >= 100) updatedAchs.h_100 = true;
-            
-            await db.ref('users/' + userId + '/achievements').update(updatedAchs);
+            await db.ref('users/' + currentUser.id + '/achievements').update(updatedAchs);
             currentUser.achievements = updatedAchs;
             renderProfile();
         }
 
         function renderAchievements() {
             if (!currentUser) return;
-            const userAchs = currentUser.achievements || {};
             const stats = currentUser.stats || {};
             const combinedStats = {
                 totalKills: stats.survival?.totalKills || 0,
@@ -770,13 +792,7 @@
             let html = '';
             for (const def of achievementsDefs) {
                 const unlocked = def.check(combinedStats);
-                html += `
-                    <div class="achievement-item ${unlocked ? '' : 'locked'}">
-                        <h4>${def.icon} ${def.name}</h4>
-                        <p>${def.desc}</p>
-                        <p style="color:${unlocked ? '#34c759' : '#555'};">${unlocked ? '✓ Получено' : '🔒 Заблокировано'}</p>
-                    </div>
-                `;
+                html += `<div class="achievement-item ${unlocked ? '' : 'locked'}"><h4>${def.icon} ${def.name}</h4><p>${def.desc}</p><p style="color:${unlocked ? '#34c759' : '#555'};">${unlocked ? '✓ Получено' : '🔒 Заблокировано'}</p></div>`;
             }
             achievementsList.innerHTML = html;
             
@@ -784,27 +800,15 @@
             for (const suffix of suffixDefs) {
                 const unlocked = suffixUnlockConditions[suffix](combinedStats);
                 const selected = currentUser.suffix === suffix;
-                if (unlocked) {
-                    suffixHtml += `<div class="suffix-btn ${selected ? 'selected' : ''}" onclick="selectSuffix('${suffix}')">${suffix}</div>`;
-                }
+                if (unlocked) suffixHtml += `<div class="suffix-btn ${selected ? 'selected' : ''}" onclick="selectSuffix('${suffix}')">${suffix}</div>`;
             }
             suffixPicker.innerHTML = suffixHtml;
         }
 
         window.selectSuffix = async function(suffix) {
             if (!currentUser || !db) return;
-            const stats = currentUser.stats || {};
-            const combinedStats = {
-                totalKills: stats.survival?.totalKills || 0,
-                bestWaves: stats.survival?.bestWaves || 0,
-                hockeyWins: stats.hockey?.wins || 0
-            };
-            
-            if (!suffixUnlockConditions[suffix](combinedStats)) {
-                alert('Этот статус ещё не разблокирован!');
-                return;
-            }
-            
+            const combinedStats = { totalKills: currentUser.stats?.survival?.totalKills || 0, bestWaves: currentUser.stats?.survival?.bestWaves || 0, hockeyWins: currentUser.stats?.hockey?.wins || 0 };
+            if (!suffixUnlockConditions[suffix](combinedStats)) { alert('Этот статус ещё не разблокирован!'); return; }
             await db.ref('users/' + currentUser.id + '/suffix').set(suffix);
             currentUser.suffix = suffix;
             renderProfile();
@@ -819,37 +823,29 @@
 
         registerBtn.addEventListener('click', async () => {
             const name = registerName.value.trim();
-            if (name.length < 2) {
-                alert('Имя должно быть минимум 2 символа');
-                return;
-            }
+            if (name.length < 2) { alert('Имя должно быть минимум 2 символа'); return; }
             const user = await registerUser(name);
-            if (user) {
-                currentUser = user;
-                registrationModal.style.display = 'none';
-                renderProfile();
-            }
+            if (user) { currentUser = user; registrationModal.style.display = 'none'; renderProfile(); autoFillInputs(); }
         });
 
-        registerName.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') registerBtn.click();
-        });
+        registerName.addEventListener('keydown', (e) => { if (e.key === 'Enter') registerBtn.click(); });
 
-        // Пункт 2: Кнопка смены имени всегда активна
+        // Пункт 2: Кнопка смены имени всегда активна + запрет на занятые имена
         changeNameBtn.addEventListener('click', async () => {
+            if (!currentUser) return;
             const newName = prompt('Введи новое имя:', currentUser.name);
             if (!newName || newName.length < 2) return;
-            if (await isNameTaken(newName)) {
-                alert('Имя занято!');
-                return;
-            }
-            await db.ref('users/' + currentUser.id).update({ name: newName });
-            localStorage.setItem('m8zkal_name', newName);
-            currentUser.name = newName;
-            profileName.textContent = newName;
+            if (newName === currentUser.name) return;
+            
+            const cleanNewName = newName.replace(/\s+/g, ' ').trim();
+            if (await isNameTaken(cleanNewName)) { alert('Имя занято!'); return; }
+            
+            await db.ref('users/' + currentUser.id).update({ name: cleanNewName });
+            currentUser.name = cleanNewName;
+            profileName.textContent = cleanNewName;
+            autoFillInputs();
         });
 
-        // Пункт 3: Загрузка фото (квадратное окно)
         avatarInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
@@ -859,17 +855,15 @@
                 await db.ref('users/' + currentUser.id + '/avatar').set(dataUrl);
                 currentUser.avatar = dataUrl;
                 renderProfile();
+                autoFillInputs();
                 alert('Аватар обновлен!');
             };
             reader.readAsDataURL(file);
         });
 
         function toggleProfileStats() {
-            if (profileStats.style.display === 'none') {
-                profileStats.style.display = 'block';
-            } else {
-                profileStats.style.display = 'none';
-            }
+            if (profileStats.style.display === 'none') profileStats.style.display = 'block';
+            else profileStats.style.display = 'none';
         }
 
         function renderFriends() {
@@ -877,36 +871,20 @@
             friendsList.innerHTML = '';
             const friends = currentUser.friends || {};
             const friendIds = Object.keys(friends);
-            
-            if (friendIds.length === 0) {
-                friendsList.innerHTML = '<p style="text-align:center; color:#666; padding:20px;">У тебя пока нет друзей. Добавь их по ID!</p>';
-                return;
-            }
-            
+            if (friendIds.length === 0) { friendsList.innerHTML = '<p style="text-align:center; color:#666; padding:20px;">У тебя пока нет друзей. Добавь их по ID!</p>'; return; }
             friendIds.forEach(friendId => {
                 const friendDiv = document.createElement('div');
                 friendDiv.className = 'friend-item';
-                friendDiv.innerHTML = `
-                    <div class="friend-name">${friendId}</div>
-                    <div class="friend-actions">
-                        <button style="background: linear-gradient(135deg, #34c759, #28a745);" onclick="inviteFriend('${friendId}')">Пригласить</button>
-                        <button style="background: #ff3b30;" onclick="removeFriend('${friendId}')">Удалить</button>
-                    </div>
-                `;
+                friendDiv.innerHTML = `<div class="friend-name">${friendId}</div><div class="friend-actions"><button style="background: #34c759;" onclick="inviteFriend('${friendId}')">Пригласить</button><button style="background: #ff3b30;" onclick="removeFriend('${friendId}')">Удалить</button></div>`;
                 friendsList.appendChild(friendDiv);
             });
         }
 
         window.inviteFriend = async function(friendId) {
-            if (!db || !currentUser) {
-                alert('Сначала создай профиль!');
-                return;
-            }
+            if (!db || !currentUser) { alert('Сначала создай профиль!'); return; }
             const newFriend = { id: friendId, added: firebase.database.ServerValue.TIMESTAMP };
-            
             await db.ref('users/' + currentUser.id + '/friends/' + friendId).set(newFriend);
             await db.ref('users/' + friendId + '/friends/' + currentUser.id).set({ id: currentUser.id, added: firebase.database.ServerValue.TIMESTAMP });
-            
             if (!currentUser.friends) currentUser.friends = {};
             currentUser.friends[friendId] = newFriend;
             renderFriends();
@@ -916,7 +894,6 @@
             if (!db || !currentUser) return;
             await db.ref('users/' + currentUser.id + '/friends/' + friendId).remove();
             await db.ref('users/' + friendId + '/friends/' + currentUser.id).remove();
-            
             if (currentUser.friends) delete currentUser.friends[friendId];
             renderFriends();
         };
@@ -929,17 +906,9 @@
         });
 
         inviteFriendBtn.addEventListener('click', async () => {
-            if (!currentUser) {
-                alert('Сначала зарегистрируйся!');
-                return;
-            }
+            if (!currentUser) { alert('Сначала зарегистрируйся!'); return; }
             const friendIds = Object.keys(currentUser.friends || {});
-            if (friendIds.length === 0) {
-                alert('Сначала добавь друга!');
-                return;
-            }
-            
-            // Создаем матч и кидаем код другу
+            if (friendIds.length === 0) { alert('Сначала добавь друга!'); return; }
             switchMode('pvp');
             createPvpRoom();
             setTimeout(() => {
@@ -949,7 +918,7 @@
             }, 500);
         });
 
-        // Пункт 13, 14, 15: Обновленные Топы
+        // ================= ТОПЫ (пункты 13, 14, 15) =================
         function renderLeaderboard() {
             if (!db) return;
             leaderboard.innerHTML = '<p style="text-align:center; color:#666;">Загрузка...<p>';
@@ -957,10 +926,7 @@
             if (currentLeaderboardMode === 'survival') {
                 db.ref('users').orderByChild('stats/survival/bestWaves').limitToLast(10).once('value', (snapshot) => {
                     const users = snapshot.val();
-                    if (!users) {
-                        leaderboard.innerHTML = '<p style="text-align:center; color:#666;">Пока нет статистики.</p>';
-                        return;
-                    }
+                    if (!users) { leaderboard.innerHTML = '<p style="text-align:center; color:#666;">Пока нет статистики.</p>'; return; }
                     
                     const sorted = Object.values(users).sort((a, b) => (b.stats?.survival?.bestWaves || 0) - (a.stats?.survival?.bestWaves || 0));
                     let html = '<h3 style="color: #ffd700; margin-bottom: 15px;">🛡️ Топ-10 Выживания</h3><table class="leaderboard-table"><tr><th>#</th><th>Имя</th><th>Волны</th></tr>';
@@ -976,10 +942,7 @@
             } else {
                 db.ref('users').orderByChild('stats/hockey/wins').limitToLast(10).once('value', (snapshot) => {
                     const users = snapshot.val();
-                    if (!users) {
-                        leaderboard.innerHTML = '<p style="text-align:center; color:#666;">Пока нет статистики.</p>';
-                        return;
-                    }
+                    if (!users) { leaderboard.innerHTML = '<p style="text-align:center; color:#666;">Пока нет статистики.</p>'; return; }
                     
                     const sorted = Object.values(users).sort((a, b) => (b.stats?.hockey?.wins || 0) - (a.stats?.hockey?.wins || 0));
                     let html = '<h3 style="color: #ffd700; margin-bottom: 15px;">🏒 Топ-10 Хоккея</h3><table class="leaderboard-table"><tr><th>#</th><th>Имя</th><th>Победы</th></tr>';
@@ -1015,7 +978,8 @@
             { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' }
         ];
 
-        // Пункт 3, 4: Квадратный аватар и обработка пробелов в нике
+        // ================= ЗАГРУЗКА ФОТО =================
+        // Для широких панелей (игры)
         window.loadPhoto = function(inputId, previewId, imgId) {
             const fileInput = document.getElementById(inputId);
             const img = document.getElementById(imgId);
@@ -1038,7 +1002,6 @@
                     ctx2.drawImage(imgObj, 0, 0, width, height);
                     const compressedUrl = c.toDataURL('image/jpeg', 0.7);
                     img.src = compressedUrl; img.style.display = 'block';
-                    img.style.borderRadius = '0'; // Пункт 3: Квадратное окно
                     if (placeholder) placeholder.style.display = 'none';
                     preview.dataset.imageData = compressedUrl;
                 };
@@ -1047,11 +1010,9 @@
             reader.readAsDataURL(file);
         };
 
-        // Пункт 4: Обработка пробелов (лишние пробелы удаляются)
-        function cleanName(name) {
-            return name.replace(/\s+/g, ' ').trim();
-        }
+        function cleanName(name) { return name.replace(/\s+/g, ' ').trim(); }
 
+        // ================= УПРАВЛЕНИЕ =================
         document.addEventListener('keydown', (e) => {
             if (e.key in keys) { keys[e.key] = true; e.preventDefault(); }
             if (e.key === ' ' || e.key === 'Space') {
@@ -1135,7 +1096,7 @@
             const dx = target.x - player.x, dy = target.y - player.y;
             const len = Math.hypot(dx, dy) || 1;
             const vx = (dx / len) * BULLET_SPEED, vy = (dy / len) * BULLET_SPEED;
-            bullets.push({ x: player.x, y: player.y, vx: vx, vy: vy, owner: 'player', radius: 4, life: 200 });
+            bullets.push({ x: player.x, y: player.y, vx, vy, owner: 'player', radius: 4, life: 200 });
             player.vx -= vx * 0.15; player.vy -= vy * 0.15; player.shootCooldown = SHOOT_COOLDOWN;
             createImpactParticles(player.x, player.y, '#ffdd44', 4); playSound('shoot');
         }
@@ -1364,7 +1325,7 @@
             }
         }
 
-        function spawnInventoryItem() { if (currentMode !== 'survival') return; let x = Math.random() * (canvas.width - 60) + 30; let y = Math.random() * (canvas.height - 60) + 30; let type = Math.random() < 0.5 ? 'medkit' : 'shield'; items.push({ x, y, radius: 28, type: type, life: 600, pulse: 0 }); }
+        function spawnInventoryItem() { if (currentMode !== 'survival') return; let x = Math.random() * (canvas.width - 60) + 30; let y = Math.random() * (canvas.height - 60) + 30; let type = Math.random() < 0.5 ? 'medkit' : 'shield'; items.push({ x, y, radius: 28, type, life: 600, pulse: 0 }); }
         function spawnMedkit(x, y) { items.push({ x: x+(Math.random()-0.5)*40, y: y+(Math.random()-0.5)*40, radius: 28, type: 'medkit', life: 600, pulse: 0 }); }
         function startWave() { wave++; enemiesSpawnedInWave = 0; enemiesPerWave = 5 + wave * 3; isWaveInProgress = true; bossSpawned = false; playSound('wave'); if (wave > 1) spawnMedkit(Math.random() * (canvas.width - 60) + 30, Math.random() * (canvas.height - 60) + 30); waveMessage = `Волна ${wave}`; waveMessageTimer = 60; updateHUD(); }
         function spawnEnemyForWave() {
@@ -1377,16 +1338,16 @@
             if (rand < 0.3) { type = 'fast'; hp = enemyHPBase * 0.8 + wave * 1.0; speed = enemySpeedBase * 1.6 + wave * 0.15; radius = ENEMY_RADIUS * 0.8; }
             else if (rand < 0.6) { type = 'tank'; hp = enemyHPBase * 2.5 + wave * 2.0; speed = enemySpeedBase * 0.7 + wave * 0.08; radius = ENEMY_RADIUS * 1.3; }
             if (hp < 2) hp = 2;
-            enemies.push({ x, y, vx: 0, vy: 0, radius, hp, maxHp: hp, speed, dead: false, type, isBoss: false });
+            enemies.push({ x, y, vx: 0, vy: 0, radius, hp, maxHp: hp, speed, dead: false, type, isBoss: false, dashTimer: 0, shieldTimer: 0 });
             enemiesSpawnedInWave++;
         }
         
-        // Пункт 20-29: Усложненный Босс
+        // Пункт 20-29: Усложненный Босс (Убран Дерил, добавлен рывок со щитом)
         function spawnBoss() { 
             const x = canvas.width/2 + (Math.random()-0.5)*200, y = canvas.height/2 + (Math.random()-0.5)*200; 
-            const hp = 50 + wave*15; // Пункт 20: Больше HP
-            const speed = 2.2 + wave*0.05; // Пункт 26: Чуть быстрее
-            enemies.push({ x, y, vx: 0, vy: 0, radius: BOSS_RADIUS * 1.2, hp, maxHp: hp, speed, dead: false, type: 'boss', isBoss: true, phase: 'normal', phaseTimer: 0, shieldTimer: 0, shootTimer: 0 }); 
+            const hp = 50 + wave*15; 
+            const speed = 2.2 + wave*0.05; 
+            enemies.push({ x, y, vx: 0, vy: 0, radius: BOSS_RADIUS * 1.2, hp, maxHp: hp, speed, dead: false, type: 'boss', isBoss: true, dashTimer: 0, shieldTimer: 0 }); 
             playSound('boss'); isWaveInProgress = true; 
             waveMessage = `Босс! Волна ${wave}`; waveMessageTimer = 90; 
         }
@@ -1545,7 +1506,7 @@
             pvpPeer.on('close', function() { pvpConnected = false; cancelPvp(); });
         }
         function startHockeyDuel() {
-            myHockeyPlayer = { x: FIELD_W/2, y: FIELD_H - 120, radius: PLAYER_RADIUS_HOCKEY, color: '#d32f2f', borderColor: '#ff3b30', name: document.getElementById('pvp-name').value || 'Игрок', isMe: true, image: new Image(), imageLoaded: false };
+            myHockeyPlayer = { x: FIELD_W/2, y: FIELD_H - 120, radius: PLAYER_RADIUS_HOCKEY, color: '#d32f2f', borderColor: '#ff3b30', name: cleanName(document.getElementById('pvp-name').value) || 'Игрок', isMe: true, image: new Image(), imageLoaded: false };
             const img = document.getElementById('preview-pvp')?.dataset.imageData;
             if (img) { myHockeyPlayer.image.src = img; myHockeyPlayer.image.onload = () => { myHockeyPlayer.imageLoaded = true; }; }
             opponentHockeyPlayer = { x: FIELD_W/2, y: 120, radius: PLAYER_RADIUS_HOCKEY, color: '#1976d2', borderColor: '#007aff', name: 'Соперник', isMe: false, image: new Image(), imageLoaded: false };
@@ -1655,10 +1616,10 @@
 
         // ===== ОФФЛАЙН ХОККЕЙ =====
         function startOfflineHockey() {
-            myHockeyPlayer = { x: FIELD_W/2, y: FIELD_H - 120, radius: PLAYER_RADIUS_HOCKEY, color: '#d32f2f', borderColor: '#ff3b30', name: document.getElementById('offline-player-name').value || 'Игрок 1', isMe: true, image: new Image(), imageLoaded: false };
+            myHockeyPlayer = { x: FIELD_W/2, y: FIELD_H - 120, radius: PLAYER_RADIUS_HOCKEY, color: '#d32f2f', borderColor: '#ff3b30', name: cleanName(document.getElementById('offline-player-name').value) || 'Игрок 1', isMe: true, image: new Image(), imageLoaded: false };
             const img1 = document.getElementById('preview-offline-player')?.dataset.imageData;
             if (img1) { myHockeyPlayer.image.src = img1; myHockeyPlayer.image.onload = () => { myHockeyPlayer.imageLoaded = true; }; }
-            offlineBot = { x: FIELD_W/2, y: 120, radius: PLAYER_RADIUS_HOCKEY, color: '#1976d2', borderColor: '#007aff', name: document.getElementById('offline-bot-name').value || 'Игрок 2', isMe: false, image: new Image(), imageLoaded: false };
+            offlineBot = { x: FIELD_W/2, y: 120, radius: PLAYER_RADIUS_HOCKEY, color: '#1976d2', borderColor: '#007aff', name: cleanName(document.getElementById('offline-bot-name').value) || 'Игрок 2', isMe: false, image: new Image(), imageLoaded: false };
             const img2 = document.getElementById('preview-offline-bot')?.dataset.imageData;
             if (img2) { offlineBot.image.src = img2; offlineBot.image.onload = () => { offlineBot.imageLoaded = true; }; }
             opponentHockeyPlayer = offlineBot;
@@ -1792,6 +1753,7 @@
             setTimeout(() => { gameContainer.style.display = 'none'; screenVictory.style.display = 'flex'; }, 800);
         }
 
+        // ================= ГЛАВНЫЙ ЦИКЛ ИГРЫ (Выживание и Битва) =================
         function gameLoop() {
             if (!gameActive) return; if (isPaused) { animationFrameId = requestAnimationFrame(gameLoop); return; }
             ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -1812,41 +1774,19 @@
                         if (enemy.dead) continue;
                         const dxToPlayer = player.x - enemy.x, dyToPlayer = player.y - enemy.y; const dist = Math.hypot(dxToPlayer, dyToPlayer);
                         
-                        // Пункт 27: Фаза Дерил (Босс)
+                        // Пункт 29: Логика щита во время рывка (убран Дерил)
                         if (enemy.isBoss) {
-                            enemy.phaseTimer++;
                             if (enemy.shieldTimer > 0) {
                                 enemy.shieldTimer--;
-                                // Пункт 24: Мелкие отталкиваются сильнее, крупные слабее
                                 enemy.vx += (dxToPlayer / dist) * 1.5;
                                 enemy.vy += (dyToPlayer / dist) * 1.5;
-                            }
-                            if (enemy.phaseTimer > 300) {
-                                enemy.phase = 'deril';
-                                enemy.shieldTimer = 100;
-                                playSound('boss');
-                                // Пункт 29: Босс в целом значительно усложнён (стрельба во все стороны)
-                                for (let i=0; i<12; i++) {
-                                    const angle = (Math.PI * 2 / 12) * i;
-                                    bullets.push({ x: enemy.x, y: enemy.y, vx: Math.cos(angle) * 5, vy: Math.sin(angle) * 5, owner: 'enemy', radius: 5, life: 150 });
-                                }
-                                enemy.phaseTimer = 0;
-                            }
-                            // Пункт 22, 30: Стреляет с разбросом, попадает через раз
-                            if (enemy.shootTimer > 0) {
-                                enemy.shootTimer--;
-                            } else {
-                                enemy.shootTimer = 60;
-                                const angle = Math.atan2(dyToPlayer, dxToPlayer) + (Math.random() - 0.5) * 0.8;
-                                bullets.push({ x: enemy.x, y: enemy.y, vx: Math.cos(angle) * 4, vy: Math.sin(angle) * 4, owner: 'enemy', radius: 4, life: 120 });
                             }
                         }
 
                         if (dist > 1) { enemy.x += (dxToPlayer / dist) * enemy.speed; enemy.y += (dyToPlayer / dist) * enemy.speed; }
                         enemy.x += enemy.vx; enemy.y += enemy.vy; enemy.vx *= 0.9; enemy.vy *= 0.9;
-                        let bounceForce = 8; if (enemy.isBoss) bounceForce = 2; // Пункт 23: Боссу понижено отталкивание
+                        let bounceForce = 8; if (enemy.isBoss) bounceForce = 2; 
                         
-                        // Пункт 21: Босс наносит большой урон при столкновении
                         let damage = ENEMY_DAMAGE;
                         if (enemy.isBoss) damage = ENEMY_DAMAGE * 2;
 
@@ -1872,11 +1812,15 @@
                                 if (enemy.dead) continue;
                                 const d = Math.hypot(b.x - enemy.x, b.y - enemy.y);
                                 if (d < enemy.radius + b.radius) {
-                                    const damage = PLAYER_DAMAGE; 
-                                    // Пункт 20: Босс меньше пробивается (броня)
-                                    if (enemy.isBoss) { 
-                                        damage = Math.floor(damage / 3); 
+                                    // Пункт про щит босса (Бессмертие)
+                                    if (enemy.isBoss && enemy.shieldTimer > 0) {
+                                        // Урон не проходит, пуля исчезает
+                                        createImpactParticles(b.x, b.y, '#888', 4); playSound('shield');
+                                        bullets.splice(i, 1); break;
                                     }
+                                    
+                                    const damage = PLAYER_DAMAGE; 
+                                    if (enemy.isBoss) { damage = Math.floor(damage / 3); }
                                     enemy.hp -= damage; createImpactParticles(b.x, b.y, '#ffdd44', 6);
                                     enemy.vx += (b.vx / BULLET_SPEED) * 8; enemy.vy += (b.vy / BULLET_SPEED) * 8;
                                     if (enemy.hp <= 0) { enemy.dead = true; countKillsThisGame++; if (enemy.isBoss) { isWaveInProgress = false; waveDelay = WAVE_DELAY; spawnMedkit(enemy.x, enemy.y); } createImpactParticles(enemy.x, enemy.y, '#ffffff', 15); playSound('hit'); updateHUD(); checkGameOver(); }
@@ -1887,15 +1831,10 @@
                             const d = Math.hypot(b.x - player.x, b.y - player.y);
                             if (d < player.radius + b.radius) {
                                 if (player.shieldTimer <= 0 && player.invulnerableTimer <= 0) {
-                                    // Пункт 30: У босса есть право на промахи (попадает через раз)
-                                    if (Math.random() > 0.5) {
-                                        player.hp -= 5; if (player.hp < 0) player.hp = 0;
-                                        player.invulnerableTimer = 30;
-                                        if (player.hp <= 0) { player.dead = true; createImpactParticles(player.x, player.y, '#ff0000', 30); }
-                                        createImpactParticles(b.x, b.y, '#ff4444', 6); playSound('damage'); showRedScreen(); updateHUD(); checkGameOver();
-                                    } else {
-                                        createImpactParticles(b.x, b.y, '#ffffff', 2);
-                                    }
+                                    player.hp -= 5; if (player.hp < 0) player.hp = 0;
+                                    player.invulnerableTimer = 30;
+                                    if (player.hp <= 0) { player.dead = true; createImpactParticles(player.x, player.y, '#ff0000', 30); }
+                                    createImpactParticles(b.x, b.y, '#ff4444', 6); playSound('damage'); showRedScreen(); updateHUD(); checkGameOver();
                                 }
                                 bullets.splice(i, 1);
                             }
@@ -1912,7 +1851,7 @@
                     ctx.strokeStyle = '#666666'; ctx.lineWidth = enemy.isBoss ? 3 : 2; ctx.beginPath(); ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI*2); ctx.stroke();
                     const hpP = enemy.hp / enemy.maxHp; ctx.fillStyle = '#ff0000'; ctx.fillRect(enemy.x - enemy.radius, enemy.y - enemy.radius - 10, enemy.radius*2, 4); ctx.fillStyle = '#00ff00'; ctx.fillRect(enemy.x - enemy.radius, enemy.y - enemy.radius - 10, enemy.radius*2*hpP, 4);
                     if (enemy.isBoss) {
-                        if (enemy.shieldTimer > 0) { // Пункт 25: Щит держится дольше
+                        if (enemy.shieldTimer > 0) {
                             ctx.shadowBlur = 15; ctx.shadowColor = '#0000ff'; ctx.strokeStyle = 'rgba(0,0,255,0.6)'; ctx.lineWidth = 4;
                             ctx.beginPath(); ctx.arc(enemy.x, enemy.y, enemy.radius + 8, 0, Math.PI * 2); ctx.stroke(); ctx.shadowBlur = 0;
                         }
@@ -1936,6 +1875,8 @@
             animationFrameId = requestAnimationFrame(gameLoop);
         }
 
+        // ================= НАВИГАЦИЯ И МЕНЮ =================
+
         function goToMenu() {
             if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
             gameActive = false; gameStarted = false; isPaused = false; pauseBtn.textContent = '⏸️'; pauseBtn.style.background = '#333'; pauseBtn.classList.remove('visible');
@@ -1950,16 +1891,14 @@
             if (currentMode === 'profile') startBtn.style.display = 'none';
         }
 
-                function restartGame() {
+        function restartGame() {
             screenVictory.style.display = 'none';
             menu.style.display = 'none';
             gameContainer.style.display = 'flex';
             if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
             initAudio(); particles = []; players = []; enemies = []; bullets = []; items = []; wave = 0; enemiesPerWave = 0; enemiesSpawnedInWave = 0; waveDelay = 0; isWaveInProgress = false; bossSpawned = false; spawnTimer = 0; spawnInterval = 35; gameStarted = false; redOverlay.classList.remove('active'); redScreenTimer = 0; waveMessage = ''; waveMessageTimer = 0; countKillsThisGame = 0;
             isPaused = false; pauseBtn.textContent = '⏸️'; pauseBtn.style.background = '#333'; pauseBtn.classList.remove('visible');
-            scoreMy = 0; scoreOpponent = 0;
-            updateHockeyScore();
-            botHitCount = 0; botHitTimer = 0;
+            scoreMy = 0; scoreOpponent = 0; updateHockeyScore(); botHitCount = 0; botHitTimer = 0;
             if (currentMode === 'battle') {
                 canvas.width = 700; canvas.height = 700;
                 const inputs = [ { name: cleanName(document.getElementById('p1-name').value) || 'Игрок 1' }, { name: cleanName(document.getElementById('p2-name').value) || 'Игрок 2' }, { name: cleanName(document.getElementById('p3-name').value) || 'Игрок 3' }, { name: cleanName(document.getElementById('p4-name').value) || 'Игрок 4' } ];
@@ -1987,25 +1926,37 @@
             if (currentMode === 'battle' || currentMode === 'survival') gameLoop();
         }
 
+        // Пункт про прокрутку вкладок
+        function centerTab(tab) {
+            const wrap = document.getElementById('mode-tabs-wrap');
+            if (!tab || !wrap) return;
+            const tabWidth = tab.offsetWidth;
+            const wrapWidth = wrap.offsetWidth;
+            const targetScroll = tab.offsetLeft - (wrapWidth - tabWidth) / 2;
+            wrap.scrollTo({ left: Math.max(0, targetScroll), behavior: 'smooth' });
+        }
+
         function switchMode(mode) {
             currentMode = mode;
             tabBattle.classList.remove('active'); tabSurvival.classList.remove('active'); tabPvp.classList.remove('active'); tabProfile.classList.remove('active');
             battleSettings.style.display = 'none'; survivalSettings.style.display = 'none'; pvpSettings.style.display = 'none'; profileSettings.style.display = 'none'; friendsSettings.style.display = 'none'; leaderboardSettings.style.display = 'none'; suffixSettings.style.display = 'none';
-            if (mode === 'battle') { tabBattle.classList.add('active'); battleSettings.style.display = 'flex'; mobileControls.classList.remove('visible'); invUI.classList.add('hidden'); fireBtn.style.display = 'flex'; dashBtn.classList.add('hidden'); startBtn.style.display = 'block'; }
-            else if (mode === 'survival') { tabSurvival.classList.add('active'); survivalSettings.style.display = 'flex'; mobileControls.classList.add('visible'); invUI.classList.remove('hidden'); fireBtn.style.display = 'flex'; dashBtn.classList.add('hidden'); recordDisplay.textContent = '🏆 Рекорд волн: ' + waveRecord; startBtn.style.display = 'block'; }
-            else if (mode === 'pvp') { tabPvp.classList.add('active'); pvpSettings.style.display = 'flex'; mobileControls.classList.add('visible'); invUI.classList.add('hidden'); fireBtn.style.display = 'none'; dashBtn.classList.remove('hidden'); startBtn.style.display = 'none'; 
+            if (mode === 'battle') { tabBattle.classList.add('active'); battleSettings.style.display = 'flex'; mobileControls.classList.remove('visible'); invUI.classList.add('hidden'); fireBtn.style.display = 'flex'; dashBtn.classList.add('hidden'); startBtn.style.display = 'block'; centerTab(tabBattle); }
+            else if (mode === 'survival') { tabSurvival.classList.add('active'); survivalSettings.style.display = 'flex'; mobileControls.classList.add('visible'); invUI.classList.remove('hidden'); fireBtn.style.display = 'flex'; dashBtn.classList.add('hidden'); recordDisplay.textContent = '🏆 Рекорд волн: ' + waveRecord; startBtn.style.display = 'block'; centerTab(tabSurvival); }
+            else if (mode === 'pvp') { tabPvp.classList.add('active'); pvpSettings.style.display = 'flex'; mobileControls.classList.add('visible'); invUI.classList.add('hidden'); fireBtn.style.display = 'none'; dashBtn.classList.remove('hidden'); startBtn.style.display = 'none'; centerTab(tabPvp); 
                 hockeyOfflineSection.classList.remove('active');
                 hockeyOfflineSection.querySelector('.hockey-section-content').style.display = 'none';
                 hockeyOnlineSection.classList.remove('active');
                 hockeyOnlineSection.querySelector('.hockey-section-content').style.display = 'none';
                 cancelPvp();
             }
-            else if (mode === 'profile') { tabProfile.classList.add('active'); profileSettings.style.display = 'flex'; startBtn.style.display = 'none'; loadProfileData(); }
-            // Пункт 1: Подменю для кнопок внутри профиля
+            else if (mode === 'profile') { tabProfile.classList.add('active'); profileSettings.style.display = 'flex'; startBtn.style.display = 'none'; centerTab(tabProfile); loadProfileData(); }
+            // Пункт 1: Кнопки внутри профиля (не переключают экран, а открывают содержимое)
             else if (mode === 'friends') { profileSettings.style.display = 'flex'; startBtn.style.display = 'none'; renderFriends(); }
             else if (mode === 'leaderboards') { profileSettings.style.display = 'flex'; startBtn.style.display = 'none'; renderLeaderboard(); }
             else if (mode === 'suffix') { profileSettings.style.display = 'flex'; startBtn.style.display = 'none'; renderAchievements(); }
         }
+
+        function loadProfileData() { renderProfile(); }
 
         function toggleSection(section) {
             const content = section.querySelector('.hockey-section-content');
@@ -2014,10 +1965,7 @@
                 s.classList.remove('active');
                 s.querySelector('.hockey-section-content').style.display = 'none';
             });
-            if (!isActive) {
-                section.classList.add('active');
-                content.style.display = 'flex';
-            }
+            if (!isActive) { section.classList.add('active'); content.style.display = 'flex'; }
         }
 
         hockeyOfflineHeader.addEventListener('click', () => { toggleSection(hockeyOfflineSection); currentMode = 'offline-hockey'; cancelPvp(); });
