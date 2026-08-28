@@ -66,12 +66,10 @@
         .input-btn.paste-btn { color: #4da6ff; }
         .input-btn.copy-btn { color: #ffd700; }
         
-        /* Широкие панели для режимов (КБ, Выживание, Хоккей) */
         .image-preview-wide { width: 100%; height: 80px; background: #1a1a1a; border: 2px dashed #444; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-top: 10px; cursor: pointer; }
         .image-preview-wide img { max-width: 100%; max-height: 100%; object-fit: cover; display: none; }
         .image-preview-wide .placeholder { color: #666; font-size: 14px; pointer-events: none; }
         
-        /* Компактный квадратный аватар в профиле */
         .image-preview-square { width: 100px; height: 100px; background: #1a1a1a; border: 2px dashed #ffd700; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin: 10px auto; cursor: pointer; }
         .image-preview-square img { max-width: 100%; max-height: 100%; object-fit: cover; display: none; }
         .image-preview-square .placeholder { color: #666; font-size: 12px; pointer-events: none; text-align: center; padding: 5px; }
@@ -178,6 +176,12 @@
         
         .profile-nav-btn { flex: 1; padding: 10px; font-size: 14px; background: #333; border: 1px solid #555; border-radius: 8px; color: #fff; cursor: pointer; text-align: center; margin: 0; }
         .profile-nav-btn:active { background: #444; }
+        
+        /* Стили для переключения подсекций внутри профиля */
+        .profile-section { display: none; width: 100%; }
+        .profile-section.active { display: flex; flex-direction: column; }
+        
+        #profile-content-back-btn { background: #333; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -313,51 +317,60 @@
             </div>
         </div>
 
-        <!-- Профиль: кнопка Сменить имя выше остальных -->
+        <!-- Профиль: Кнопки внутри профиля работают как переключатели секций -->
         <div id="profile-settings" style="display: none;">
-            <div class="profile-info">
-                <div id="profile-avatar" class="image-preview-square" onclick="document.getElementById('avatar-input').click()"><span class="placeholder">👤</span><img id="avatar-preview-img" src="" alt="Preview" style="display:none;"></div>
-                <input type="file" id="avatar-input" accept="image/*" style="display: none;">
-                <div id="profile-name" style="font-size: 28px; text-align: center; color: #ffd700; margin-bottom: 5px;">Игрок</div>
-                <div id="profile-title" style="font-size: 20px; text-align: center; color: #aaa; margin-bottom: 20px;"></div>
-                <div id="my-id-display" style="background: #222; padding: 10px; border-radius: 8px; text-align: center; font-size: 18px; color: #fff; margin-bottom: 15px;"></div>
-                
-                <button id="change-name-btn">Сменить имя</button>
-                
-                <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 25px; margin-bottom: 20px;">
-                    <div class="profile-nav-btn" onclick="switchMode('friends')">👥 Друзья</div>
-                    <div class="profile-nav-btn" onclick="switchMode('leaderboards')">🏆 Топы</div>
-                    <div class="profile-nav-btn" onclick="switchMode('suffix')">🏅 Награды</div>
-                    <div class="profile-nav-btn" onclick="toggleProfileStats()">📊 Статистика</div>
+            <!-- Главная часть профиля -->
+            <div id="profile-main" class="profile-section">
+                <div class="profile-info">
+                    <div id="profile-avatar" class="image-preview-square" onclick="document.getElementById('avatar-input').click()"><span class="placeholder">👤</span><img id="avatar-preview-img" src="" alt="Preview" style="display:none;"></div>
+                    <input type="file" id="avatar-input" accept="image/*" style="display: none;">
+                    <div id="profile-name" style="font-size: 28px; text-align: center; color: #ffd700; margin-bottom: 5px;">Игрок</div>
+                    <div id="profile-title" style="font-size: 20px; text-align: center; color: #aaa; margin-bottom: 20px;"></div>
+                    <div id="my-id-display" style="background: #222; padding: 10px; border-radius: 8px; text-align: center; font-size: 18px; color: #fff; margin-bottom: 15px;"></div>
+                    
+                    <button id="change-name-btn">Сменить имя</button>
+                    
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 25px; margin-bottom: 20px;">
+                        <div class="profile-nav-btn" onclick="openProfileSection('friends')">👥 Друзья</div>
+                        <div class="profile-nav-btn" onclick="openProfileSection('leaderboards')">🏆 Топы</div>
+                        <div class="profile-nav-btn" onclick="openProfileSection('suffix')">🏅 Награды</div>
+                        <div class="profile-nav-btn" onclick="toggleProfileStats()">📊 Статистика</div>
+                    </div>
+                    
+                    <div id="profile-stats" style="margin-top: 20px; display: none;"></div>
                 </div>
-                
-                <div id="profile-stats" style="margin-top: 20px; display: none;"></div>
             </div>
-        </div>
 
-        <div id="friends-settings" style="display: none;">
-            <div class="friends-list" id="friends-list"></div>
-            <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <input type="text" id="friend-id-input" placeholder="ID друга" style="flex: 1; background: #333; border: 1px solid #555; border-radius: 8px; color: #fff; padding: 12px;">
-                <button id="add-friend-btn" style="width: 120px;">Добавить</button>
+            <!-- Секция Друзья -->
+            <div id="profile-friends" class="profile-section">
+                <div class="friends-list" id="friends-list"></div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <input type="text" id="friend-id-input" placeholder="ID друга" style="flex: 1; background: #333; border: 1px solid #555; border-radius: 8px; color: #fff; padding: 12px;">
+                    <button id="add-friend-btn" style="width: 120px;">Добавить</button>
+                </div>
+                <button id="invite-friend-btn" style="margin-top: 15px;">Пригласить друга в игру</button>
+                <button id="profile-content-back-btn" onclick="closeProfileSection()">Назад в профиль</button>
             </div>
-            <button id="invite-friend-btn" style="margin-top: 15px;">Пригласить друга в игру</button>
-        </div>
 
-        <div id="leaderboard-settings" style="display: none;">
-            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                <button id="lb-survival-btn" class="active" style="flex: 1;">🛡️ Выживание</button>
-                <button id="lb-hockey-btn" style="flex: 1;">🏒 Хоккей</button>
+            <!-- Секция Топы -->
+            <div id="profile-leaderboards" class="profile-section">
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <button id="lb-survival-btn" class="active" style="flex: 1;">🛡️ Выживание</button>
+                    <button id="lb-hockey-btn" style="flex: 1;">🏒 Хоккей</button>
+                </div>
+                <div id="leaderboard"></div>
+                <button id="profile-content-back-btn" onclick="closeProfileSection()">Назад в профиль</button>
             </div>
-            <div id="leaderboard"></div>
-        </div>
 
-        <div id="suffix-settings" style="display: none;">
-            <h2 style="color: #ffd700; margin-bottom: 20px; text-align: center;">🏅 Награды</h2>
-            <div id="achievements-list" class="achievements-list"></div>
-            <h3 style="color: #fff; margin-top: 20px; margin-bottom: 10px;">Выбери свой Статус:</h3>
-            <div id="suffix-picker" class="suffix-picker"></div>
-            <button id="clear-suffix-btn" style="background: #555;">Убрать статус</button>
+            <!-- Секция Награды/Статусы -->
+            <div id="profile-suffix" class="profile-section">
+                <h2 style="color: #ffd700; margin-bottom: 20px; text-align: center;">🏅 Награды</h2>
+                <div id="achievements-list" class="achievements-list"></div>
+                <h3 style="color: #fff; margin-top: 20px; margin-bottom: 10px;">Выбери свой Статус:</h3>
+                <div id="suffix-picker" class="suffix-picker"></div>
+                <button id="clear-suffix-btn" style="background: #555;">Убрать статус</button>
+                <button id="profile-content-back-btn" onclick="closeProfileSection()">Назад в профиль</button>
+            </div>
         </div>
 
         <button id="start-btn">Старт</button>
@@ -430,9 +443,6 @@
         const survivalSettings = document.getElementById('survival-settings');
         const pvpSettings = document.getElementById('pvp-settings');
         const profileSettings = document.getElementById('profile-settings');
-        const friendsSettings = document.getElementById('friends-settings');
-        const leaderboardSettings = document.getElementById('leaderboard-settings');
-        const suffixSettings = document.getElementById('suffix-settings');
         const p3Group = document.getElementById('p3-group');
         const p4Group = document.getElementById('p4-group');
         const recordDisplay = document.getElementById('record-display');
@@ -481,6 +491,11 @@
         const hockeyOfflineHeader = document.getElementById('hockey-offline-header');
         const hockeyOnlineHeader = document.getElementById('hockey-online-header');
         const offlineStartBtn = document.getElementById('offline-start-btn');
+
+        const profileMain = document.getElementById('profile-main');
+        const profileFriends = document.getElementById('profile-friends');
+        const profileLeaderboards = document.getElementById('profile-leaderboards');
+        const profileSuffix = document.getElementById('profile-suffix');
 
         // ================= ПЕРЕМЕННЫЕ =================
         let animationFrameId = null;
@@ -579,7 +594,7 @@
         const registerError = document.getElementById('register-error');
         let countKillsThisGame = 0;
 
-        // ================= ДОСТИЖЕНИЯ (пункты 16, 17, 18) =================
+        // ================= ДОСТИЖЕНИЯ =================
         const achievementsDefs = [
             { id: 'kills_50', name: '🔥 Уничтожитель', desc: 'Убей 50 врагов за одну игру', icon: '🔥', check: (s) => s.totalKills >= 50 },
             { id: 'kills_100', name: '💀 Каратель', desc: 'Убей 100 врагов за одну игру', icon: '💀', check: (s) => s.totalKills >= 100 },
@@ -656,7 +671,6 @@
             return false;
         }
 
-        // Пункт 12: Копирование ID
         myIdDisplay.addEventListener('click', () => {
             navigator.clipboard.writeText(currentUser ? currentUser.id : '').then(() => {
                 myIdDisplay.textContent = 'ID скопирован!';
@@ -693,13 +707,11 @@
             renderAchievements();
         }
 
-        // Пункт про автозаполнение: данные профиля в Выживание и Хоккей
         function autoFillInputs() {
             if (!currentUser) return;
             const name = currentUser.name;
             const avatar = currentUser.avatar;
 
-            // Выживание (Только Игрок 1)
             document.getElementById('survival-name').value = name;
             if (avatar) {
                 const img = document.getElementById('preview-survival-img');
@@ -709,7 +721,6 @@
                 cont.dataset.imageData = avatar;
             }
 
-            // Хоккей Оффлайн (Только Игрок 1)
             document.getElementById('offline-player-name').value = name;
             if (avatar) {
                 const img = document.getElementById('preview-offline-player-img');
@@ -719,7 +730,6 @@
                 cont.dataset.imageData = avatar;
             }
 
-            // Хоккей Онлайн (Только Игрок)
             document.getElementById('pvp-name').value = name;
             if (avatar) {
                 const img = document.getElementById('preview-pvp-img');
@@ -830,7 +840,6 @@
 
         registerName.addEventListener('keydown', (e) => { if (e.key === 'Enter') registerBtn.click(); });
 
-        // Пункт 2: Кнопка смены имени всегда активна + запрет на занятые имена
         changeNameBtn.addEventListener('click', async () => {
             if (!currentUser) return;
             const newName = prompt('Введи новое имя:', currentUser.name);
@@ -864,6 +873,32 @@
         function toggleProfileStats() {
             if (profileStats.style.display === 'none') profileStats.style.display = 'block';
             else profileStats.style.display = 'none';
+        }
+
+        // ================= РАБОТА С СЕКЦИЯМИ ПРОФИЛЯ =================
+        function openProfileSection(section) {
+            profileMain.classList.remove('active');
+            profileFriends.classList.remove('active');
+            profileLeaderboards.classList.remove('active');
+            profileSuffix.classList.remove('active');
+
+            if (section === 'friends') {
+                renderFriends();
+                profileFriends.classList.add('active');
+            } else if (section === 'leaderboards') {
+                renderLeaderboard();
+                profileLeaderboards.classList.add('active');
+            } else if (section === 'suffix') {
+                renderAchievements();
+                profileSuffix.classList.add('active');
+            }
+        }
+
+        function closeProfileSection() {
+            profileFriends.classList.remove('active');
+            profileLeaderboards.classList.remove('active');
+            profileSuffix.classList.remove('active');
+            profileMain.classList.add('active');
         }
 
         function renderFriends() {
@@ -918,7 +953,7 @@
             }, 500);
         });
 
-        // ================= ТОПЫ (пункты 13, 14, 15) =================
+        // ================= ТОПЫ =================
         function renderLeaderboard() {
             if (!db) return;
             leaderboard.innerHTML = '<p style="text-align:center; color:#666;">Загрузка...<p>';
@@ -978,8 +1013,6 @@
             { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' }
         ];
 
-        // ================= ЗАГРУЗКА ФОТО =================
-        // Для широких панелей (игры)
         window.loadPhoto = function(inputId, previewId, imgId) {
             const fileInput = document.getElementById(inputId);
             const img = document.getElementById(imgId);
@@ -1342,7 +1375,6 @@
             enemiesSpawnedInWave++;
         }
         
-        // Пункт 20-29: Усложненный Босс (Убран Дерил, добавлен рывок со щитом)
         function spawnBoss() { 
             const x = canvas.width/2 + (Math.random()-0.5)*200, y = canvas.height/2 + (Math.random()-0.5)*200; 
             const hp = 50 + wave*15; 
@@ -1753,7 +1785,7 @@
             setTimeout(() => { gameContainer.style.display = 'none'; screenVictory.style.display = 'flex'; }, 800);
         }
 
-        // ================= ГЛАВНЫЙ ЦИКЛ ИГРЫ (Выживание и Битва) =================
+        // ================= ГЛАВНЫЙ ЦИКЛ ИГРЫ =================
         function gameLoop() {
             if (!gameActive) return; if (isPaused) { animationFrameId = requestAnimationFrame(gameLoop); return; }
             ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -1774,7 +1806,6 @@
                         if (enemy.dead) continue;
                         const dxToPlayer = player.x - enemy.x, dyToPlayer = player.y - enemy.y; const dist = Math.hypot(dxToPlayer, dyToPlayer);
                         
-                        // Пункт 29: Логика щита во время рывка (убран Дерил)
                         if (enemy.isBoss) {
                             if (enemy.shieldTimer > 0) {
                                 enemy.shieldTimer--;
@@ -1812,9 +1843,8 @@
                                 if (enemy.dead) continue;
                                 const d = Math.hypot(b.x - enemy.x, b.y - enemy.y);
                                 if (d < enemy.radius + b.radius) {
-                                    // Пункт про щит босса (Бессмертие)
+                                    // Щит босса делает его бессмертным (не пропускает урон)
                                     if (enemy.isBoss && enemy.shieldTimer > 0) {
-                                        // Урон не проходит, пуля исчезает
                                         createImpactParticles(b.x, b.y, '#888', 4); playSound('shield');
                                         bullets.splice(i, 1); break;
                                     }
@@ -1875,8 +1905,7 @@
             animationFrameId = requestAnimationFrame(gameLoop);
         }
 
-        // ================= НАВИГАЦИЯ И МЕНЮ =================
-
+        // ================= НАВИГАЦИЯ =================
         function goToMenu() {
             if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
             gameActive = false; gameStarted = false; isPaused = false; pauseBtn.textContent = '⏸️'; pauseBtn.style.background = '#333'; pauseBtn.classList.remove('visible');
@@ -1926,7 +1955,6 @@
             if (currentMode === 'battle' || currentMode === 'survival') gameLoop();
         }
 
-        // Пункт про прокрутку вкладок
         function centerTab(tab) {
             const wrap = document.getElementById('mode-tabs-wrap');
             if (!tab || !wrap) return;
@@ -1939,7 +1967,8 @@
         function switchMode(mode) {
             currentMode = mode;
             tabBattle.classList.remove('active'); tabSurvival.classList.remove('active'); tabPvp.classList.remove('active'); tabProfile.classList.remove('active');
-            battleSettings.style.display = 'none'; survivalSettings.style.display = 'none'; pvpSettings.style.display = 'none'; profileSettings.style.display = 'none'; friendsSettings.style.display = 'none'; leaderboardSettings.style.display = 'none'; suffixSettings.style.display = 'none';
+            battleSettings.style.display = 'none'; survivalSettings.style.display = 'none'; pvpSettings.style.display = 'none'; profileSettings.style.display = 'none';
+            
             if (mode === 'battle') { tabBattle.classList.add('active'); battleSettings.style.display = 'flex'; mobileControls.classList.remove('visible'); invUI.classList.add('hidden'); fireBtn.style.display = 'flex'; dashBtn.classList.add('hidden'); startBtn.style.display = 'block'; centerTab(tabBattle); }
             else if (mode === 'survival') { tabSurvival.classList.add('active'); survivalSettings.style.display = 'flex'; mobileControls.classList.add('visible'); invUI.classList.remove('hidden'); fireBtn.style.display = 'flex'; dashBtn.classList.add('hidden'); recordDisplay.textContent = '🏆 Рекорд волн: ' + waveRecord; startBtn.style.display = 'block'; centerTab(tabSurvival); }
             else if (mode === 'pvp') { tabPvp.classList.add('active'); pvpSettings.style.display = 'flex'; mobileControls.classList.add('visible'); invUI.classList.add('hidden'); fireBtn.style.display = 'none'; dashBtn.classList.remove('hidden'); startBtn.style.display = 'none'; centerTab(tabPvp); 
@@ -1949,11 +1978,13 @@
                 hockeyOnlineSection.querySelector('.hockey-section-content').style.display = 'none';
                 cancelPvp();
             }
-            else if (mode === 'profile') { tabProfile.classList.add('active'); profileSettings.style.display = 'flex'; startBtn.style.display = 'none'; centerTab(tabProfile); loadProfileData(); }
-            // Пункт 1: Кнопки внутри профиля (не переключают экран, а открывают содержимое)
-            else if (mode === 'friends') { profileSettings.style.display = 'flex'; startBtn.style.display = 'none'; renderFriends(); }
-            else if (mode === 'leaderboards') { profileSettings.style.display = 'flex'; startBtn.style.display = 'none'; renderLeaderboard(); }
-            else if (mode === 'suffix') { profileSettings.style.display = 'flex'; startBtn.style.display = 'none'; renderAchievements(); }
+            else if (mode === 'profile') { 
+                tabProfile.classList.add('active'); 
+                profileSettings.style.display = 'flex'; 
+                startBtn.style.display = 'none'; 
+                centerTab(tabProfile);
+                closeProfileSection(); // Возвращаем в главную часть профиля
+            }
         }
 
         function loadProfileData() { renderProfile(); }
