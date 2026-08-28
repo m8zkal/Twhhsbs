@@ -36,9 +36,9 @@
         .hp-bar { height: 100%; width: 100%; transition: width 0.2s ease-out; position: absolute; top: 0; left: 0; border-radius: 4px; box-shadow: 0 0 4px rgba(255,255,255,0.2); }
         .hp-text { position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: bold; color: rgba(255,255,255,0.9); text-shadow: 1px 1px 2px #000; width: 100%; height: 100%; }
         
-        #battle-settings, #survival-settings, #pvp-settings, #profile-settings, #friends-settings, #leaderboard-settings, #suffix-settings { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 500px; margin: 0 auto 40px auto; }
-        #battle-settings > *, #survival-settings > *, #pvp-settings > *, #profile-settings > *, #friends-settings > *, #leaderboard-settings > *, #suffix-settings > * { margin-bottom: 25px; }
-        #battle-settings > *:last-child, #survival-settings > *:last-child, #pvp-settings > *:last-child, #profile-settings > *:last-child, #friends-settings > *:last-child, #leaderboard-settings > *:last-child, #suffix-settings > *:last-child { margin-bottom: 0; }
+        #battle-settings, #survival-settings, #pvp-settings, #profile-settings { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 500px; margin: 0 auto 40px auto; }
+        #battle-settings > *, #survival-settings > *, #pvp-settings > *, #profile-settings > * { margin-bottom: 25px; }
+        #battle-settings > *:last-child, #survival-settings > *:last-child, #pvp-settings > *:last-child, #profile-settings > *:last-child { margin-bottom: 0; }
         
         #mode-tabs-wrap { width: 100%; max-width: 500px; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; margin-bottom: 35px; border-radius: 15px; border: 1px solid #333; background: #1a1a1a; box-shadow: 0 4px 15px rgba(0,0,0,0.5); scroll-behavior: smooth; }
         #mode-tabs-wrap::-webkit-scrollbar { display: none; }
@@ -177,11 +177,15 @@
         .profile-nav-btn { flex: 1; padding: 10px; font-size: 14px; background: #333; border: 1px solid #555; border-radius: 8px; color: #fff; cursor: pointer; text-align: center; margin: 0; }
         .profile-nav-btn:active { background: #444; }
         
-        /* Стили для переключения подсекций внутри профиля */
-        .profile-section { display: none; width: 100%; }
-        .profile-section.active { display: flex; flex-direction: column; }
-        
-        #profile-content-back-btn { background: #333; margin-top: 10px; }
+        /* Стили для раскрывающихся секций профиля */
+        .profile-section { background: #1a1a1a; border-radius: 12px; padding: 10px; margin-bottom: 20px; }
+        .profile-section.active { border: 2px solid #ffd700; background: #201a10; }
+        .profile-section-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 15px; }
+        .profile-section-title { font-size: 20px; font-weight: bold; text-transform: uppercase; color: #fff; }
+        .profile-section-arrow { font-size: 20px; color: #ffd700; transition: transform 0.3s; }
+        .profile-section-content { display: none; padding: 20px; }
+        .profile-section.active .profile-section-content { display: flex; flex-direction: column; }
+        .profile-section.active .profile-section-arrow { transform: rotate(180deg); }
     </style>
 </head>
 <body>
@@ -317,59 +321,70 @@
             </div>
         </div>
 
-        <!-- Профиль: Кнопки внутри профиля работают как переключатели секций -->
+        <!-- ПРОФИЛЬ ПО ПРИНЦИПУ ХОККЕЯ -->
         <div id="profile-settings" style="display: none;">
-            <!-- Главная часть профиля -->
-            <div id="profile-main" class="profile-section">
-                <div class="profile-info">
-                    <div id="profile-avatar" class="image-preview-square" onclick="document.getElementById('avatar-input').click()"><span class="placeholder">👤</span><img id="avatar-preview-img" src="" alt="Preview" style="display:none;"></div>
-                    <input type="file" id="avatar-input" accept="image/*" style="display: none;">
-                    <div id="profile-name" style="font-size: 28px; text-align: center; color: #ffd700; margin-bottom: 5px;">Игрок</div>
-                    <div id="profile-title" style="font-size: 20px; text-align: center; color: #aaa; margin-bottom: 20px;"></div>
-                    <div id="my-id-display" style="background: #222; padding: 10px; border-radius: 8px; text-align: center; font-size: 18px; color: #fff; margin-bottom: 15px;"></div>
-                    
-                    <button id="change-name-btn">Сменить имя</button>
-                    
-                    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 25px; margin-bottom: 20px;">
-                        <div class="profile-nav-btn" onclick="openProfileSection('friends')">👥 Друзья</div>
-                        <div class="profile-nav-btn" onclick="openProfileSection('leaderboards')">🏆 Топы</div>
-                        <div class="profile-nav-btn" onclick="openProfileSection('suffix')">🏅 Награды</div>
-                        <div class="profile-nav-btn" onclick="toggleProfileStats()">📊 Статистика</div>
+            <div class="profile-info">
+                <div id="profile-avatar" class="image-preview-square" onclick="document.getElementById('avatar-input').click()"><span class="placeholder">👤</span><img id="avatar-preview-img" src="" alt="Preview" style="display:none;"></div>
+                <input type="file" id="avatar-input" accept="image/*" style="display: none;">
+                <div id="profile-name" style="font-size: 28px; text-align: center; color: #ffd700; margin-bottom: 5px;">Игрок</div>
+                <div id="profile-title" style="font-size: 20px; text-align: center; color: #aaa; margin-bottom: 20px;"></div>
+                <div id="my-id-display" style="background: #222; padding: 10px; border-radius: 8px; text-align: center; font-size: 18px; color: #fff; margin-bottom: 15px;"></div>
+                
+                <button id="change-name-btn">Сменить имя</button>
+                
+                <div class="hockey-sections-container" style="margin-top: 25px;">
+                    <div class="profile-section" id="profile-friends-section">
+                        <div class="profile-section-header" onclick="toggleProfileSection('profile-friends-section')">
+                            <div class="profile-section-title">👥 Друзья</div>
+                            <div class="profile-section-arrow">▼</div>
+                        </div>
+                        <div class="profile-section-content">
+                            <div class="friends-list" id="friends-list"></div>
+                            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                                <input type="text" id="friend-id-input" placeholder="ID друга" style="flex: 1; background: #333; border: 1px solid #555; border-radius: 8px; color: #fff; padding: 12px;">
+                                <button id="add-friend-btn" style="width: 120px;">Добавить</button>
+                            </div>
+                            <button id="invite-friend-btn" style="margin-top: 15px;">Пригласить друга в игру</button>
+                        </div>
                     </div>
-                    
-                    <div id="profile-stats" style="margin-top: 20px; display: none;"></div>
-                </div>
-            </div>
 
-            <!-- Секция Друзья -->
-            <div id="profile-friends" class="profile-section">
-                <div class="friends-list" id="friends-list"></div>
-                <div style="display: flex; gap: 10px; margin-top: 20px;">
-                    <input type="text" id="friend-id-input" placeholder="ID друга" style="flex: 1; background: #333; border: 1px solid #555; border-radius: 8px; color: #fff; padding: 12px;">
-                    <button id="add-friend-btn" style="width: 120px;">Добавить</button>
-                </div>
-                <button id="invite-friend-btn" style="margin-top: 15px;">Пригласить друга в игру</button>
-                <button id="profile-content-back-btn" onclick="closeProfileSection()">Назад в профиль</button>
-            </div>
+                    <div class="profile-section" id="profile-leaderboards-section">
+                        <div class="profile-section-header" onclick="toggleProfileSection('profile-leaderboards-section')">
+                            <div class="profile-section-title">🏆 Топы</div>
+                            <div class="profile-section-arrow">▼</div>
+                        </div>
+                        <div class="profile-section-content">
+                            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                                <button id="lb-survival-btn" class="active" style="flex: 1;">🛡️ Выживание</button>
+                                <button id="lb-hockey-btn" style="flex: 1;">🏒 Хоккей</button>
+                            </div>
+                            <div id="leaderboard"></div>
+                        </div>
+                    </div>
 
-            <!-- Секция Топы -->
-            <div id="profile-leaderboards" class="profile-section">
-                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                    <button id="lb-survival-btn" class="active" style="flex: 1;">🛡️ Выживание</button>
-                    <button id="lb-hockey-btn" style="flex: 1;">🏒 Хоккей</button>
-                </div>
-                <div id="leaderboard"></div>
-                <button id="profile-content-back-btn" onclick="closeProfileSection()">Назад в профиль</button>
-            </div>
+                    <div class="profile-section" id="profile-suffix-section">
+                        <div class="profile-section-header" onclick="toggleProfileSection('profile-suffix-section')">
+                            <div class="profile-section-title">🏅 Награды</div>
+                            <div class="profile-section-arrow">▼</div>
+                        </div>
+                        <div class="profile-section-content">
+                            <div id="achievements-list" class="achievements-list"></div>
+                            <h3 style="color: #fff; margin-top: 20px; margin-bottom: 10px;">Выбери свой Статус:</h3>
+                            <div id="suffix-picker" class="suffix-picker"></div>
+                            <button id="clear-suffix-btn" style="background: #555;">Убрать статус</button>
+                        </div>
+                    </div>
 
-            <!-- Секция Награды/Статусы -->
-            <div id="profile-suffix" class="profile-section">
-                <h2 style="color: #ffd700; margin-bottom: 20px; text-align: center;">🏅 Награды</h2>
-                <div id="achievements-list" class="achievements-list"></div>
-                <h3 style="color: #fff; margin-top: 20px; margin-bottom: 10px;">Выбери свой Статус:</h3>
-                <div id="suffix-picker" class="suffix-picker"></div>
-                <button id="clear-suffix-btn" style="background: #555;">Убрать статус</button>
-                <button id="profile-content-back-btn" onclick="closeProfileSection()">Назад в профиль</button>
+                    <div class="profile-section" id="profile-stats-section">
+                        <div class="profile-section-header" onclick="toggleProfileSection('profile-stats-section')">
+                            <div class="profile-section-title">📊 Статистика</div>
+                            <div class="profile-section-arrow">▼</div>
+                        </div>
+                        <div class="profile-section-content">
+                            <div id="profile-stats" style="background: #1a1a1a; border-radius: 12px; padding: 15px; width: 100%;"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -491,11 +506,6 @@
         const hockeyOfflineHeader = document.getElementById('hockey-offline-header');
         const hockeyOnlineHeader = document.getElementById('hockey-online-header');
         const offlineStartBtn = document.getElementById('offline-start-btn');
-
-        const profileMain = document.getElementById('profile-main');
-        const profileFriends = document.getElementById('profile-friends');
-        const profileLeaderboards = document.getElementById('profile-leaderboards');
-        const profileSuffix = document.getElementById('profile-suffix');
 
         // ================= ПЕРЕМЕННЫЕ =================
         let animationFrameId = null;
@@ -870,35 +880,27 @@
             reader.readAsDataURL(file);
         });
 
-        function toggleProfileStats() {
-            if (profileStats.style.display === 'none') profileStats.style.display = 'block';
-            else profileStats.style.display = 'none';
-        }
-
-        // ================= РАБОТА С СЕКЦИЯМИ ПРОФИЛЯ =================
-        function openProfileSection(section) {
-            profileMain.classList.remove('active');
-            profileFriends.classList.remove('active');
-            profileLeaderboards.classList.remove('active');
-            profileSuffix.classList.remove('active');
-
-            if (section === 'friends') {
-                renderFriends();
-                profileFriends.classList.add('active');
-            } else if (section === 'leaderboards') {
-                renderLeaderboard();
-                profileLeaderboards.classList.add('active');
-            } else if (section === 'suffix') {
-                renderAchievements();
-                profileSuffix.classList.add('active');
+        // ================= СЕКЦИИ ПРОФИЛЯ (как в хоккее) =================
+        function toggleProfileSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            const isActive = section.classList.contains('active');
+            
+            // Закрываем все секции
+            document.querySelectorAll('.profile-section').forEach(s => {
+                s.classList.remove('active');
+                s.querySelector('.profile-section-content').style.display = 'none';
+            });
+            
+            // Открываем нажатую, если она была закрыта
+            if (!isActive) {
+                section.classList.add('active');
+                section.querySelector('.profile-section-content').style.display = 'flex';
+                
+                // Обновляем данные при открытии
+                if (sectionId === 'profile-friends-section') renderFriends();
+                if (sectionId === 'profile-leaderboards-section') renderLeaderboard();
+                if (sectionId === 'profile-suffix-section') renderAchievements();
             }
-        }
-
-        function closeProfileSection() {
-            profileFriends.classList.remove('active');
-            profileLeaderboards.classList.remove('active');
-            profileSuffix.classList.remove('active');
-            profileMain.classList.add('active');
         }
 
         function renderFriends() {
@@ -1013,6 +1015,7 @@
             { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' }
         ];
 
+        // ================= ЗАГРУЗКА ФОТО =================
         window.loadPhoto = function(inputId, previewId, imgId) {
             const fileInput = document.getElementById(inputId);
             const img = document.getElementById(imgId);
@@ -1377,8 +1380,8 @@
         
         function spawnBoss() { 
             const x = canvas.width/2 + (Math.random()-0.5)*200, y = canvas.height/2 + (Math.random()-0.5)*200; 
-            const hp = 50 + wave*15; 
-            const speed = 2.2 + wave*0.05; 
+            const hp = 30 + wave*15; 
+            const speed = 2.0 + wave*0.05; 
             enemies.push({ x, y, vx: 0, vy: 0, radius: BOSS_RADIUS * 1.2, hp, maxHp: hp, speed, dead: false, type: 'boss', isBoss: true, dashTimer: 0, shieldTimer: 0 }); 
             playSound('boss'); isWaveInProgress = true; 
             waveMessage = `Босс! Волна ${wave}`; waveMessageTimer = 90; 
@@ -1450,7 +1453,385 @@
             setTimeout(() => { if (countdownActive) { countdown = 0; countdownActive = false; } }, 3000);
         }
 
-        // ===== ОНЛАЙН PVP =====
+        // ================= ХОККЕЙ (Твой старый умный бот) =================
+        function startOfflineHockey() {
+            myHockeyPlayer = { x: FIELD_W/2, y: FIELD_H - 120, radius: PLAYER_RADIUS_HOCKEY, color: '#d32f2f', borderColor: '#ff3b30', name: cleanName(document.getElementById('offline-player-name').value) || 'Игрок 1', isMe: true, image: new Image(), imageLoaded: false };
+            const img1 = document.getElementById('preview-offline-player')?.dataset.imageData;
+            if (img1) { myHockeyPlayer.image.src = img1; myHockeyPlayer.image.onload = () => { myHockeyPlayer.imageLoaded = true; }; }
+            offlineBot = { x: FIELD_W/2, y: 120, radius: PLAYER_RADIUS_HOCKEY, color: '#1976d2', borderColor: '#007aff', name: cleanName(document.getElementById('offline-bot-name').value) || 'Игрок 2', isMe: false, image: new Image(), imageLoaded: false };
+            const img2 = document.getElementById('preview-offline-bot')?.dataset.imageData;
+            if (img2) { offlineBot.image.src = img2; offlineBot.image.onload = () => { offlineBot.imageLoaded = true; }; }
+            opponentHockeyPlayer = offlineBot;
+            scoreMy = 0; scoreOpponent = 0; resetHockeyPositions();
+            players = []; currentMode = 'offline-hockey'; gameStarted = true; gameActive = true;
+            isPaused = false; pauseBtn.classList.add('visible');
+            pvpInv = { medkits: 0, shields: 0 }; invUI.classList.add('hidden'); updateHUD();
+            menu.style.display = 'none'; gameContainer.style.display = 'flex'; screenVictory.style.display = 'none';
+            mobileControls.classList.add('visible'); fireBtn.style.display = 'none'; dashBtn.classList.remove('hidden');
+            canvas.width = FIELD_W; canvas.height = FIELD_H;
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            startCountdown(); animationFrameId = requestAnimationFrame(offlineHockeyLoop);
+        }
+        
+        function offlineHockeyLoop() {
+            if (!gameActive) { if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; } return; }
+            if (isPaused) { animationFrameId = requestAnimationFrame(offlineHockeyLoop); return; }
+            drawHockeyField();
+            
+            if (countdownActive) {
+                ctx.save();
+                ctx.font = 'bold 100px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.lineWidth = 10; ctx.strokeStyle = '#000'; ctx.strokeText(countdown > 0 ? countdown : '', FIELD_W/2, FIELD_H * 0.25);
+                ctx.fillStyle = '#fff'; ctx.fillText(countdown > 0 ? countdown : '', FIELD_W/2, FIELD_H * 0.25);
+                ctx.restore();
+            } else {
+                if (myHockeyPlayer && !myHockeyPlayer.dead) {
+                    let dx = 0, dy = 0;
+                    if (joystickActive) { dx = joystickX; dy = joystickY; }
+                    else { if (keys.w || keys.ArrowUp) dy = -1; if (keys.s || keys.ArrowDown) dy = 1; if (keys.a || keys.ArrowLeft) dx = -1; if (keys.d || keys.ArrowRight) dx = 1; }
+                    const len = Math.hypot(dx, dy);
+                    if (len > 0) {
+                        dx /= len; dy /= len;
+                        let speed = PLAYER_SPEED;
+                        if (dashTimer > 0) { speed *= 3; dashTimer--; }
+                        if (dashPressed && dashCooldown <= 0) { dashTimer = 10; dashCooldown = 60; playSound('shoot'); }
+                        myHockeyPlayer.x += dx * speed; myHockeyPlayer.y += dy * speed;
+                        if (myHockeyPlayer.x - PLAYER_RADIUS_HOCKEY < 0) myHockeyPlayer.x = PLAYER_RADIUS_HOCKEY;
+                        if (myHockeyPlayer.x + PLAYER_RADIUS_HOCKEY > FIELD_W) myHockeyPlayer.x = FIELD_W - PLAYER_RADIUS_HOCKEY;
+                        if (myHockeyPlayer.y - PLAYER_RADIUS_HOCKEY < 0) myHockeyPlayer.y = PLAYER_RADIUS_HOCKEY;
+                        if (myHockeyPlayer.y + PLAYER_RADIUS_HOCKEY > FIELD_H) myHockeyPlayer.y = FIELD_H - PLAYER_RADIUS_HOCKEY;
+                    }
+                }
+                if (dashCooldown > 0) dashCooldown--;
+                
+                // Умный бот (как ты просил)
+                if (offlineBot && !offlineBot.dead) {
+                    const dxToBall = ball.x - offlineBot.x, dyToBall = ball.y - offlineBot.y; 
+                    const distToBall = Math.hypot(dxToBall, dyToBall);
+                    const botSpeed = 4.5;
+                    
+                    const predictedBallX = ball.x + ball.vx * 20;
+                    const predictedBallY = ball.y + ball.vy * 20;
+                    const dxToPredicted = predictedBallX - offlineBot.x;
+                    const dyToPredicted = predictedBallY - offlineBot.y;
+                    const distToPredicted = Math.hypot(dxToPredicted, dyToPredicted);
+                    
+                    let avoidX = 0, avoidY = 0; const margin = 120;
+                    if (offlineBot.x < margin) avoidX = 1; else if (offlineBot.x > FIELD_W - margin) avoidX = -1;
+                    if (offlineBot.y < margin) avoidY = 1; else if (offlineBot.y > FIELD_H - margin) avoidY = -1;
+                    
+                    if (avoidX !== 0 || avoidY !== 0) {
+                        const avoidSpeed = botSpeed * 2.5;
+                        const lenAvoid = Math.hypot(avoidX, avoidY) || 1;
+                        offlineBot.x += (avoidX / lenAvoid) * avoidSpeed;
+                        offlineBot.y += (avoidY / lenAvoid) * avoidSpeed;
+                        botAvoidTimer = 40;
+                    } else if (botAvoidTimer > 0) {
+                        botAvoidTimer--;
+                    } else {
+                        if (distToPredicted > 10) {
+                            const norm = distToPredicted;
+                            let moveSpeed = botSpeed;
+                            if (botDashTimer > 0) { moveSpeed *= 2.5; botDashTimer--; }
+                            if (botDashCooldown > 0) botDashCooldown--;
+                            
+                            offlineBot.x += (dxToPredicted / norm) * moveSpeed;
+                            offlineBot.y += (dyToPredicted / norm) * moveSpeed;
+                            
+                            if (distToPredicted < 200 && botDashCooldown <= 0) {
+                                botDashTimer = 15; botDashCooldown = 50;
+                            }
+                        }
+                    }
+                    
+                    if (distToBall < PLAYER_RADIUS_HOCKEY + BALL_RADIUS_HOCKEY + 15) {
+                        const goalCenterX = GOAL_X_LEFT + GOAL_WIDTH / 2;
+                        const goalCenterY = FIELD_H - 10;
+                        const dxGoal = goalCenterX - ball.x;
+                        const dyGoal = goalCenterY - ball.y;
+                        const distGoal = Math.hypot(dxGoal, dyGoal) || 1;
+                        
+                        const force = 18;
+                        const angle = Math.atan2(dyGoal, dxGoal);
+                        
+                        ball.vx = Math.cos(angle) * force;
+                        ball.vy = Math.sin(angle) * force;
+                        ball.lastTouchedBy = 'blue';
+                        playSound('collision');
+                        
+                        ball.x += Math.cos(angle) * (PLAYER_RADIUS_HOCKEY + BALL_RADIUS_HOCKEY + 5);
+                        ball.y += Math.sin(angle) * (PLAYER_RADIUS_HOCKEY + BALL_RADIUS_HOCKEY + 5);
+                        
+                        botHitTimer = 20;
+                    }
+                    
+                    if (offlineBot.x - PLAYER_RADIUS_HOCKEY < 0) offlineBot.x = PLAYER_RADIUS_HOCKEY;
+                    if (offlineBot.x + PLAYER_RADIUS_HOCKEY > FIELD_W) offlineBot.x = FIELD_W - PLAYER_RADIUS_HOCKEY;
+                    if (offlineBot.y - PLAYER_RADIUS_HOCKEY < 0) offlineBot.y = PLAYER_RADIUS_HOCKEY;
+                    if (offlineBot.y + PLAYER_RADIUS_HOCKEY > FIELD_H) offlineBot.y = FIELD_H - PLAYER_RADIUS_HOCKEY;
+                }
+                
+                if (goalCooldown > 0) goalCooldown--;
+                else {
+                    ball.x += ball.vx; ball.y += ball.vy;
+                    if (ball.x - BALL_RADIUS_HOCKEY < 0) { ball.x = BALL_RADIUS_HOCKEY; ball.vx = -ball.vx * 0.95; playSound('wall'); }
+                    else if (ball.x + BALL_RADIUS_HOCKEY > FIELD_W) { ball.x = FIELD_W - BALL_RADIUS_HOCKEY; ball.vx = -ball.vx * 0.95; playSound('wall'); }
+                    if (ball.y - BALL_RADIUS_HOCKEY < 0) { ball.y = BALL_RADIUS_HOCKEY; ball.vy = -ball.vy * 0.95; playSound('wall'); }
+                    else if (ball.y + BALL_RADIUS_HOCKEY > FIELD_H) { ball.y = FIELD_H - BALL_RADIUS_HOCKEY; ball.vy = -ball.vy * 0.95; playSound('wall'); }
+                    if (ball.y - BALL_RADIUS_HOCKEY < GOAL_Y_TOP + GOAL_HEIGHT && ball.x > GOAL_X_LEFT && ball.x < GOAL_X_RIGHT) { scoreMy++; playSound('goal'); resetHockeyPositions(); updateHockeyScore(); startCountdown(); if (scoreMy >= WIN_SCORE) endOfflineHockeyMatch('player'); }
+                    if (ball.y + BALL_RADIUS_HOCKEY > GOAL_Y_BOTTOM && ball.x > GOAL_X_LEFT && ball.x < GOAL_X_RIGHT) { scoreOpponent++; playSound('goal'); resetHockeyPositions(); updateHockeyScore(); startCountdown(); if (scoreOpponent >= WIN_SCORE) endOfflineHockeyMatch('bot'); }
+                    if (myHockeyPlayer && !myHockeyPlayer.dead) {
+                        const dx = ball.x - myHockeyPlayer.x, dy = ball.y - myHockeyPlayer.y; const dist = Math.hypot(dx, dy);
+                        if (dist < BALL_RADIUS_HOCKEY + PLAYER_RADIUS_HOCKEY) {
+                            const angle = Math.atan2(dy, dx); const overlap = (BALL_RADIUS_HOCKEY + PLAYER_RADIUS_HOCKEY - dist) * 0.5;
+                            ball.x += Math.cos(angle) * overlap; ball.y += Math.sin(angle) * overlap;
+                            const speed = Math.hypot(ball.vx, ball.vy) + 2;
+                            ball.vx = Math.cos(angle) * speed; ball.vy = Math.sin(angle) * speed; ball.lastTouchedBy = 'red'; playSound('collision');
+                        }
+                    }
+                    if (offlineBot && !offlineBot.dead) {
+                        const dx = ball.x - offlineBot.x, dy = ball.y - offlineBot.y; const dist = Math.hypot(dx, dy);
+                        if (dist < BALL_RADIUS_HOCKEY + PLAYER_RADIUS_HOCKEY) {
+                            const angle = Math.atan2(dy, dx); const overlap = (BALL_RADIUS_HOCKEY + PLAYER_RADIUS_HOCKEY - dist) * 0.5;
+                            ball.x += Math.cos(angle) * overlap; ball.y += Math.sin(angle) * overlap;
+                            const speed = Math.hypot(ball.vx, ball.vy) + 2;
+                            ball.vx = Math.cos(angle) * speed; ball.vy = Math.sin(angle) * speed; ball.lastTouchedBy = 'blue'; playSound('collision');
+                        }
+                    }
+                }
+            }
+            drawHockeyPlayer(myHockeyPlayer); drawHockeyPlayer(offlineBot); drawHockeyBall();
+            updateParticles(); drawParticles();
+            animationFrameId = requestAnimationFrame(offlineHockeyLoop);
+        }
+        
+        function endOfflineHockeyMatch(winner) {
+            if (!gameActive) return; gameActive = false;
+            if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
+            if (winner === 'player') { victoryCup.textContent = '🏆'; victoryText.innerText = 'Вы победили!'; victoryText.style.color = '#ffd700'; victoryRecord.innerText = `Счёт: ${scoreMy} : ${scoreOpponent}`; playSound('victory'); saveHockeyStats(1, 0); }
+            else { victoryCup.textContent = '💀'; victoryText.innerText = 'Вы проиграли!'; victoryText.style.color = '#ff3b30'; victoryRecord.innerText = `Счёт: ${scoreMy} : ${scoreOpponent}`; playSound('victory'); saveHockeyStats(0, 1); }
+            fireBtn.style.display = 'flex'; dashBtn.classList.add('hidden'); hockeyHud.style.display = 'none'; pauseBtn.classList.remove('visible');
+            setTimeout(() => { gameContainer.style.display = 'none'; screenVictory.style.display = 'flex'; }, 800);
+        }
+        function updateHockeyScore() {
+            hockeyScore.textContent = `СЧЁТ: ${scoreMy} : ${scoreOpponent}`;
+            hockeyRound.textContent = `РАУНД: ${Math.max(scoreMy, scoreOpponent) + 1}`;
+        }
+
+        // ================= ГЛАВНЫЙ ЦИКЛ (КБ и Выживание, защита от падения) =================
+        function gameLoop() {
+            if (!gameActive) return; if (isPaused) { animationFrameId = requestAnimationFrame(gameLoop); return; }
+            ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            if (redScreenTimer > 0) { redScreenTimer--; if (redScreenTimer === 0) redOverlay.classList.remove('active'); }
+            if (currentMode === 'battle') {
+                players.forEach(p => { if (!p.dead) p.update(); });
+                for (let i=0; i<players.length; i++) { if (players[i].dead) continue; for (let j=i+1; j<players.length; j++) { if (players[j].dead) continue; handleBallCollision(players[i], players[j]); } }
+                for (let i=0; i<players.length; i++) { if (players[i].dead) continue; for (let j=0; j<players.length; j++) { if (i===j || players[j].dead) continue; checkSwordHit(players[i], players[j]); } }
+                players.forEach(p => { if (!p.dead) p.draw(); });
+            } else if (currentMode === 'survival') {
+                const player = players[0];
+                if (!player || player.dead) { } else {
+                    player.update(); if (waveMessageTimer > 0) waveMessageTimer--; else waveMessage = '';
+                    if (!isWaveInProgress && waveDelay > 0) { waveDelay--; if (waveDelay === 0) startWave(); }
+                    else if (!isWaveInProgress && waveDelay === 0) startWave();
+                    if (isWaveInProgress) { spawnTimer++; if (spawnTimer >= spawnInterval) { spawnTimer = 0; spawnEnemyForWave(); } }
+                    for (const enemy of enemies) {
+                        if (enemy.dead) continue;
+                        const dxToPlayer = player.x - enemy.x, dyToPlayer = player.y - enemy.y; const dist = Math.hypot(dxToPlayer, dyToPlayer);
+                        
+                        if (enemy.isBoss) {
+                            if (enemy.shieldTimer > 0) {
+                                enemy.shieldTimer--;
+                                enemy.vx += (dxToPlayer / dist) * 1.5;
+                                enemy.vy += (dyToPlayer / dist) * 1.5;
+                            }
+                        }
+                        if (dist > 1) { enemy.x += (dxToPlayer / dist) * enemy.speed; enemy.y += (dyToPlayer / dist) * enemy.speed; }
+                        enemy.x += enemy.vx; enemy.y += enemy.vy; enemy.vx *= 0.9; enemy.vy *= 0.9;
+                        let bounceForce = 8; if (enemy.isBoss) bounceForce = 2; 
+                        
+                        let damage = ENEMY_DAMAGE;
+                        if (enemy.isBoss) damage = ENEMY_DAMAGE * 2;
+                        if (dist < player.radius + enemy.radius) {
+                            enemy.vx = (-dxToPlayer / dist) * bounceForce; enemy.vy = (-dyToPlayer / dist) * bounceForce;
+                            if (player.shieldTimer <= 0 && player.invulnerableTimer <= 0) {
+                                player.hp -= damage; if (player.hp < 0) player.hp = 0;
+                                player.vx += (dxToPlayer / dist) * 12; player.vy += (dyToPlayer / dist) * 12;
+                                player.invulnerableTimer = 90;
+                                if (player.hp <= 0) { player.dead = true; createImpactParticles(player.x, player.y, '#ff0000', 30); }
+                                createImpactParticles(enemy.x, enemy.y, '#ff4444', 10); playSound('damage'); showRedScreen(); updateHUD(); checkGameOver();
+                            } else { playSound('shield'); }
+                        }
+                        enemy.x = Math.max(enemy.radius, Math.min(canvas.width - enemy.radius, enemy.x));
+                        enemy.y = Math.max(enemy.radius, Math.min(canvas.height - enemy.radius, enemy.y));
+                    }
+                    for (let i=bullets.length-1; i>=0; i--) {
+                        const b = bullets[i]; b.x += b.vx; b.y += b.vy; b.life--;
+                        if (b.life <= 0 || b.x < 0 || b.x > canvas.width || b.y < 0 || b.y > canvas.height) { bullets.splice(i, 1); continue; }
+                        ctx.shadowBlur = 15; ctx.shadowColor = '#ffdd44'; ctx.fillStyle = '#ffdd44'; ctx.beginPath(); ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0;
+                        if (b.owner === 'player') {
+                            for (const enemy of enemies) {
+                                if (enemy.dead) continue;
+                                const d = Math.hypot(b.x - enemy.x, b.y - enemy.y);
+                                if (d < enemy.radius + b.radius) {
+                                    // ЗАЩИТА ОТ ПАДЕНИЯ КОДА
+                                    try {
+                                        if (enemy.isBoss && enemy.shieldTimer > 0) {
+                                            createImpactParticles(b.x, b.y, '#888', 4); playSound('shield');
+                                            bullets.splice(i, 1); break;
+                                        }
+                                        const damage = PLAYER_DAMAGE; 
+                                        if (enemy.isBoss) { damage = Math.floor(damage / 3); }
+                                        enemy.hp -= damage; createImpactParticles(b.x, b.y, '#ffdd44', 6);
+                                        enemy.vx += (b.vx / BULLET_SPEED) * 8; enemy.vy += (b.vy / BULLET_SPEED) * 8;
+                                        if (enemy.hp <= 0) { enemy.dead = true; countKillsThisGame++; if (enemy.isBoss) { isWaveInProgress = false; waveDelay = WAVE_DELAY; spawnMedkit(enemy.x, enemy.y); } createImpactParticles(enemy.x, enemy.y, '#ffffff', 15); playSound('hit'); updateHUD(); checkGameOver(); }
+                                        bullets.splice(i, 1); break;
+                                    } catch (err) {
+                                        console.error('Ошибка в логике урона боссу:', err);
+                                        bullets.splice(i, 1); break;
+                                    }
+                                }
+                            }
+                        } else if (b.owner === 'enemy') {
+                            const d = Math.hypot(b.x - player.x, b.y - player.y);
+                            if (d < player.radius + b.radius) {
+                                if (player.shieldTimer <= 0 && player.invulnerableTimer <= 0) {
+                                    player.hp -= 5; if (player.hp < 0) player.hp = 0;
+                                    player.invulnerableTimer = 30;
+                                    if (player.hp <= 0) { player.dead = true; createImpactParticles(player.x, player.y, '#ff0000', 30); }
+                                    createImpactParticles(b.x, b.y, '#ff4444', 6); playSound('damage'); showRedScreen(); updateHUD(); checkGameOver();
+                                }
+                                bullets.splice(i, 1);
+                            }
+                        }
+                    }
+                    enemies = enemies.filter(e => !e.dead);
+                    if (isWaveInProgress && enemies.length === 0 && enemiesSpawnedInWave >= enemiesPerWave) { isWaveInProgress = false; if (wave % 5 === 0 && !bossSpawned) { bossSpawned = true; spawnBoss(); } else { waveDelay = WAVE_DELAY; } }
+                    for (let i=items.length-1; i>=0; i--) { const item = items[i]; item.life--; if (item.life <= 0) { items.splice(i, 1); continue; } const d = Math.hypot(item.x - player.x, item.y - player.y); if (d < player.radius + item.radius) { if (item.type === 'medkit') { survivalInv.medkits++; } else if (item.type === 'shield') { survivalInv.shields++; } updateInvUI(); items.splice(i, 1); playSound('medkit'); } }
+                }
+                for (const enemy of enemies) {
+                    if (enemy.dead) continue;
+                    ctx.shadowBlur = enemy.isBoss ? 30 : 15; ctx.shadowColor = enemy.isBoss ? '#884444' : '#888888';
+                    ctx.fillStyle = enemy.isBoss ? '#886666' : '#aaaaaa'; ctx.beginPath(); ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI*2); ctx.fill(); ctx.shadowBlur = 0;
+                    ctx.strokeStyle = '#666666'; ctx.lineWidth = enemy.isBoss ? 3 : 2; ctx.beginPath(); ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI*2); ctx.stroke();
+                    const hpP = enemy.hp / enemy.maxHp; ctx.fillStyle = '#ff0000'; ctx.fillRect(enemy.x - enemy.radius, enemy.y - enemy.radius - 10, enemy.radius*2, 4); ctx.fillStyle = '#00ff00'; ctx.fillRect(enemy.x - enemy.radius, enemy.y - enemy.radius - 10, enemy.radius*2*hpP, 4);
+                    if (enemy.isBoss) {
+                        if (enemy.shieldTimer > 0) {
+                            ctx.shadowBlur = 15; ctx.shadowColor = '#0000ff'; ctx.strokeStyle = 'rgba(0,0,255,0.6)'; ctx.lineWidth = 4;
+                            ctx.beginPath(); ctx.arc(enemy.x, enemy.y, enemy.radius + 8, 0, Math.PI * 2); ctx.stroke(); ctx.shadowBlur = 0;
+                        }
+                        ctx.shadowBlur = 15; ctx.shadowColor = '#ff8888'; ctx.fillStyle = '#ff8888'; ctx.font = 'bold 18px Arial'; ctx.textAlign = 'center'; ctx.fillText('БОСС', enemy.x, enemy.y - enemy.radius - 20); ctx.shadowBlur = 0;
+                    }
+                }
+                for (let i=items.length-1; i>=0; i--) {
+                    const item = items[i]; item.pulse += 0.05; const glow = Math.sin(item.pulse)*0.2 + 0.8;
+                    ctx.shadowBlur = 25*glow; ctx.shadowColor = item.type === 'medkit' ? '#00ff44' : '#00aaff';
+                    ctx.fillStyle = item.type === 'medkit' ? '#00cc44' : '#0077ff'; ctx.beginPath(); ctx.arc(item.x, item.y, item.radius*glow, 0, Math.PI*2); ctx.fill(); ctx.shadowBlur = 0;
+                    if (item.type === 'medkit') { ctx.fillStyle = '#ffffff'; ctx.fillRect(item.x - 8, item.y - 3, 16, 6); ctx.fillRect(item.x - 3, item.y - 8, 6, 16); }
+                    else { ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.moveTo(item.x, item.y - 12); ctx.lineTo(item.x + 10, item.y - 5); ctx.lineTo(item.x + 10, item.y + 5); ctx.lineTo(item.x, item.y + 12); ctx.lineTo(item.x - 10, item.y + 5); ctx.lineTo(item.x - 10, item.y - 5); ctx.closePath(); ctx.fill(); }
+                }
+                if (Math.random() < 0.001) spawnInventoryItem();
+                if (player) player.draw();
+                if (waveMessage && waveMessageTimer > 0) { ctx.save(); ctx.shadowBlur = 20; ctx.shadowColor = '#ffd700'; ctx.fillStyle = '#ffd700'; ctx.font = 'bold 32px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText(waveMessage, canvas.width / 2, 20); ctx.shadowBlur = 0; ctx.restore(); }
+                checkGameOver();
+            }
+            for (let i=bullets.length-1; i>=0; i--) { const b = bullets[i]; b.x += b.vx; b.y += b.vy; b.life--; if (b.life <= 0 || b.x < 0 || b.x > canvas.width || b.y < 0 || b.y > canvas.height) { bullets.splice(i, 1); continue; } ctx.shadowBlur = 15; ctx.shadowColor = '#ffdd44'; ctx.fillStyle = '#ffdd44'; ctx.beginPath(); ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0; }
+            updateParticles(); drawParticles();
+            animationFrameId = requestAnimationFrame(gameLoop);
+        }
+
+        // ================= НАВИГАЦИЯ =================
+        function goToMenu() {
+            if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
+            gameActive = false; gameStarted = false; isPaused = false; pauseBtn.textContent = '⏸️'; pauseBtn.style.background = '#333'; pauseBtn.classList.remove('visible');
+            menu.style.display = 'flex'; gameContainer.style.display = 'none'; screenVictory.style.display = 'none';
+            players = []; enemies = []; bullets = []; items = []; particles = []; redOverlay.classList.remove('active'); redScreenTimer = 0;
+            wave = 0; enemiesPerWave = 0; enemiesSpawnedInWave = 0; waveDelay = 0; isWaveInProgress = false; bossSpawned = false; spawnTimer = 0;
+            recordDisplay.textContent = '🏆 Рекорд волн: ' + waveRecord; victoryCup.textContent = '🏆'; victoryText.innerText = 'Победитель'; victoryText.style.color = '#ffffff'; victoryRecord.innerText = '';
+            fireBtn.style.display = 'flex'; dashBtn.classList.add('hidden'); mobileControls.classList.remove('visible'); invUI.classList.add('hidden');
+            hud.style.display = 'none'; survivalHud.style.display = 'none'; hockeyHud.style.display = 'none';
+            waveMessage = ''; waveMessageTimer = 0; cancelPvp();
+            if (currentMode !== 'pvp' && currentMode !== 'offline-hockey') startBtn.style.display = 'block'; else startBtn.style.display = 'none';
+            if (currentMode === 'profile') startBtn.style.display = 'none';
+            currentMode = 'battle';
+        }
+
+        function restartGame() {
+            screenVictory.style.display = 'none';
+            menu.style.display = 'none';
+            gameContainer.style.display = 'flex';
+            if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
+            initAudio(); particles = []; players = []; enemies = []; bullets = []; items = []; wave = 0; enemiesPerWave = 0; enemiesSpawnedInWave = 0; waveDelay = 0; isWaveInProgress = false; bossSpawned = false; spawnTimer = 0; spawnInterval = 35; gameStarted = false; redOverlay.classList.remove('active'); redScreenTimer = 0; waveMessage = ''; waveMessageTimer = 0; countKillsThisGame = 0;
+            isPaused = false; pauseBtn.textContent = '⏸️'; pauseBtn.style.background = '#333'; pauseBtn.classList.remove('visible');
+            scoreMy = 0; scoreOpponent = 0; updateHockeyScore(); botHitCount = 0; botHitTimer = 0;
+            if (currentMode === 'battle') {
+                canvas.width = 700; canvas.height = 700;
+                const inputs = [ { name: cleanName(document.getElementById('p1-name').value) || 'Игрок 1' }, { name: cleanName(document.getElementById('p2-name').value) || 'Игрок 2' }, { name: cleanName(document.getElementById('p3-name').value) || 'Игрок 3' }, { name: cleanName(document.getElementById('p4-name').value) || 'Игрок 4' } ];
+                for (let i=0; i<currentPlayerCount; i++) {
+                    const config = playerConfigs[i]; const angle = (Math.PI * 2 / currentPlayerCount) * i; const x = 350 + Math.cos(angle) * 220, y = 350 + Math.sin(angle) * 220;
+                    const player = new PlayerBattle(x, y, config.color, config.border, inputs[i].name || config.name, i);
+                    const previewContainer = document.getElementById('preview' + (i+1));
+                    const imageData = previewContainer ? previewContainer.dataset.imageData : null;
+                    if (imageData) { player.image.src = imageData; player.image.onload = () => { player.imageLoaded = true; }; }
+                    players.push(player);
+                }
+                mobileControls.classList.remove('visible'); invUI.classList.add('hidden'); fireBtn.style.display = 'flex'; dashBtn.classList.add('hidden'); pauseBtn.classList.add('visible');
+            } else if (currentMode === 'survival') {
+                canvas.width = 700; canvas.height = 700;
+                const name = cleanName(document.getElementById('survival-name').value) || 'Игрок 1';
+                const player = new PlayerSurvival(350, 350, '#d32f2f', '#ff3b30', name, 0, 1);
+                const previewContainer = document.getElementById('preview-survival');
+                const imageData = previewContainer ? previewContainer.dataset.imageData : null;
+                if (imageData) { player.image.src = imageData; player.image.onload = () => { player.imageLoaded = true; }; }
+                survivalInv = { medkits: 0, shields: 0 }; updateInvUI(); invUI.classList.remove('hidden');
+                players.push(player); mobileControls.classList.add('visible'); fireBtn.style.display = 'flex'; dashBtn.classList.add('hidden'); wave = 0; waveDelay = 60; pauseBtn.classList.add('visible');
+            } else if (currentMode === 'pvp') { startHockeyDuel(); }
+            else if (currentMode === 'offline-hockey') { startOfflineHockey(); }
+            updateHUD(); gameActive = true; gameStarted = true; 
+            if (currentMode === 'battle' || currentMode === 'survival') gameLoop();
+        }
+
+        // ================= ПРОКРУТКА ТАБОВ =================
+        function centerTab(tab) {
+            const wrap = document.getElementById('mode-tabs-wrap');
+            if (!tab || !wrap) return;
+            const tabWidth = tab.offsetWidth;
+            const wrapWidth = wrap.offsetWidth;
+            const targetScroll = tab.offsetLeft - (wrapWidth - tabWidth) / 2;
+            wrap.scrollTo({ left: Math.max(0, targetScroll), behavior: 'smooth' });
+        }
+
+        // ================= ПЕРЕКЛЮЧЕНИЕ РЕЖИМОВ =================
+        function switchMode(mode) {
+            currentMode = mode;
+            tabBattle.classList.remove('active'); tabSurvival.classList.remove('active'); tabPvp.classList.remove('active'); tabProfile.classList.remove('active');
+            battleSettings.style.display = 'none'; survivalSettings.style.display = 'none'; pvpSettings.style.display = 'none'; profileSettings.style.display = 'none';
+            
+            if (mode === 'battle') { 
+                tabBattle.classList.add('active'); battleSettings.style.display = 'flex'; mobileControls.classList.remove('visible'); invUI.classList.add('hidden'); fireBtn.style.display = 'flex'; dashBtn.classList.add('hidden'); startBtn.style.display = 'block'; centerTab(tabBattle); 
+            }
+            else if (mode === 'survival') { 
+                tabSurvival.classList.add('active'); survivalSettings.style.display = 'flex'; mobileControls.classList.add('visible'); invUI.classList.remove('hidden'); fireBtn.style.display = 'flex'; dashBtn.classList.add('hidden'); recordDisplay.textContent = '🏆 Рекорд волн: ' + waveRecord; startBtn.style.display = 'block'; centerTab(tabSurvival); 
+            }
+            else if (mode === 'pvp') { 
+                tabPvp.classList.add('active'); pvpSettings.style.display = 'flex'; mobileControls.classList.add('visible'); invUI.classList.add('hidden'); fireBtn.style.display = 'none'; dashBtn.classList.remove('hidden'); startBtn.style.display = 'none'; centerTab(tabPvp); 
+                hockeyOfflineSection.classList.remove('active');
+                hockeyOfflineSection.querySelector('.hockey-section-content').style.display = 'none';
+                hockeyOnlineSection.classList.remove('active');
+                hockeyOnlineSection.querySelector('.hockey-section-content').style.display = 'none';
+                cancelPvp();
+            }
+            else if (mode === 'profile') { 
+                tabProfile.classList.add('active'); 
+                profileSettings.style.display = 'flex'; 
+                startBtn.style.display = 'none'; 
+                centerTab(tabProfile);
+                // Закрыть все секции профиля при входе
+                document.querySelectorAll('.profile-section').forEach(s => { s.classList.remove('active'); s.querySelector('.profile-section-content').style.display = 'none'; });
+            }
+        }
+
+        // ================= ОНЛАЙН PVP =================
         function generateRoomCode() { return 'room-' + Math.random().toString(36).substring(2, 8); }
         function createPvpRoom() {
             if (!db) { alert('Firebase недоступен'); return; }
@@ -1646,360 +2027,16 @@
             setTimeout(() => { gameContainer.style.display = 'none'; screenVictory.style.display = 'flex'; }, 800);
         }
 
-        // ===== ОФФЛАЙН ХОККЕЙ =====
-        function startOfflineHockey() {
-            myHockeyPlayer = { x: FIELD_W/2, y: FIELD_H - 120, radius: PLAYER_RADIUS_HOCKEY, color: '#d32f2f', borderColor: '#ff3b30', name: cleanName(document.getElementById('offline-player-name').value) || 'Игрок 1', isMe: true, image: new Image(), imageLoaded: false };
-            const img1 = document.getElementById('preview-offline-player')?.dataset.imageData;
-            if (img1) { myHockeyPlayer.image.src = img1; myHockeyPlayer.image.onload = () => { myHockeyPlayer.imageLoaded = true; }; }
-            offlineBot = { x: FIELD_W/2, y: 120, radius: PLAYER_RADIUS_HOCKEY, color: '#1976d2', borderColor: '#007aff', name: cleanName(document.getElementById('offline-bot-name').value) || 'Игрок 2', isMe: false, image: new Image(), imageLoaded: false };
-            const img2 = document.getElementById('preview-offline-bot')?.dataset.imageData;
-            if (img2) { offlineBot.image.src = img2; offlineBot.image.onload = () => { offlineBot.imageLoaded = true; }; }
-            opponentHockeyPlayer = offlineBot;
-            scoreMy = 0; scoreOpponent = 0; resetHockeyPositions();
-            players = []; currentMode = 'offline-hockey'; gameStarted = true; gameActive = true;
-            isPaused = false; pauseBtn.classList.add('visible');
-            pvpInv = { medkits: 0, shields: 0 }; invUI.classList.add('hidden'); updateHUD();
-            menu.style.display = 'none'; gameContainer.style.display = 'flex'; screenVictory.style.display = 'none';
-            mobileControls.classList.add('visible'); fireBtn.style.display = 'none'; dashBtn.classList.remove('hidden');
-            canvas.width = FIELD_W; canvas.height = FIELD_H;
-            if (animationFrameId) cancelAnimationFrame(animationFrameId);
-            startCountdown(); animationFrameId = requestAnimationFrame(offlineHockeyLoop);
-        }
-        function offlineHockeyLoop() {
-            if (!gameActive) { if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; } return; }
-            if (isPaused) { animationFrameId = requestAnimationFrame(offlineHockeyLoop); return; }
-            drawHockeyField();
-            if (countdownActive) {
-                ctx.save();
-                ctx.font = 'bold 100px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                ctx.lineWidth = 10; ctx.strokeStyle = '#000'; ctx.strokeText(countdown > 0 ? countdown : '', FIELD_W/2, FIELD_H * 0.25);
-                ctx.fillStyle = '#fff'; ctx.fillText(countdown > 0 ? countdown : '', FIELD_W/2, FIELD_H * 0.25);
-                ctx.restore();
-            }
-            else {
-                if (myHockeyPlayer && !myHockeyPlayer.dead) {
-                    let dx = 0, dy = 0;
-                    if (joystickActive) { dx = joystickX; dy = joystickY; }
-                    else { if (keys.w || keys.ArrowUp) dy = -1; if (keys.s || keys.ArrowDown) dy = 1; if (keys.a || keys.ArrowLeft) dx = -1; if (keys.d || keys.ArrowRight) dx = 1; }
-                    const len = Math.hypot(dx, dy);
-                    if (len > 0) {
-                        dx /= len; dy /= len;
-                        let speed = PLAYER_SPEED;
-                        if (dashTimer > 0) { speed *= 3; dashTimer--; }
-                        if (dashPressed && dashCooldown <= 0) { dashTimer = 10; dashCooldown = 60; playSound('shoot'); }
-                        myHockeyPlayer.x += dx * speed; myHockeyPlayer.y += dy * speed;
-                        if (myHockeyPlayer.x - PLAYER_RADIUS_HOCKEY < 0) myHockeyPlayer.x = PLAYER_RADIUS_HOCKEY;
-                        if (myHockeyPlayer.x + PLAYER_RADIUS_HOCKEY > FIELD_W) myHockeyPlayer.x = FIELD_W - PLAYER_RADIUS_HOCKEY;
-                        if (myHockeyPlayer.y - PLAYER_RADIUS_HOCKEY < 0) myHockeyPlayer.y = PLAYER_RADIUS_HOCKEY;
-                        if (myHockeyPlayer.y + PLAYER_RADIUS_HOCKEY > FIELD_H) myHockeyPlayer.y = FIELD_H - PLAYER_RADIUS_HOCKEY;
-                    }
-                }
-                if (dashCooldown > 0) dashCooldown--;
-                if (offlineBot && !offlineBot.dead) {
-                    const dxToBall = ball.x - offlineBot.x, dyToBall = ball.y - offlineBot.y; const distToBall = Math.hypot(dxToBall, dyToBall);
-                    let botSpeed = 3.5; if (botDashTimer > 0) { botSpeed *= 3; botDashTimer--; } if (botDashCooldown > 0) botDashCooldown--;
-                    botHitTimer--;
-                    if (botHitTimer <= 0) { botHitCount = 0; botHitTimer = 30; }
-                    let forceRetreat = false;
-                    if (botHitCount > 3) { forceRetreat = true; botHitCount = 0; }
-                    if (forceRetreat) {
-                        const dxCenter = FIELD_W/2 - offlineBot.x;
-                        const dyCenter = FIELD_H/2 - offlineBot.y;
-                        const distCenter = Math.hypot(dxCenter, dyCenter);
-                        if (distCenter > 0) {
-                            offlineBot.x += (dxCenter / distCenter) * botSpeed * 2;
-                            offlineBot.y += (dyCenter / distCenter) * botSpeed * 2;
-                        }
-                        ball.x += (dxCenter / distCenter) * 8;
-                        ball.y += (dyCenter / distCenter) * 8;
-                        ball.vx = (dxCenter / distCenter) * 10;
-                        ball.vy = (dyCenter / distCenter) * 10;
-                        ball.lastTouchedBy = 'blue';
-                    } else {
-                        let avoidX = 0, avoidY = 0; const margin = 100;
-                        if (offlineBot.x < margin) avoidX = 1; else if (offlineBot.x > FIELD_W - margin) avoidX = -1;
-                        if (offlineBot.y < margin) avoidY = 1; else if (offlineBot.y > FIELD_H - margin) avoidY = -1;
-                        if (avoidX !== 0 || avoidY !== 0) {
-                            const avoidSpeed = botSpeed * 2;
-                            const lenAvoid = Math.hypot(avoidX, avoidY) || 1;
-                            offlineBot.x += (avoidX / lenAvoid) * avoidSpeed;
-                            offlineBot.y += (avoidY / lenAvoid) * avoidSpeed;
-                            botAvoidTimer = 30;
-                        } else if (botAvoidTimer > 0) { botAvoidTimer--; }
-                        else if (distToBall > 1) {
-                            offlineBot.x += (dxToBall / distToBall) * botSpeed;
-                            offlineBot.y += (dyToBall / distToBall) * botSpeed;
-                            if (distToBall < 250 && botDashCooldown <= 0) { botDashTimer = 12; botDashCooldown = 60; }
-                        }
-                    }
-                    if (distToBall < PLAYER_RADIUS_HOCKEY + BALL_RADIUS_HOCKEY + 10 && !forceRetreat) {
-                        const angle = Math.PI / 2 + (Math.random() - 0.5) * 0.8; const force = 15;
-                        ball.vx = Math.cos(angle) * force; ball.vy = Math.sin(angle) * force; ball.lastTouchedBy = 'blue'; playSound('collision');
-                        ball.x += Math.cos(angle) * (PLAYER_RADIUS_HOCKEY + BALL_RADIUS_HOCKEY + 5); ball.y += Math.sin(angle) * (PLAYER_RADIUS_HOCKEY + BALL_RADIUS_HOCKEY + 5);
-                        botHitCount++;
-                    }
-                    if (offlineBot.x - PLAYER_RADIUS_HOCKEY < 0) offlineBot.x = PLAYER_RADIUS_HOCKEY;
-                    if (offlineBot.x + PLAYER_RADIUS_HOCKEY > FIELD_W) offlineBot.x = FIELD_W - PLAYER_RADIUS_HOCKEY;
-                    if (offlineBot.y - PLAYER_RADIUS_HOCKEY < 0) offlineBot.y = PLAYER_RADIUS_HOCKEY;
-                    if (offlineBot.y + PLAYER_RADIUS_HOCKEY > FIELD_H) offlineBot.y = FIELD_H - PLAYER_RADIUS_HOCKEY;
-                }
-                if (goalCooldown > 0) goalCooldown--;
-                else {
-                    ball.x += ball.vx; ball.y += ball.vy;
-                    if (ball.x - BALL_RADIUS_HOCKEY < 0) { ball.x = BALL_RADIUS_HOCKEY; ball.vx = -ball.vx * 0.95; playSound('wall'); }
-                    else if (ball.x + BALL_RADIUS_HOCKEY > FIELD_W) { ball.x = FIELD_W - BALL_RADIUS_HOCKEY; ball.vx = -ball.vx * 0.95; playSound('wall'); }
-                    if (ball.y - BALL_RADIUS_HOCKEY < 0) { ball.y = BALL_RADIUS_HOCKEY; ball.vy = -ball.vy * 0.95; playSound('wall'); }
-                    else if (ball.y + BALL_RADIUS_HOCKEY > FIELD_H) { ball.y = FIELD_H - BALL_RADIUS_HOCKEY; ball.vy = -ball.vy * 0.95; playSound('wall'); }
-                    if (ball.y - BALL_RADIUS_HOCKEY < GOAL_Y_TOP + GOAL_HEIGHT && ball.x > GOAL_X_LEFT && ball.x < GOAL_X_RIGHT) { scoreMy++; playSound('goal'); resetHockeyPositions(); updateHockeyScore(); startCountdown(); if (scoreMy >= WIN_SCORE) endOfflineHockeyMatch('player'); }
-                    if (ball.y + BALL_RADIUS_HOCKEY > GOAL_Y_BOTTOM && ball.x > GOAL_X_LEFT && ball.x < GOAL_X_RIGHT) { scoreOpponent++; playSound('goal'); resetHockeyPositions(); updateHockeyScore(); startCountdown(); if (scoreOpponent >= WIN_SCORE) endOfflineHockeyMatch('bot'); }
-                    if (myHockeyPlayer && !myHockeyPlayer.dead) {
-                        const dx = ball.x - myHockeyPlayer.x, dy = ball.y - myHockeyPlayer.y; const dist = Math.hypot(dx, dy);
-                        if (dist < BALL_RADIUS_HOCKEY + PLAYER_RADIUS_HOCKEY) {
-                            const angle = Math.atan2(dy, dx); const overlap = (BALL_RADIUS_HOCKEY + PLAYER_RADIUS_HOCKEY - dist) * 0.5;
-                            ball.x += Math.cos(angle) * overlap; ball.y += Math.sin(angle) * overlap;
-                            const speed = Math.hypot(ball.vx, ball.vy) + 2;
-                            ball.vx = Math.cos(angle) * speed; ball.vy = Math.sin(angle) * speed; ball.lastTouchedBy = 'red'; playSound('collision');
-                        }
-                    }
-                    if (offlineBot && !offlineBot.dead) {
-                        const dx = ball.x - offlineBot.x, dy = ball.y - offlineBot.y; const dist = Math.hypot(dx, dy);
-                        if (dist < BALL_RADIUS_HOCKEY + PLAYER_RADIUS_HOCKEY) {
-                            const angle = Math.atan2(dy, dx); const overlap = (BALL_RADIUS_HOCKEY + PLAYER_RADIUS_HOCKEY - dist) * 0.5;
-                            ball.x += Math.cos(angle) * overlap; ball.y += Math.sin(angle) * overlap;
-                            const speed = Math.hypot(ball.vx, ball.vy) + 2;
-                            ball.vx = Math.cos(angle) * speed; ball.vy = Math.sin(angle) * speed; ball.lastTouchedBy = 'blue'; playSound('collision');
-                        }
-                    }
-                }
-            }
-            drawHockeyPlayer(myHockeyPlayer); drawHockeyPlayer(offlineBot); drawHockeyBall();
-            updateParticles(); drawParticles();
-            animationFrameId = requestAnimationFrame(offlineHockeyLoop);
-        }
-        function endOfflineHockeyMatch(winner) {
-            if (!gameActive) return; gameActive = false;
-            if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
-            if (winner === 'player') { victoryCup.textContent = '🏆'; victoryText.innerText = 'Вы победили!'; victoryText.style.color = '#ffd700'; victoryRecord.innerText = `Счёт: ${scoreMy} : ${scoreOpponent}`; playSound('victory'); saveHockeyStats(1, 0); }
-            else { victoryCup.textContent = '💀'; victoryText.innerText = 'Вы проиграли!'; victoryText.style.color = '#ff3b30'; victoryRecord.innerText = `Счёт: ${scoreMy} : ${scoreOpponent}`; playSound('victory'); saveHockeyStats(0, 1); }
-            fireBtn.style.display = 'flex'; dashBtn.classList.add('hidden'); hockeyHud.style.display = 'none'; pauseBtn.classList.remove('visible');
-            setTimeout(() => { gameContainer.style.display = 'none'; screenVictory.style.display = 'flex'; }, 800);
-        }
-
-        // ================= ГЛАВНЫЙ ЦИКЛ ИГРЫ =================
-        function gameLoop() {
-            if (!gameActive) return; if (isPaused) { animationFrameId = requestAnimationFrame(gameLoop); return; }
-            ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-            if (redScreenTimer > 0) { redScreenTimer--; if (redScreenTimer === 0) redOverlay.classList.remove('active'); }
-            if (currentMode === 'battle') {
-                players.forEach(p => { if (!p.dead) p.update(); });
-                for (let i=0; i<players.length; i++) { if (players[i].dead) continue; for (let j=i+1; j<players.length; j++) { if (players[j].dead) continue; handleBallCollision(players[i], players[j]); } }
-                for (let i=0; i<players.length; i++) { if (players[i].dead) continue; for (let j=0; j<players.length; j++) { if (i===j || players[j].dead) continue; checkSwordHit(players[i], players[j]); } }
-                players.forEach(p => { if (!p.dead) p.draw(); });
-            } else if (currentMode === 'survival') {
-                const player = players[0];
-                if (!player || player.dead) { } else {
-                    player.update(); if (waveMessageTimer > 0) waveMessageTimer--; else waveMessage = '';
-                    if (!isWaveInProgress && waveDelay > 0) { waveDelay--; if (waveDelay === 0) startWave(); }
-                    else if (!isWaveInProgress && waveDelay === 0) startWave();
-                    if (isWaveInProgress) { spawnTimer++; if (spawnTimer >= spawnInterval) { spawnTimer = 0; spawnEnemyForWave(); } }
-                    for (const enemy of enemies) {
-                        if (enemy.dead) continue;
-                        const dxToPlayer = player.x - enemy.x, dyToPlayer = player.y - enemy.y; const dist = Math.hypot(dxToPlayer, dyToPlayer);
-                        
-                        if (enemy.isBoss) {
-                            if (enemy.shieldTimer > 0) {
-                                enemy.shieldTimer--;
-                                enemy.vx += (dxToPlayer / dist) * 1.5;
-                                enemy.vy += (dyToPlayer / dist) * 1.5;
-                            }
-                        }
-
-                        if (dist > 1) { enemy.x += (dxToPlayer / dist) * enemy.speed; enemy.y += (dyToPlayer / dist) * enemy.speed; }
-                        enemy.x += enemy.vx; enemy.y += enemy.vy; enemy.vx *= 0.9; enemy.vy *= 0.9;
-                        let bounceForce = 8; if (enemy.isBoss) bounceForce = 2; 
-                        
-                        let damage = ENEMY_DAMAGE;
-                        if (enemy.isBoss) damage = ENEMY_DAMAGE * 2;
-
-                        if (dist < player.radius + enemy.radius) {
-                            enemy.vx = (-dxToPlayer / dist) * bounceForce; enemy.vy = (-dyToPlayer / dist) * bounceForce;
-                            if (player.shieldTimer <= 0 && player.invulnerableTimer <= 0) {
-                                player.hp -= damage; if (player.hp < 0) player.hp = 0;
-                                player.vx += (dxToPlayer / dist) * 12; player.vy += (dyToPlayer / dist) * 12;
-                                player.invulnerableTimer = 90;
-                                if (player.hp <= 0) { player.dead = true; createImpactParticles(player.x, player.y, '#ff0000', 30); }
-                                createImpactParticles(enemy.x, enemy.y, '#ff4444', 10); playSound('damage'); showRedScreen(); updateHUD(); checkGameOver();
-                            } else { playSound('shield'); }
-                        }
-                        enemy.x = Math.max(enemy.radius, Math.min(canvas.width - enemy.radius, enemy.x));
-                        enemy.y = Math.max(enemy.radius, Math.min(canvas.height - enemy.radius, enemy.y));
-                    }
-                    for (let i=bullets.length-1; i>=0; i--) {
-                        const b = bullets[i]; b.x += b.vx; b.y += b.vy; b.life--;
-                        if (b.life <= 0 || b.x < 0 || b.x > canvas.width || b.y < 0 || b.y > canvas.height) { bullets.splice(i, 1); continue; }
-                        ctx.shadowBlur = 15; ctx.shadowColor = '#ffdd44'; ctx.fillStyle = '#ffdd44'; ctx.beginPath(); ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0;
-                        if (b.owner === 'player') {
-                            for (const enemy of enemies) {
-                                if (enemy.dead) continue;
-                                const d = Math.hypot(b.x - enemy.x, b.y - enemy.y);
-                                if (d < enemy.radius + b.radius) {
-                                    // Щит босса делает его бессмертным (не пропускает урон)
-                                    if (enemy.isBoss && enemy.shieldTimer > 0) {
-                                        createImpactParticles(b.x, b.y, '#888', 4); playSound('shield');
-                                        bullets.splice(i, 1); break;
-                                    }
-                                    
-                                    const damage = PLAYER_DAMAGE; 
-                                    if (enemy.isBoss) { damage = Math.floor(damage / 3); }
-                                    enemy.hp -= damage; createImpactParticles(b.x, b.y, '#ffdd44', 6);
-                                    enemy.vx += (b.vx / BULLET_SPEED) * 8; enemy.vy += (b.vy / BULLET_SPEED) * 8;
-                                    if (enemy.hp <= 0) { enemy.dead = true; countKillsThisGame++; if (enemy.isBoss) { isWaveInProgress = false; waveDelay = WAVE_DELAY; spawnMedkit(enemy.x, enemy.y); } createImpactParticles(enemy.x, enemy.y, '#ffffff', 15); playSound('hit'); updateHUD(); checkGameOver(); }
-                                    bullets.splice(i, 1); break;
-                                }
-                            }
-                        } else if (b.owner === 'enemy') {
-                            const d = Math.hypot(b.x - player.x, b.y - player.y);
-                            if (d < player.radius + b.radius) {
-                                if (player.shieldTimer <= 0 && player.invulnerableTimer <= 0) {
-                                    player.hp -= 5; if (player.hp < 0) player.hp = 0;
-                                    player.invulnerableTimer = 30;
-                                    if (player.hp <= 0) { player.dead = true; createImpactParticles(player.x, player.y, '#ff0000', 30); }
-                                    createImpactParticles(b.x, b.y, '#ff4444', 6); playSound('damage'); showRedScreen(); updateHUD(); checkGameOver();
-                                }
-                                bullets.splice(i, 1);
-                            }
-                        }
-                    }
-                    enemies = enemies.filter(e => !e.dead);
-                    if (isWaveInProgress && enemies.length === 0 && enemiesSpawnedInWave >= enemiesPerWave) { isWaveInProgress = false; if (wave % 5 === 0 && !bossSpawned) { bossSpawned = true; spawnBoss(); } else { waveDelay = WAVE_DELAY; } }
-                    for (let i=items.length-1; i>=0; i--) { const item = items[i]; item.life--; if (item.life <= 0) { items.splice(i, 1); continue; } const d = Math.hypot(item.x - player.x, item.y - player.y); if (d < player.radius + item.radius) { if (item.type === 'medkit') { survivalInv.medkits++; } else if (item.type === 'shield') { survivalInv.shields++; } updateInvUI(); items.splice(i, 1); playSound('medkit'); } }
-                }
-                for (const enemy of enemies) {
-                    if (enemy.dead) continue;
-                    ctx.shadowBlur = enemy.isBoss ? 30 : 15; ctx.shadowColor = enemy.isBoss ? '#884444' : '#888888';
-                    ctx.fillStyle = enemy.isBoss ? '#886666' : '#aaaaaa'; ctx.beginPath(); ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI*2); ctx.fill(); ctx.shadowBlur = 0;
-                    ctx.strokeStyle = '#666666'; ctx.lineWidth = enemy.isBoss ? 3 : 2; ctx.beginPath(); ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI*2); ctx.stroke();
-                    const hpP = enemy.hp / enemy.maxHp; ctx.fillStyle = '#ff0000'; ctx.fillRect(enemy.x - enemy.radius, enemy.y - enemy.radius - 10, enemy.radius*2, 4); ctx.fillStyle = '#00ff00'; ctx.fillRect(enemy.x - enemy.radius, enemy.y - enemy.radius - 10, enemy.radius*2*hpP, 4);
-                    if (enemy.isBoss) {
-                        if (enemy.shieldTimer > 0) {
-                            ctx.shadowBlur = 15; ctx.shadowColor = '#0000ff'; ctx.strokeStyle = 'rgba(0,0,255,0.6)'; ctx.lineWidth = 4;
-                            ctx.beginPath(); ctx.arc(enemy.x, enemy.y, enemy.radius + 8, 0, Math.PI * 2); ctx.stroke(); ctx.shadowBlur = 0;
-                        }
-                        ctx.shadowBlur = 15; ctx.shadowColor = '#ff8888'; ctx.fillStyle = '#ff8888'; ctx.font = 'bold 18px Arial'; ctx.textAlign = 'center'; ctx.fillText('БОСС', enemy.x, enemy.y - enemy.radius - 20); ctx.shadowBlur = 0;
-                    }
-                }
-                for (let i=items.length-1; i>=0; i--) {
-                    const item = items[i]; item.pulse += 0.05; const glow = Math.sin(item.pulse)*0.2 + 0.8;
-                    ctx.shadowBlur = 25*glow; ctx.shadowColor = item.type === 'medkit' ? '#00ff44' : '#00aaff';
-                    ctx.fillStyle = item.type === 'medkit' ? '#00cc44' : '#0077ff'; ctx.beginPath(); ctx.arc(item.x, item.y, item.radius*glow, 0, Math.PI*2); ctx.fill(); ctx.shadowBlur = 0;
-                    if (item.type === 'medkit') { ctx.fillStyle = '#ffffff'; ctx.fillRect(item.x - 8, item.y - 3, 16, 6); ctx.fillRect(item.x - 3, item.y - 8, 6, 16); }
-                    else { ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.moveTo(item.x, item.y - 12); ctx.lineTo(item.x + 10, item.y - 5); ctx.lineTo(item.x + 10, item.y + 5); ctx.lineTo(item.x, item.y + 12); ctx.lineTo(item.x - 10, item.y + 5); ctx.lineTo(item.x - 10, item.y - 5); ctx.closePath(); ctx.fill(); }
-                }
-                if (Math.random() < 0.001) spawnInventoryItem();
-                if (player) player.draw();
-                if (waveMessage && waveMessageTimer > 0) { ctx.save(); ctx.shadowBlur = 20; ctx.shadowColor = '#ffd700'; ctx.fillStyle = '#ffd700'; ctx.font = 'bold 32px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText(waveMessage, canvas.width / 2, 20); ctx.shadowBlur = 0; ctx.restore(); }
-                checkGameOver();
-            }
-            for (let i=bullets.length-1; i>=0; i--) { const b = bullets[i]; b.x += b.vx; b.y += b.vy; b.life--; if (b.life <= 0 || b.x < 0 || b.x > canvas.width || b.y < 0 || b.y > canvas.height) { bullets.splice(i, 1); continue; } ctx.shadowBlur = 15; ctx.shadowColor = '#ffdd44'; ctx.fillStyle = '#ffdd44'; ctx.beginPath(); ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0; }
-            updateParticles(); drawParticles();
-            animationFrameId = requestAnimationFrame(gameLoop);
-        }
-
-        // ================= НАВИГАЦИЯ =================
-        function goToMenu() {
-            if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
-            gameActive = false; gameStarted = false; isPaused = false; pauseBtn.textContent = '⏸️'; pauseBtn.style.background = '#333'; pauseBtn.classList.remove('visible');
-            menu.style.display = 'flex'; gameContainer.style.display = 'none'; screenVictory.style.display = 'none';
-            players = []; enemies = []; bullets = []; items = []; particles = []; redOverlay.classList.remove('active'); redScreenTimer = 0;
-            wave = 0; enemiesPerWave = 0; enemiesSpawnedInWave = 0; waveDelay = 0; isWaveInProgress = false; bossSpawned = false; spawnTimer = 0;
-            recordDisplay.textContent = '🏆 Рекорд волн: ' + waveRecord; victoryCup.textContent = '🏆'; victoryText.innerText = 'Победитель'; victoryText.style.color = '#ffffff'; victoryRecord.innerText = '';
-            fireBtn.style.display = 'flex'; dashBtn.classList.add('hidden'); mobileControls.classList.remove('visible'); invUI.classList.add('hidden');
-            hud.style.display = 'none'; survivalHud.style.display = 'none'; hockeyHud.style.display = 'none';
-            waveMessage = ''; waveMessageTimer = 0; cancelPvp();
-            if (currentMode !== 'pvp' && currentMode !== 'offline-hockey') startBtn.style.display = 'block'; else startBtn.style.display = 'none';
-            if (currentMode === 'profile') startBtn.style.display = 'none';
-        }
-
-        function restartGame() {
-            screenVictory.style.display = 'none';
-            menu.style.display = 'none';
-            gameContainer.style.display = 'flex';
-            if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
-            initAudio(); particles = []; players = []; enemies = []; bullets = []; items = []; wave = 0; enemiesPerWave = 0; enemiesSpawnedInWave = 0; waveDelay = 0; isWaveInProgress = false; bossSpawned = false; spawnTimer = 0; spawnInterval = 35; gameStarted = false; redOverlay.classList.remove('active'); redScreenTimer = 0; waveMessage = ''; waveMessageTimer = 0; countKillsThisGame = 0;
-            isPaused = false; pauseBtn.textContent = '⏸️'; pauseBtn.style.background = '#333'; pauseBtn.classList.remove('visible');
-            scoreMy = 0; scoreOpponent = 0; updateHockeyScore(); botHitCount = 0; botHitTimer = 0;
-            if (currentMode === 'battle') {
-                canvas.width = 700; canvas.height = 700;
-                const inputs = [ { name: cleanName(document.getElementById('p1-name').value) || 'Игрок 1' }, { name: cleanName(document.getElementById('p2-name').value) || 'Игрок 2' }, { name: cleanName(document.getElementById('p3-name').value) || 'Игрок 3' }, { name: cleanName(document.getElementById('p4-name').value) || 'Игрок 4' } ];
-                for (let i=0; i<currentPlayerCount; i++) {
-                    const config = playerConfigs[i]; const angle = (Math.PI * 2 / currentPlayerCount) * i; const x = 350 + Math.cos(angle) * 220, y = 350 + Math.sin(angle) * 220;
-                    const player = new PlayerBattle(x, y, config.color, config.border, inputs[i].name || config.name, i);
-                    const previewContainer = document.getElementById('preview' + (i+1));
-                    const imageData = previewContainer ? previewContainer.dataset.imageData : null;
-                    if (imageData) { player.image.src = imageData; player.image.onload = () => { player.imageLoaded = true; }; }
-                    players.push(player);
-                }
-                mobileControls.classList.remove('visible'); invUI.classList.add('hidden'); fireBtn.style.display = 'flex'; dashBtn.classList.add('hidden'); pauseBtn.classList.add('visible');
-            } else if (currentMode === 'survival') {
-                canvas.width = 700; canvas.height = 700;
-                const name = cleanName(document.getElementById('survival-name').value) || 'Игрок 1';
-                const player = new PlayerSurvival(350, 350, '#d32f2f', '#ff3b30', name, 0, 1);
-                const previewContainer = document.getElementById('preview-survival');
-                const imageData = previewContainer ? previewContainer.dataset.imageData : null;
-                if (imageData) { player.image.src = imageData; player.image.onload = () => { player.imageLoaded = true; }; }
-                survivalInv = { medkits: 0, shields: 0 }; updateInvUI(); invUI.classList.remove('hidden');
-                players.push(player); mobileControls.classList.add('visible'); fireBtn.style.display = 'flex'; dashBtn.classList.add('hidden'); wave = 0; waveDelay = 60; pauseBtn.classList.add('visible');
-            } else if (currentMode === 'pvp') { startHockeyDuel(); }
-            else if (currentMode === 'offline-hockey') { startOfflineHockey(); }
-            updateHUD(); gameActive = true; gameStarted = true; 
-            if (currentMode === 'battle' || currentMode === 'survival') gameLoop();
-        }
-
-        function centerTab(tab) {
-            const wrap = document.getElementById('mode-tabs-wrap');
-            if (!tab || !wrap) return;
-            const tabWidth = tab.offsetWidth;
-            const wrapWidth = wrap.offsetWidth;
-            const targetScroll = tab.offsetLeft - (wrapWidth - tabWidth) / 2;
-            wrap.scrollTo({ left: Math.max(0, targetScroll), behavior: 'smooth' });
-        }
-
-        function switchMode(mode) {
-            currentMode = mode;
-            tabBattle.classList.remove('active'); tabSurvival.classList.remove('active'); tabPvp.classList.remove('active'); tabProfile.classList.remove('active');
-            battleSettings.style.display = 'none'; survivalSettings.style.display = 'none'; pvpSettings.style.display = 'none'; profileSettings.style.display = 'none';
-            
-            if (mode === 'battle') { tabBattle.classList.add('active'); battleSettings.style.display = 'flex'; mobileControls.classList.remove('visible'); invUI.classList.add('hidden'); fireBtn.style.display = 'flex'; dashBtn.classList.add('hidden'); startBtn.style.display = 'block'; centerTab(tabBattle); }
-            else if (mode === 'survival') { tabSurvival.classList.add('active'); survivalSettings.style.display = 'flex'; mobileControls.classList.add('visible'); invUI.classList.remove('hidden'); fireBtn.style.display = 'flex'; dashBtn.classList.add('hidden'); recordDisplay.textContent = '🏆 Рекорд волн: ' + waveRecord; startBtn.style.display = 'block'; centerTab(tabSurvival); }
-            else if (mode === 'pvp') { tabPvp.classList.add('active'); pvpSettings.style.display = 'flex'; mobileControls.classList.add('visible'); invUI.classList.add('hidden'); fireBtn.style.display = 'none'; dashBtn.classList.remove('hidden'); startBtn.style.display = 'none'; centerTab(tabPvp); 
-                hockeyOfflineSection.classList.remove('active');
-                hockeyOfflineSection.querySelector('.hockey-section-content').style.display = 'none';
-                hockeyOnlineSection.classList.remove('active');
-                hockeyOnlineSection.querySelector('.hockey-section-content').style.display = 'none';
-                cancelPvp();
-            }
-            else if (mode === 'profile') { 
-                tabProfile.classList.add('active'); 
-                profileSettings.style.display = 'flex'; 
-                startBtn.style.display = 'none'; 
-                centerTab(tabProfile);
-                closeProfileSection(); // Возвращаем в главную часть профиля
-            }
-        }
-
-        function loadProfileData() { renderProfile(); }
-
-        function toggleSection(section) {
+        // ================= СОБЫТИЯ КНОПОК =================
+        hockeyOfflineHeader.addEventListener('click', () => { 
+            const section = hockeyOfflineSection;
             const content = section.querySelector('.hockey-section-content');
             const isActive = section.classList.contains('active');
-            document.querySelectorAll('.hockey-section').forEach(s => {
-                s.classList.remove('active');
-                s.querySelector('.hockey-section-content').style.display = 'none';
-            });
             if (!isActive) { section.classList.add('active'); content.style.display = 'flex'; }
-        }
-
-        hockeyOfflineHeader.addEventListener('click', () => { toggleSection(hockeyOfflineSection); currentMode = 'offline-hockey'; cancelPvp(); });
+            else { section.classList.remove('active'); content.style.display = 'none'; }
+            currentMode = 'offline-hockey';
+            cancelPvp();
+        });
         hockeyOnlineHeader.addEventListener('click', () => { toggleSection(hockeyOnlineSection); currentMode = 'pvp'; });
         tabBattle.addEventListener('click', () => { switchMode('battle'); });
         tabSurvival.addEventListener('click', () => { switchMode('survival'); });
