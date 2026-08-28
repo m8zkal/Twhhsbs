@@ -65,9 +65,11 @@
         .input-btn.clear-btn { color: #ff6b6b; }
         .input-btn.paste-btn { color: #4da6ff; }
         .input-btn.copy-btn { color: #ffd700; }
-        .image-preview { width: 100%; height: 80px; background: #1a1a1a; border: 2px dashed #444; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-top: 10px; cursor: pointer; }
-        .image-preview img { max-width: 100%; max-height: 100%; object-fit: contain; display: none; }
-        .image-preview .placeholder { color: #666; font-size: 14px; pointer-events: none; }
+        
+        /* Пункт 3: Квадратный аватар */
+        .image-preview { width: 100px; height: 100px; background: #1a1a1a; border: 2px dashed #444; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin: 10px auto; cursor: pointer; }
+        .image-preview img { max-width: 100%; max-height: 100%; object-fit: cover; display: none; }
+        .image-preview .placeholder { color: #666; font-size: 12px; pointer-events: none; text-align: center; padding: 5px; }
         
         button { width: 100%; padding: 16px; background: linear-gradient(135deg, #34c759 0%, #28a745 100%); color: #fff; border: none; border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(52,199,89,0.4); transition: all 0.3s ease; margin: 0 0 15px 0; }
         button:hover { background: linear-gradient(135deg, #2ec051 0%, #23923c 100%); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(52,199,89,0.6); }
@@ -168,6 +170,10 @@
         .suffix-picker { width: 100%; display: flex; flex-wrap: wrap; gap: 10px; }
         .suffix-btn { width: auto; flex: 1; min-width: 70px; padding: 10px; font-size: 18px; }
         .suffix-btn.selected { border: 2px solid #ffd700; background: #333; }
+        
+        /* Стили для кнопок внутри профиля (Пункт 1) */
+        .profile-nav-btn { flex: 1; padding: 10px; font-size: 14px; background: #333; border: 1px solid #555; border-radius: 8px; color: #fff; cursor: pointer; text-align: center; margin: 0; }
+        .profile-nav-btn:active { background: #444; }
     </style>
 </head>
 <body>
@@ -191,9 +197,7 @@
                 <div class="mode-tab" id="tab-survival">Выживание</div>
                 <div class="mode-tab" id="tab-pvp">Хоккей</div>
                 <div class="mode-tab" id="tab-profile">Профиль</div>
-                <div class="mode-tab" id="tab-friends">Друзья</div>
-                <div class="mode-tab" id="tab-leaderboards">Топы</div>
-                <div class="mode-tab" id="tab-suffix">Награды</div>
+                <!-- Пункт 1: Убраны отдельные вкладки Друзей, Топов, Наград и Статистики -->
             </div>
         </div>
 
@@ -202,28 +206,28 @@
                 <label for="p1-name">Имя Игрока 1</label>
                 <input type="text" id="p1-name" value="Игрок 1">
                 <label style="margin-top:15px; margin-bottom:10px;">Загрузи фото</label>
-                <div class="image-preview" id="preview1" onclick="document.getElementById('file1').click()"><span class="placeholder">📱 Нажми, чтобы выбрать фото</span><img id="preview1-img" src="" alt="Preview" style="display:none;"></div>
+                <div class="image-preview" id="preview1" onclick="document.getElementById('file1').click()"><span class="placeholder">📱 Фото</span><img id="preview1-img" src="" alt="Preview" style="display:none;"></div>
                 <input type="file" id="file1" accept="image/*" style="display:none;" onchange="loadPhoto('file1', 'preview1', 'preview1-img')">
             </div>
             <div class="player-input-group p2-border">
                 <label for="p2-name">Имя Игрока 2</label>
                 <input type="text" id="p2-name" value="Игрок 2">
                 <label style="margin-top:15px; margin-bottom:10px;">Загрузи фото</label>
-                <div class="image-preview" id="preview2" onclick="document.getElementById('file2').click()"><span class="placeholder">📱 Нажми, чтобы выбрать фото</span><img id="preview2-img" src="" alt="Preview" style="display:none;"></div>
+                <div class="image-preview" id="preview2" onclick="document.getElementById('file2').click()"><span class="placeholder">📱 Фото</span><img id="preview2-img" src="" alt="Preview" style="display:none;"></div>
                 <input type="file" id="file2" accept="image/*" style="display:none;" onchange="loadPhoto('file2', 'preview2', 'preview2-img')">
             </div>
             <div class="player-input-group p3-border" id="p3-group">
                 <label for="p3-name">Имя Игрока 3</label>
                 <input type="text" id="p3-name" value="Игрок 3">
                 <label style="margin-top:15px; margin-bottom:10px;">Загрузи фото</label>
-                <div class="image-preview" id="preview3" onclick="document.getElementById('file3').click()"><span class="placeholder">📱 Нажми, чтобы выбрать фото</span><img id="preview3-img" src="" alt="Preview" style="display:none;"></div>
+                <div class="image-preview" id="preview3" onclick="document.getElementById('file3').click()"><span class="placeholder">📱 Фото</span><img id="preview3-img" src="" alt="Preview" style="display:none;"></div>
                 <input type="file" id="file3" accept="image/*" style="display:none;" onchange="loadPhoto('file3', 'preview3', 'preview3-img')">
             </div>
             <div class="player-input-group p4-border" id="p4-group">
                 <label for="p4-name">Имя Игрока 4</label>
                 <input type="text" id="p4-name" value="Игрок 4">
                 <label style="margin-top:15px; margin-bottom:10px;">Загрузи фото</label>
-                <div class="image-preview" id="preview4" onclick="document.getElementById('file4').click()"><span class="placeholder">📱 Нажми, чтобы выбрать фото</span><img id="preview4-img" src="" alt="Preview" style="display:none;"></div>
+                <div class="image-preview" id="preview4" onclick="document.getElementById('file4').click()"><span class="placeholder">📱 Фото</span><img id="preview4-img" src="" alt="Preview" style="display:none;"></div>
                 <input type="file" id="file4" accept="image/*" style="display:none;" onchange="loadPhoto('file4', 'preview4', 'preview4-img')">
             </div>
             <button id="add-player-btn">Добавить игрока</button>
@@ -235,7 +239,7 @@
                 <label for="survival-name">Имя Игрока</label>
                 <input type="text" id="survival-name" value="Игрок 1">
                 <label style="margin-top:15px; margin-bottom:10px;">Загрузи фото</label>
-                <div class="image-preview" id="preview-survival" onclick="document.getElementById('file-survival').click()"><span class="placeholder">📱 Нажми, чтобы выбрать фото</span><img id="preview-survival-img" src="" alt="Preview" style="display:none;"></div>
+                <div class="image-preview" id="preview-survival" onclick="document.getElementById('file-survival').click()"><span class="placeholder">📱 Фото</span><img id="preview-survival-img" src="" alt="Preview" style="display:none;"></div>
                 <input type="file" id="file-survival" accept="image/*" style="display:none;" onchange="loadPhoto('file-survival', 'preview-survival', 'preview-survival-img')">
             </div>
         </div>
@@ -252,14 +256,14 @@
                                 <label for="offline-player-name">Имя игрока 1</label>
                                 <input type="text" id="offline-player-name" value="Игрок 1">
                                 <label style="margin-top:15px; margin-bottom:10px;">Загрузи фото</label>
-                                <div class="image-preview" id="preview-offline-player" onclick="document.getElementById('file-offline-player').click()"><span class="placeholder">📱 Нажми, чтобы выбрать фото</span><img id="preview-offline-player-img" src="" alt="Preview" style="display:none;"></div>
+                                <div class="image-preview" id="preview-offline-player" onclick="document.getElementById('file-offline-player').click()"><span class="placeholder">📱 Фото</span><img id="preview-offline-player-img" src="" alt="Preview" style="display:none;"></div>
                                 <input type="file" id="file-offline-player" accept="image/*" style="display:none;" onchange="loadPhoto('file-offline-player', 'preview-offline-player', 'preview-offline-player-img')">
                             </div>
                             <div class="player-input-group p2-border">
                                 <label for="offline-bot-name">Имя игрока 2</label>
                                 <input type="text" id="offline-bot-name" value="Игрок 2">
                                 <label style="margin-top:15px; margin-bottom:10px;">Загрузи фото</label>
-                                <div class="image-preview" id="preview-offline-bot" onclick="document.getElementById('file-offline-bot').click()"><span class="placeholder">📱 Нажми, чтобы выбрать фото</span><img id="preview-offline-bot-img" src="" alt="Preview" style="display:none;"></div>
+                                <div class="image-preview" id="preview-offline-bot" onclick="document.getElementById('file-offline-bot').click()"><span class="placeholder">📱 Фото</span><img id="preview-offline-bot-img" src="" alt="Preview" style="display:none;"></div>
                                 <input type="file" id="file-offline-bot" accept="image/*" style="display:none;" onchange="loadPhoto('file-offline-bot', 'preview-offline-bot', 'preview-offline-bot-img')">
                             </div>
                             <button id="offline-start-btn">Старт</button>
@@ -294,7 +298,7 @@
                                 <label for="pvp-name">Имя игрока</label>
                                 <input type="text" id="pvp-name" value="Игрок">
                                 <label style="margin-top:15px; margin-bottom:10px;">Загрузи фото</label>
-                                <div class="image-preview" id="preview-pvp" onclick="document.getElementById('file-pvp').click()"><span class="placeholder">📱 Нажми, чтобы выбрать фото</span><img id="preview-pvp-img" src="" alt="Preview" style="display:none;"></div>
+                                <div class="image-preview" id="preview-pvp" onclick="document.getElementById('file-pvp').click()"><span class="placeholder">📱 Фото</span><img id="preview-pvp-img" src="" alt="Preview" style="display:none;"></div>
                                 <input type="file" id="file-pvp" accept="image/*" style="display:none;" onchange="loadPhoto('file-pvp', 'preview-pvp', 'preview-pvp-img')">
                             </div>
                             <button id="pvp-ready-btn">Готово</button>
@@ -304,42 +308,55 @@
             </div>
         </div>
 
+        <!-- Пункт 1, 2, 3: Обновленный профиль -->
         <div id="profile-settings" style="display: none;">
             <div class="profile-info">
-                <div id="profile-avatar" style="font-size: 80px; text-align: center; margin-bottom: 20px;">👤</div>
-                <div id="change-avatar-btn" style="width: 100%; padding: 12px; background: #333; border: 1px solid #555; border-radius: 10px; text-align: center; cursor: pointer; margin-bottom: 10px;">📷 Выбрать аватар</div>
+                <!-- Пункт 3: Квадратный аватар -->
+                <div id="profile-avatar" style="width: 100px; height: 100px; border: 3px solid #ffd700; border-radius: 8px; background: #222; margin: 0 auto 20px auto; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 50px; cursor: pointer;" onclick="document.getElementById('avatar-input').click()">👤</div>
                 <input type="file" id="avatar-input" accept="image/*" style="display: none;">
-                <div id="profile-name" style="font-size: 28px; text-align: center; color: #ffd700; margin-bottom: 10px;">Игрок</div>
-                <div id="my-id-display"></div>
+                <div id="profile-name" style="font-size: 28px; text-align: center; color: #ffd700; margin-bottom: 5px;">Игрок</div>
                 <div id="profile-title" style="font-size: 20px; text-align: center; color: #aaa; margin-bottom: 20px;"></div>
+                <div id="my-id-display" style="background: #222; padding: 10px; border-radius: 8px; text-align: center; font-size: 18px; color: #fff; margin-bottom: 15px; user-select: all;"></div>
+                
+                <!-- Пункт 1: Кнопки внутри профиля -->
+                <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;">
+                    <div class="profile-nav-btn" onclick="switchMode('friends')">👥 Друзья</div>
+                    <div class="profile-nav-btn" onclick="switchMode('leaderboards')">🏆 Топы</div>
+                    <div class="profile-nav-btn" onclick="switchMode('suffix')">🏅 Награды</div>
+                    <div class="profile-nav-btn" onclick="toggleProfileStats()">📊 Статистика</div>
+                </div>
+
+                <!-- Пункт 2: Кнопка смены имени всегда активна -->
                 <button id="change-name-btn">Сменить имя</button>
-                <div id="profile-stats" style="margin-top: 20px;"></div>
+                
+                <div id="profile-stats" style="margin-top: 20px; display: none;"></div>
             </div>
         </div>
 
         <div id="friends-settings" style="display: none;">
             <div class="friends-list" id="friends-list"></div>
-            <div style="display: flex; gap: 10px;">
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
                 <input type="text" id="friend-id-input" placeholder="ID друга" style="flex: 1; background: #333; border: 1px solid #555; border-radius: 8px; color: #fff; padding: 12px;">
                 <button id="add-friend-btn" style="width: 120px;">Добавить</button>
             </div>
-            <button id="invite-friend-btn">Пригласить друга в игру</button>
+            <button id="invite-friend-btn" style="margin-top: 15px;">Пригласить друга в игру</button>
         </div>
 
         <div id="leaderboard-settings" style="display: none;">
             <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                <button id="lb-survival-btn" class="active" style="flex: 1;">🏆 Выживание</button>
+                <button id="lb-survival-btn" class="active" style="flex: 1;">🛡️ Выживание</button>
                 <button id="lb-hockey-btn" style="flex: 1;">🏒 Хоккей</button>
             </div>
             <div id="leaderboard"></div>
         </div>
 
         <div id="suffix-settings" style="display: none;">
-            <h2 style="color: #ffd700; margin-bottom: 20px; text-align: center;">🏅 Достижения и Суффиксы</h2>
+            <h2 style="color: #ffd700; margin-bottom: 20px; text-align: center;">🏅 Награды</h2>
             <div id="achievements-list" class="achievements-list"></div>
-            <h3 style="color: #fff; margin-top: 20px; margin-bottom: 10px;">Выбери свой Суффикс:</h3>
+            <!-- Пункт 8: Заменили "Суффикс" на "Статус" -->
+            <h3 style="color: #fff; margin-top: 20px; margin-bottom: 10px;">Выбери свой Статус:</h3>
             <div id="suffix-picker" class="suffix-picker"></div>
-            <button id="clear-suffix-btn" style="background: #555;">Убрать суффикс</button>
+            <button id="clear-suffix-btn" style="background: #555;">Убрать статус</button>
         </div>
 
         <button id="start-btn">Старт</button>
@@ -405,9 +422,6 @@
         const tabSurvival = document.getElementById('tab-survival');
         const tabPvp = document.getElementById('tab-pvp');
         const tabProfile = document.getElementById('tab-profile');
-        const tabFriends = document.getElementById('tab-friends');
-        const tabLeaderboards = document.getElementById('tab-leaderboards');
-        const tabSuffix = document.getElementById('tab-suffix');
         const battleSettings = document.getElementById('battle-settings');
         const survivalSettings = document.getElementById('survival-settings');
         const pvpSettings = document.getElementById('pvp-settings');
@@ -447,7 +461,7 @@
         const myIdDisplay = document.getElementById('my-id-display');
         const profileStats = document.getElementById('profile-stats');
         const changeNameBtn = document.getElementById('change-name-btn');
-        const changeAvatarBtn = document.getElementById('change-avatar-btn');
+        const changeAvatarBtn = document.getElementById('avatar-input');
         const avatarInput = document.getElementById('avatar-input');
         const leaderboard = document.getElementById('leaderboard');
         const friendsList = document.getElementById('friends-list');
@@ -562,18 +576,21 @@
         const registerError = document.getElementById('register-error');
         let countKillsThisGame = 0;
 
+        // Пункт 16, 17: Крутые названия наград, убраны старые
         const achievementsDefs = [
-            { id: 'kills_50', name: '☠️ Киллер', desc: 'Убей 50 врагов за одну игру', icon: '☠️', check: (s) => s.totalKills >= 50 },
-            { id: 'kills_100', name: '⚔️ Легенда', desc: 'Убей 100 врагов за одну игру', icon: '⚔️', check: (s) => s.totalKills >= 100 },
-            { id: 'waves_10', name: '💀 Волнорез', desc: 'Пройди 10 волн', icon: '💀', check: (s) => s.bestWaves >= 10 },
-            { id: 'waves_20', name: '☠️ Терминатор', desc: 'Пройди 20 волн', icon: '☠️', check: (s) => s.bestWaves >= 20 },
-            { id: 'hockey_win_1', name: '🏒 Первая победа', desc: 'Выиграй матч в хоккее', icon: '🏒', check: (s) => s.hockeyWins >= 1 },
-            { id: 'hockey_win_10', name: '🏆 Хоккейный бог', desc: 'Выиграй 10 матчей в хоккее', icon: '🏆', check: (s) => s.hockeyWins >= 10 }
+            { id: 'kills_50', name: '🔥 Уничтожитель', desc: 'Убей 50 врагов за одну игру', icon: '🔥', check: (s) => s.totalKills >= 50 },
+            { id: 'kills_100', name: '💀 Каратель', desc: 'Убей 100 врагов за одну игру', icon: '💀', check: (s) => s.totalKills >= 100 },
+            { id: 'waves_10', name: '🌊 Шторм', desc: 'Пройди 10 волн', icon: '🌊', check: (s) => s.bestWaves >= 10 },
+            { id: 'waves_20', name: '🐉 Легенда', desc: 'Пройди 20 волн', icon: '🐉', check: (s) => s.bestWaves >= 20 },
+            { id: 'hockey_win_1', name: '🥅 Первый гол', desc: 'Выиграй матч в хоккее', icon: '🥅', check: (s) => s.hockeyWins >= 1 },
+            // Пункт 18: Хоккейный бог теперь за 100 матчей
+            { id: 'hockey_win_100', name: '🏆 Хоккейный бог', desc: 'Выиграй 100 матчей в хоккее', icon: '🏆', check: (s) => s.hockeyWins >= 100 }
         ];
 
-        const suffixDefs = ['✨', '☠️', '💀', '⚔️', '🏒', '🏆'];
+        // Пункт 9: Убрана звезда, заменена на статусы
+        const suffixDefs = ['🔥', '☠️', '💀', '⚔️', '🏒', '🏆'];
         const suffixUnlockConditions = {
-            '✨': () => true, // Базовый суффикс доступен сразу
+            '🔥': () => true, 
             '☠️': (s) => s.totalKills >= 50,
             '💀': (s) => s.bestWaves >= 10,
             '⚔️': (s) => s.totalKills >= 100,
@@ -612,14 +629,14 @@
                 avatar: null,
                 createdAt: firebase.database.ServerValue.TIMESTAMP,
                 lastLogin: firebase.database.ServerValue.TIMESTAMP,
-                suffix: '✨',
+                suffix: '🔥',
                 friends: {},
                 stats: {
                     survival: { bestWaves: 0, bestKills: 0, totalKills: 0, games: 0 },
                     hockey: { wins: 0, losses: 0, games: 0 }
                 },
                 achievements: {
-                    k_50: false, k_100: false, w_10: false, w_20: false, h_1: false, h_10: false
+                    k_50: false, k_100: false, w_10: false, w_20: false, h_1: false, h_100: false
                 }
             };
             
@@ -652,12 +669,21 @@
             return false;
         }
 
+        // Пункт 12: Копирование ID
+        myIdDisplay.addEventListener('click', () => {
+            navigator.clipboard.writeText(currentUser ? currentUser.id : '').then(() => {
+                myIdDisplay.textContent = 'ID скопирован!';
+                setTimeout(() => { if (currentUser) myIdDisplay.textContent = 'Ваш ID: ' + currentUser.id; }, 1500);
+            });
+        });
+
         function renderProfile() {
             if (!currentUser) return;
             profileName.textContent = currentUser.name;
             profileTitle.textContent = currentUser.suffix || '';
             myIdDisplay.textContent = 'Ваш ID: ' + currentUser.id;
             profileAvatar.textContent = currentUser.avatar ? '🖼️' : '👤';
+            if (currentUser.avatar) profileAvatar.innerHTML = `<img src="${currentUser.avatar}" style="width:100%; height:100%; object-fit:cover;">`;
             
             const stats = currentUser.stats || {};
             profileStats.innerHTML = `
@@ -724,7 +750,7 @@
             if (combinedStats.bestWaves >= 10) updatedAchs.w_10 = true;
             if (combinedStats.bestWaves >= 20) updatedAchs.w_20 = true;
             if (combinedStats.hockeyWins >= 1) updatedAchs.h_1 = true;
-            if (combinedStats.hockeyWins >= 10) updatedAchs.h_10 = true;
+            if (combinedStats.hockeyWins >= 100) updatedAchs.h_100 = true;
             
             await db.ref('users/' + userId + '/achievements').update(updatedAchs);
             currentUser.achievements = updatedAchs;
@@ -775,7 +801,7 @@
             };
             
             if (!suffixUnlockConditions[suffix](combinedStats)) {
-                alert('Этот суффикс ещё не разблокирован!');
+                alert('Этот статус ещё не разблокирован!');
                 return;
             }
             
@@ -809,6 +835,7 @@
             if (e.key === 'Enter') registerBtn.click();
         });
 
+        // Пункт 2: Кнопка смены имени всегда активна
         changeNameBtn.addEventListener('click', async () => {
             const newName = prompt('Введи новое имя:', currentUser.name);
             if (!newName || newName.length < 2) return;
@@ -822,7 +849,7 @@
             profileName.textContent = newName;
         });
 
-        changeAvatarBtn.addEventListener('click', () => avatarInput.click());
+        // Пункт 3: Загрузка фото (квадратное окно)
         avatarInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
@@ -831,11 +858,19 @@
                 const dataUrl = event.target.result;
                 await db.ref('users/' + currentUser.id + '/avatar').set(dataUrl);
                 currentUser.avatar = dataUrl;
-                profileAvatar.textContent = '🖼️';
+                renderProfile();
                 alert('Аватар обновлен!');
             };
             reader.readAsDataURL(file);
         });
+
+        function toggleProfileStats() {
+            if (profileStats.style.display === 'none') {
+                profileStats.style.display = 'block';
+            } else {
+                profileStats.style.display = 'none';
+            }
+        }
 
         function renderFriends() {
             if (!currentUser) return;
@@ -914,6 +949,7 @@
             }, 500);
         });
 
+        // Пункт 13, 14, 15: Обновленные Топы
         function renderLeaderboard() {
             if (!db) return;
             leaderboard.innerHTML = '<p style="text-align:center; color:#666;">Загрузка...<p>';
@@ -927,10 +963,12 @@
                     }
                     
                     const sorted = Object.values(users).sort((a, b) => (b.stats?.survival?.bestWaves || 0) - (a.stats?.survival?.bestWaves || 0));
-                    let html = '<h3 style="color: #ffd700; margin-bottom: 15px;">🏆 Топ-10 Выживания</h3><table class="leaderboard-table"><tr><th>#</th><th>Имя</th><th>Волны</th></tr>';
+                    let html = '<h3 style="color: #ffd700; margin-bottom: 15px;">🛡️ Топ-10 Выживания</h3><table class="leaderboard-table"><tr><th>#</th><th>Имя</th><th>Волны</th></tr>';
                     sorted.forEach((user, index) => {
                         const suffix = user.suffix ? user.suffix + ' ' : '';
-                        html += `<tr><td>${index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : (index + 1)}</td><td>${suffix}${user.name}</td><td>${user.stats?.survival?.bestWaves || 0}</td></tr>`;
+                        let highlight = '';
+                        if (currentUser && user.name === currentUser.name) highlight = 'style="background: #333; color: #ffd700;"';
+                        html += `<tr ${highlight}><td>${index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : (index + 1)}</td><td>${suffix}${user.name}</td><td>${user.stats?.survival?.bestWaves || 0}</td></tr>`;
                     });
                     html += '</table>';
                     leaderboard.innerHTML = html;
@@ -947,7 +985,9 @@
                     let html = '<h3 style="color: #ffd700; margin-bottom: 15px;">🏒 Топ-10 Хоккея</h3><table class="leaderboard-table"><tr><th>#</th><th>Имя</th><th>Победы</th></tr>';
                     sorted.forEach((user, index) => {
                         const suffix = user.suffix ? user.suffix + ' ' : '';
-                        html += `<tr><td>${index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : (index + 1)}</td><td>${suffix}${user.name}</td><td>${user.stats?.hockey?.wins || 0}</td></tr>`;
+                        let highlight = '';
+                        if (currentUser && user.name === currentUser.name) highlight = 'style="background: #333; color: #ffd700;"';
+                        html += `<tr ${highlight}><td>${index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : (index + 1)}</td><td>${suffix}${user.name}</td><td>${user.stats?.hockey?.wins || 0}</td></tr>`;
                     });
                     html += '</table>';
                     leaderboard.innerHTML = html;
@@ -975,6 +1015,7 @@
             { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' }
         ];
 
+        // Пункт 3, 4: Квадратный аватар и обработка пробелов в нике
         window.loadPhoto = function(inputId, previewId, imgId) {
             const fileInput = document.getElementById(inputId);
             const img = document.getElementById(imgId);
@@ -997,7 +1038,7 @@
                     ctx2.drawImage(imgObj, 0, 0, width, height);
                     const compressedUrl = c.toDataURL('image/jpeg', 0.7);
                     img.src = compressedUrl; img.style.display = 'block';
-                    img.style.borderRadius = '50%';
+                    img.style.borderRadius = '0'; // Пункт 3: Квадратное окно
                     if (placeholder) placeholder.style.display = 'none';
                     preview.dataset.imageData = compressedUrl;
                 };
@@ -1005,6 +1046,11 @@
             };
             reader.readAsDataURL(file);
         };
+
+        // Пункт 4: Обработка пробелов (лишние пробелы удаляются)
+        function cleanName(name) {
+            return name.replace(/\s+/g, ' ').trim();
+        }
 
         document.addEventListener('keydown', (e) => {
             if (e.key in keys) { keys[e.key] = true; e.preventDefault(); }
@@ -1334,7 +1380,17 @@
             enemies.push({ x, y, vx: 0, vy: 0, radius, hp, maxHp: hp, speed, dead: false, type, isBoss: false });
             enemiesSpawnedInWave++;
         }
-        function spawnBoss() { const x = canvas.width/2 + (Math.random()-0.5)*200, y = canvas.height/2 + (Math.random()-0.5)*200; const hp = 30 + wave*8, speed = 0.7 + wave*0.04; enemies.push({ x, y, vx: 0, vy: 0, radius: BOSS_RADIUS, hp, maxHp: hp, speed, dead: false, type: 'boss', isBoss: true }); playSound('boss'); isWaveInProgress = true; waveMessage = `Босс! Волна ${wave}`; waveMessageTimer = 90; }
+        
+        // Пункт 20-29: Усложненный Босс
+        function spawnBoss() { 
+            const x = canvas.width/2 + (Math.random()-0.5)*200, y = canvas.height/2 + (Math.random()-0.5)*200; 
+            const hp = 50 + wave*15; // Пункт 20: Больше HP
+            const speed = 2.2 + wave*0.05; // Пункт 26: Чуть быстрее
+            enemies.push({ x, y, vx: 0, vy: 0, radius: BOSS_RADIUS * 1.2, hp, maxHp: hp, speed, dead: false, type: 'boss', isBoss: true, phase: 'normal', phaseTimer: 0, shieldTimer: 0, shootTimer: 0 }); 
+            playSound('boss'); isWaveInProgress = true; 
+            waveMessage = `Босс! Волна ${wave}`; waveMessageTimer = 90; 
+        }
+
         function updateParticles() { if (particles.length > MAX_PARTICLES) particles.splice(0, particles.length - MAX_PARTICLES); for (let i=particles.length-1; i>=0; i--) { particles[i].update(); if (particles[i].isDead()) particles.splice(i, 1); } }
         function drawParticles() { for (const p of particles) p.draw(); }
 
@@ -1755,13 +1811,49 @@
                     for (const enemy of enemies) {
                         if (enemy.dead) continue;
                         const dxToPlayer = player.x - enemy.x, dyToPlayer = player.y - enemy.y; const dist = Math.hypot(dxToPlayer, dyToPlayer);
+                        
+                        // Пункт 27: Фаза Дерил (Босс)
+                        if (enemy.isBoss) {
+                            enemy.phaseTimer++;
+                            if (enemy.shieldTimer > 0) {
+                                enemy.shieldTimer--;
+                                // Пункт 24: Мелкие отталкиваются сильнее, крупные слабее
+                                enemy.vx += (dxToPlayer / dist) * 1.5;
+                                enemy.vy += (dyToPlayer / dist) * 1.5;
+                            }
+                            if (enemy.phaseTimer > 300) {
+                                enemy.phase = 'deril';
+                                enemy.shieldTimer = 100;
+                                playSound('boss');
+                                // Пункт 29: Босс в целом значительно усложнён (стрельба во все стороны)
+                                for (let i=0; i<12; i++) {
+                                    const angle = (Math.PI * 2 / 12) * i;
+                                    bullets.push({ x: enemy.x, y: enemy.y, vx: Math.cos(angle) * 5, vy: Math.sin(angle) * 5, owner: 'enemy', radius: 5, life: 150 });
+                                }
+                                enemy.phaseTimer = 0;
+                            }
+                            // Пункт 22, 30: Стреляет с разбросом, попадает через раз
+                            if (enemy.shootTimer > 0) {
+                                enemy.shootTimer--;
+                            } else {
+                                enemy.shootTimer = 60;
+                                const angle = Math.atan2(dyToPlayer, dxToPlayer) + (Math.random() - 0.5) * 0.8;
+                                bullets.push({ x: enemy.x, y: enemy.y, vx: Math.cos(angle) * 4, vy: Math.sin(angle) * 4, owner: 'enemy', radius: 4, life: 120 });
+                            }
+                        }
+
                         if (dist > 1) { enemy.x += (dxToPlayer / dist) * enemy.speed; enemy.y += (dyToPlayer / dist) * enemy.speed; }
                         enemy.x += enemy.vx; enemy.y += enemy.vy; enemy.vx *= 0.9; enemy.vy *= 0.9;
-                        let bounceForce = 8; if (enemy.isBoss) bounceForce = 2;
+                        let bounceForce = 8; if (enemy.isBoss) bounceForce = 2; // Пункт 23: Боссу понижено отталкивание
+                        
+                        // Пункт 21: Босс наносит большой урон при столкновении
+                        let damage = ENEMY_DAMAGE;
+                        if (enemy.isBoss) damage = ENEMY_DAMAGE * 2;
+
                         if (dist < player.radius + enemy.radius) {
                             enemy.vx = (-dxToPlayer / dist) * bounceForce; enemy.vy = (-dyToPlayer / dist) * bounceForce;
                             if (player.shieldTimer <= 0 && player.invulnerableTimer <= 0) {
-                                player.hp -= ENEMY_DAMAGE; if (player.hp < 0) player.hp = 0;
+                                player.hp -= damage; if (player.hp < 0) player.hp = 0;
                                 player.vx += (dxToPlayer / dist) * 12; player.vy += (dyToPlayer / dist) * 12;
                                 player.invulnerableTimer = 90;
                                 if (player.hp <= 0) { player.dead = true; createImpactParticles(player.x, player.y, '#ff0000', 30); }
@@ -1780,11 +1872,32 @@
                                 if (enemy.dead) continue;
                                 const d = Math.hypot(b.x - enemy.x, b.y - enemy.y);
                                 if (d < enemy.radius + b.radius) {
-                                    const damage = PLAYER_DAMAGE; enemy.hp -= damage; createImpactParticles(b.x, b.y, '#ffdd44', 6);
+                                    const damage = PLAYER_DAMAGE; 
+                                    // Пункт 20: Босс меньше пробивается (броня)
+                                    if (enemy.isBoss) { 
+                                        damage = Math.floor(damage / 3); 
+                                    }
+                                    enemy.hp -= damage; createImpactParticles(b.x, b.y, '#ffdd44', 6);
                                     enemy.vx += (b.vx / BULLET_SPEED) * 8; enemy.vy += (b.vy / BULLET_SPEED) * 8;
                                     if (enemy.hp <= 0) { enemy.dead = true; countKillsThisGame++; if (enemy.isBoss) { isWaveInProgress = false; waveDelay = WAVE_DELAY; spawnMedkit(enemy.x, enemy.y); } createImpactParticles(enemy.x, enemy.y, '#ffffff', 15); playSound('hit'); updateHUD(); checkGameOver(); }
                                     bullets.splice(i, 1); break;
                                 }
+                            }
+                        } else if (b.owner === 'enemy') {
+                            const d = Math.hypot(b.x - player.x, b.y - player.y);
+                            if (d < player.radius + b.radius) {
+                                if (player.shieldTimer <= 0 && player.invulnerableTimer <= 0) {
+                                    // Пункт 30: У босса есть право на промахи (попадает через раз)
+                                    if (Math.random() > 0.5) {
+                                        player.hp -= 5; if (player.hp < 0) player.hp = 0;
+                                        player.invulnerableTimer = 30;
+                                        if (player.hp <= 0) { player.dead = true; createImpactParticles(player.x, player.y, '#ff0000', 30); }
+                                        createImpactParticles(b.x, b.y, '#ff4444', 6); playSound('damage'); showRedScreen(); updateHUD(); checkGameOver();
+                                    } else {
+                                        createImpactParticles(b.x, b.y, '#ffffff', 2);
+                                    }
+                                }
+                                bullets.splice(i, 1);
                             }
                         }
                     }
@@ -1798,7 +1911,13 @@
                     ctx.fillStyle = enemy.isBoss ? '#886666' : '#aaaaaa'; ctx.beginPath(); ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI*2); ctx.fill(); ctx.shadowBlur = 0;
                     ctx.strokeStyle = '#666666'; ctx.lineWidth = enemy.isBoss ? 3 : 2; ctx.beginPath(); ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI*2); ctx.stroke();
                     const hpP = enemy.hp / enemy.maxHp; ctx.fillStyle = '#ff0000'; ctx.fillRect(enemy.x - enemy.radius, enemy.y - enemy.radius - 10, enemy.radius*2, 4); ctx.fillStyle = '#00ff00'; ctx.fillRect(enemy.x - enemy.radius, enemy.y - enemy.radius - 10, enemy.radius*2*hpP, 4);
-                    if (enemy.isBoss) { ctx.shadowBlur = 15; ctx.shadowColor = '#ff8888'; ctx.fillStyle = '#ff8888'; ctx.font = 'bold 18px Arial'; ctx.textAlign = 'center'; ctx.fillText('БОСС', enemy.x, enemy.y - enemy.radius - 20); ctx.shadowBlur = 0; }
+                    if (enemy.isBoss) {
+                        if (enemy.shieldTimer > 0) { // Пункт 25: Щит держится дольше
+                            ctx.shadowBlur = 15; ctx.shadowColor = '#0000ff'; ctx.strokeStyle = 'rgba(0,0,255,0.6)'; ctx.lineWidth = 4;
+                            ctx.beginPath(); ctx.arc(enemy.x, enemy.y, enemy.radius + 8, 0, Math.PI * 2); ctx.stroke(); ctx.shadowBlur = 0;
+                        }
+                        ctx.shadowBlur = 15; ctx.shadowColor = '#ff8888'; ctx.fillStyle = '#ff8888'; ctx.font = 'bold 18px Arial'; ctx.textAlign = 'center'; ctx.fillText('БОСС', enemy.x, enemy.y - enemy.radius - 20); ctx.shadowBlur = 0;
+                    }
                 }
                 for (let i=items.length-1; i>=0; i--) {
                     const item = items[i]; item.pulse += 0.05; const glow = Math.sin(item.pulse)*0.2 + 0.8;
@@ -1843,7 +1962,7 @@
             botHitCount = 0; botHitTimer = 0;
             if (currentMode === 'battle') {
                 canvas.width = 700; canvas.height = 700;
-                const inputs = [ { name: document.getElementById('p1-name').value || 'Игрок 1' }, { name: document.getElementById('p2-name').value || 'Игрок 2' }, { name: document.getElementById('p3-name').value || 'Игрок 3' }, { name: document.getElementById('p4-name').value || 'Игрок 4' } ];
+                const inputs = [ { name: cleanName(document.getElementById('p1-name').value) || 'Игрок 1' }, { name: cleanName(document.getElementById('p2-name').value) || 'Игрок 2' }, { name: cleanName(document.getElementById('p3-name').value) || 'Игрок 3' }, { name: cleanName(document.getElementById('p4-name').value) || 'Игрок 4' } ];
                 for (let i=0; i<currentPlayerCount; i++) {
                     const config = playerConfigs[i]; const angle = (Math.PI * 2 / currentPlayerCount) * i; const x = 350 + Math.cos(angle) * 220, y = 350 + Math.sin(angle) * 220;
                     const player = new PlayerBattle(x, y, config.color, config.border, inputs[i].name || config.name, i);
@@ -1855,7 +1974,7 @@
                 mobileControls.classList.remove('visible'); invUI.classList.add('hidden'); fireBtn.style.display = 'flex'; dashBtn.classList.add('hidden'); pauseBtn.classList.add('visible');
             } else if (currentMode === 'survival') {
                 canvas.width = 700; canvas.height = 700;
-                const name = document.getElementById('survival-name').value || 'Игрок 1';
+                const name = cleanName(document.getElementById('survival-name').value) || 'Игрок 1';
                 const player = new PlayerSurvival(350, 350, '#d32f2f', '#ff3b30', name, 0, 1);
                 const previewContainer = document.getElementById('preview-survival');
                 const imageData = previewContainer ? previewContainer.dataset.imageData : null;
@@ -1870,7 +1989,7 @@
 
         function switchMode(mode) {
             currentMode = mode;
-            tabBattle.classList.remove('active'); tabSurvival.classList.remove('active'); tabPvp.classList.remove('active'); tabProfile.classList.remove('active'); tabFriends.classList.remove('active'); tabLeaderboards.classList.remove('active'); tabSuffix.classList.remove('active');
+            tabBattle.classList.remove('active'); tabSurvival.classList.remove('active'); tabPvp.classList.remove('active'); tabProfile.classList.remove('active');
             battleSettings.style.display = 'none'; survivalSettings.style.display = 'none'; pvpSettings.style.display = 'none'; profileSettings.style.display = 'none'; friendsSettings.style.display = 'none'; leaderboardSettings.style.display = 'none'; suffixSettings.style.display = 'none';
             if (mode === 'battle') { tabBattle.classList.add('active'); battleSettings.style.display = 'flex'; mobileControls.classList.remove('visible'); invUI.classList.add('hidden'); fireBtn.style.display = 'flex'; dashBtn.classList.add('hidden'); startBtn.style.display = 'block'; }
             else if (mode === 'survival') { tabSurvival.classList.add('active'); survivalSettings.style.display = 'flex'; mobileControls.classList.add('visible'); invUI.classList.remove('hidden'); fireBtn.style.display = 'flex'; dashBtn.classList.add('hidden'); recordDisplay.textContent = '🏆 Рекорд волн: ' + waveRecord; startBtn.style.display = 'block'; }
@@ -1882,9 +2001,10 @@
                 cancelPvp();
             }
             else if (mode === 'profile') { tabProfile.classList.add('active'); profileSettings.style.display = 'flex'; startBtn.style.display = 'none'; loadProfileData(); }
-            else if (mode === 'friends') { tabFriends.classList.add('active'); friendsSettings.style.display = 'flex'; startBtn.style.display = 'none'; renderFriends(); }
-            else if (mode === 'leaderboards') { tabLeaderboards.classList.add('active'); leaderboardSettings.style.display = 'flex'; startBtn.style.display = 'none'; renderLeaderboard(); }
-            else if (mode === 'suffix') { tabSuffix.classList.add('active'); suffixSettings.style.display = 'flex'; startBtn.style.display = 'none'; renderAchievements(); }
+            // Пункт 1: Подменю для кнопок внутри профиля
+            else if (mode === 'friends') { profileSettings.style.display = 'flex'; startBtn.style.display = 'none'; renderFriends(); }
+            else if (mode === 'leaderboards') { profileSettings.style.display = 'flex'; startBtn.style.display = 'none'; renderLeaderboard(); }
+            else if (mode === 'suffix') { profileSettings.style.display = 'flex'; startBtn.style.display = 'none'; renderAchievements(); }
         }
 
         function toggleSection(section) {
@@ -1906,9 +2026,6 @@
         tabSurvival.addEventListener('click', () => { switchMode('survival'); });
         tabPvp.addEventListener('click', () => { switchMode('pvp'); });
         tabProfile.addEventListener('click', () => { switchMode('profile'); });
-        tabFriends.addEventListener('click', () => { switchMode('friends'); });
-        tabLeaderboards.addEventListener('click', () => { switchMode('leaderboards'); });
-        tabSuffix.addEventListener('click', () => { switchMode('suffix'); });
         
         pvpPasteBtn.addEventListener('click', async () => { try { const text = await navigator.clipboard.readText(); pvpRoomInput.value = text; } catch (err) { pvpRoomInput.focus(); } });
         pvpClearBtn.addEventListener('click', () => { pvpRoomInput.value = ''; pvpRoomInput.focus(); });
@@ -1939,7 +2056,7 @@
             scoreMy = 0; scoreOpponent = 0; updateHockeyScore(); botHitCount = 0; botHitTimer = 0;
             if (currentMode === 'battle') {
                 canvas.width = 700; canvas.height = 700;
-                const inputs = [ { name: document.getElementById('p1-name').value || 'Игрок 1' }, { name: document.getElementById('p2-name').value || 'Игрок 2' }, { name: document.getElementById('p3-name').value || 'Игрок 3' }, { name: document.getElementById('p4-name').value || 'Игрок 4' } ];
+                const inputs = [ { name: cleanName(document.getElementById('p1-name').value) || 'Игрок 1' }, { name: cleanName(document.getElementById('p2-name').value) || 'Игрок 2' }, { name: cleanName(document.getElementById('p3-name').value) || 'Игрок 3' }, { name: cleanName(document.getElementById('p4-name').value) || 'Игрок 4' } ];
                 for (let i=0; i<currentPlayerCount; i++) {
                     const config = playerConfigs[i]; const angle = (Math.PI * 2 / currentPlayerCount) * i; const x = 350 + Math.cos(angle) * 220, y = 350 + Math.sin(angle) * 220;
                     const player = new PlayerBattle(x, y, config.color, config.border, inputs[i].name || config.name, i);
@@ -1951,7 +2068,7 @@
                 mobileControls.classList.remove('visible'); invUI.classList.add('hidden'); fireBtn.style.display = 'flex'; dashBtn.classList.add('hidden'); pauseBtn.classList.add('visible');
             } else if (currentMode === 'survival') {
                 canvas.width = 700; canvas.height = 700;
-                const name = document.getElementById('survival-name').value || 'Игрок 1';
+                const name = cleanName(document.getElementById('survival-name').value) || 'Игрок 1';
                 const player = new PlayerSurvival(350, 350, '#d32f2f', '#ff3b30', name, 0, 1);
                 const previewContainer = document.getElementById('preview-survival');
                 const imageData = previewContainer ? previewContainer.dataset.imageData : null;
