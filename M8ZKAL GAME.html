@@ -336,7 +336,7 @@
                 <div class="hockey-sections-container" style="margin-top: 25px;">
                     <div class="profile-section" id="profile-friends-section">
                         <div class="profile-section-header" onclick="toggleProfileSection('profile-friends-section')">
-                            <div class="profile-section-title">👥 Друзья</div>
+                            <div class="profile-section-title">Друзья</div>
                             <div class="profile-section-arrow">▼</div>
                         </div>
                         <div class="profile-section-content">
@@ -351,13 +351,13 @@
 
                     <div class="profile-section" id="profile-leaderboards-section">
                         <div class="profile-section-header" onclick="toggleProfileSection('profile-leaderboards-section')">
-                            <div class="profile-section-title">🏆 Топы</div>
+                            <div class="profile-section-title">Топы</div>
                             <div class="profile-section-arrow">▼</div>
                         </div>
                         <div class="profile-section-content">
                             <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                                <button id="lb-survival-btn" class="active" style="flex: 1;">🛡️ Выживание</button>
-                                <button id="lb-hockey-btn" style="flex: 1;">🏒 Хоккей</button>
+                                <button id="lb-survival-btn" class="active" style="flex: 1;">Выживание</button>
+                                <button id="lb-hockey-btn" style="flex: 1;">Хоккей</button>
                             </div>
                             <div id="leaderboard"></div>
                         </div>
@@ -365,7 +365,7 @@
 
                     <div class="profile-section" id="profile-suffix-section">
                         <div class="profile-section-header" onclick="toggleProfileSection('profile-suffix-section')">
-                            <div class="profile-section-title">🏅 Награды</div>
+                            <div class="profile-section-title">Награды</div>
                             <div class="profile-section-arrow">▼</div>
                         </div>
                         <div class="profile-section-content">
@@ -378,7 +378,7 @@
 
                     <div class="profile-section" id="profile-stats-section">
                         <div class="profile-section-header" onclick="toggleProfileSection('profile-stats-section')">
-                            <div class="profile-section-title">📊 Статистика</div>
+                            <div class="profile-section-title">Статистика</div>
                             <div class="profile-section-arrow">▼</div>
                         </div>
                         <div class="profile-section-content">
@@ -607,12 +607,12 @@
 
         // ================= ДОСТИЖЕНИЯ =================
         const achievementsDefs = [
-            { id: 'kills_50', name: '🔥 Уничтожитель', desc: 'Убей 50 врагов за одну игру', icon: '🔥', check: (s) => s.totalKills >= 50 },
-            { id: 'kills_100', name: '💀 Каратель', desc: 'Убей 100 врагов за одну игру', icon: '💀', check: (s) => s.totalKills >= 100 },
-            { id: 'waves_10', name: '🌊 Шторм', desc: 'Пройди 10 волн', icon: '🌊', check: (s) => s.bestWaves >= 10 },
-            { id: 'waves_20', name: '🐉 Легенда', desc: 'Пройди 20 волн', icon: '🐉', check: (s) => s.bestWaves >= 20 },
-            { id: 'hockey_win_1', name: '🥅 Первый гол', desc: 'Выиграй матч в хоккее', icon: '🥅', check: (s) => s.hockeyWins >= 1 },
-            { id: 'hockey_win_100', name: '🏆 Хоккейный бог', desc: 'Выиграй 100 матчей в хоккее', icon: '🏆', check: (s) => s.hockeyWins >= 100 }
+            { id: 'kills_50', name: 'Уничтожитель', desc: 'Убей 50 врагов за одну игру', icon: '🔥', check: (s) => s.totalKills >= 50 },
+            { id: 'kills_100', name: 'Каратель', desc: 'Убей 100 врагов за одну игру', icon: '💀', check: (s) => s.totalKills >= 100 },
+            { id: 'waves_10', name: 'Шторм', desc: 'Пройди 10 волн', icon: '🌊', check: (s) => s.bestWaves >= 10 },
+            { id: 'waves_20', name: 'Легенда', desc: 'Пройди 20 волн', icon: '🐉', check: (s) => s.bestWaves >= 20 },
+            { id: 'hockey_win_1', name: 'Первый гол', desc: 'Выиграй матч в хоккее', icon: '🥅', check: (s) => s.hockeyWins >= 1 },
+            { id: 'hockey_win_100', name: 'Хоккейный бог', desc: 'Выиграй 100 матчей в хоккее', icon: '🏆', check: (s) => s.hockeyWins >= 100 }
         ];
 
         const suffixDefs = ['🔥', '☠️', '💀', '⚔️', '🏒', '🏆'];
@@ -705,15 +705,15 @@
             
             const stats = currentUser.stats || {};
             profileStats.innerHTML = `
-                <h3 style="color:#ffd700; margin-bottom:10px;">⚔️ Статистика Выживания</h3>
-                <div class="stat-row"><span>🏆 Лучшие волны:</span><span>${stats.survival?.bestWaves || 0}</span></div>
-                <div class="stat-row"><span>💀 Лучшие убийства:</span><span>${stats.survival?.bestKills || 0}</span></div>
-                <div class="stat-row"><span>⚔️ Всего убийств:</span><span>${stats.survival?.totalKills || 0}</span></div>
-                <div class="stat-row"><span>🎮 Игр сыграно:</span><span>${stats.survival?.games || 0}</span></div>
-                <h3 style="color:#4da6ff; margin-top:15px; margin-bottom:10px;">🏒 Статистика Хоккея</h3>
-                <div class="stat-row"><span>🏆 Побед:</span><span>${stats.hockey?.wins || 0}</span></div>
-                <div class="stat-row"><span>💀 Поражений:</span><span>${stats.hockey?.losses || 0}</span></div>
-                <div class="stat-row"><span>🎮 Игр сыграно:</span><span>${stats.hockey?.games || 0}</span></div>
+                <h3 style="color:#ffd700; margin-bottom:10px;">Статистика Выживания</h3>
+                <div class="stat-row"><span>Лучшие волны:</span><span>${stats.survival?.bestWaves || 0}</span></div>
+                <div class="stat-row"><span>Лучшие убийства:</span><span>${stats.survival?.bestKills || 0}</span></div>
+                <div class="stat-row"><span>Всего убийств:</span><span>${stats.survival?.totalKills || 0}</span></div>
+                <div class="stat-row"><span>Игр сыграно:</span><span>${stats.survival?.games || 0}</span></div>
+                <h3 style="color:#4da6ff; margin-top:15px; margin-bottom:10px;">Статистика Хоккея</h3>
+                <div class="stat-row"><span>Побед:</span><span>${stats.hockey?.wins || 0}</span></div>
+                <div class="stat-row"><span>Поражений:</span><span>${stats.hockey?.losses || 0}</span></div>
+                <div class="stat-row"><span>Игр сыграно:</span><span>${stats.hockey?.games || 0}</span></div>
             `;
             renderAchievements();
         }
@@ -901,6 +901,7 @@
                 if (sectionId === 'profile-friends-section') renderFriends();
                 if (sectionId === 'profile-leaderboards-section') renderLeaderboard();
                 if (sectionId === 'profile-suffix-section') renderAchievements();
+                if (sectionId === 'profile-stats-section') renderProfile();
             }
         }
 
@@ -967,7 +968,7 @@
                     if (!users) { leaderboard.innerHTML = '<p style="text-align:center; color:#666;">Пока нет статистики.</p>'; return; }
                     
                     const sorted = Object.values(users).sort((a, b) => (b.stats?.survival?.bestWaves || 0) - (a.stats?.survival?.bestWaves || 0));
-                    let html = '<h3 style="color: #ffd700; margin-bottom: 15px;">🛡️ Топ-10 Выживания</h3><table class="leaderboard-table"><tr><th>#</th><th>Имя</th><th>Волны</th></tr>';
+                    let html = '<h3 style="color: #ffd700; margin-bottom: 15px;">Топ-10 Выживания</h3><table class="leaderboard-table"><tr><th>#</th><th>Имя</th><th>Волны</th></tr>';
                     sorted.forEach((user, index) => {
                         const suffix = user.suffix ? user.suffix + ' ' : '';
                         let highlight = '';
@@ -983,7 +984,7 @@
                     if (!users) { leaderboard.innerHTML = '<p style="text-align:center; color:#666;">Пока нет статистики.</p>'; return; }
                     
                     const sorted = Object.values(users).sort((a, b) => (b.stats?.hockey?.wins || 0) - (a.stats?.hockey?.wins || 0));
-                    let html = '<h3 style="color: #ffd700; margin-bottom: 15px;">🏒 Топ-10 Хоккея</h3><table class="leaderboard-table"><tr><th>#</th><th>Имя</th><th>Победы</th></tr>';
+                    let html = '<h3 style="color: #ffd700; margin-bottom: 15px;">Топ-10 Хоккея</h3><table class="leaderboard-table"><tr><th>#</th><th>Имя</th><th>Победы</th></tr>';
                     sorted.forEach((user, index) => {
                         const suffix = user.suffix ? user.suffix + ' ' : '';
                         let highlight = '';
@@ -1332,7 +1333,7 @@
                     const player = players[0]; const el = document.createElement('div'); el.className = 'hud-player';
                     const hp = player.dead ? 0 : player.hp;
                     let grad = player.dead ? 'linear-gradient(90deg, #555, #333)' : (hp > 60 ? `linear-gradient(90deg, ${player.borderColor}, ${player.color})` : (hp > 30 ? 'linear-gradient(90deg, #ff9500, #ff3b30)' : 'linear-gradient(90deg, #ff0000, #cc0000)'));
-                    el.innerHTML = `<div class="player-name p1-name" style="color: ${player.dead ? '#666' : player.borderColor}">${player.name}</div><div class="hp-container"><div class="hp-bar" style="background: ${grad}; width: ${hp}%;"></div><div class="hp-text">${hp} HP</div></div><div style="margin-top:4px; font-size:16px; color:#ffd700; text-shadow:0 0 10px rgba(255,215,0,0.5);">🇮🇱 Волна: ${wave} &nbsp;|&nbsp; 🏆 Рекорд: ${waveRecord}</div>`;
+                    el.innerHTML = `<div class="player-name p1-name" style="color: ${player.dead ? '#666' : player.borderColor}">${player.name}</div><div class="hp-container"><div class="hp-bar" style="background: ${grad}; width: ${hp}%;"></div><div class="hp-text">${hp} HP</div></div><div style="margin-top:4px; font-size:16px; color:#ffd700; text-shadow:0 0 10px rgba(255,215,0,0.5);">Волна: ${wave} &nbsp;|&nbsp; Рекорд: ${waveRecord}</div>`;
                     survivalHud.appendChild(el);
                 }
             } else {
@@ -1355,7 +1356,7 @@
                     gameActive = false; if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
                     if (wave > waveRecord) { waveRecord = wave; localStorage.setItem('waveRecord', waveRecord); }
                     victoryCup.textContent = '💀'; victoryText.innerText = 'Вы погибли!'; victoryText.style.color = '#ff3b30';
-                    victoryRecord.innerText = `🇮🇱 Волн пройдено: ${wave}  |  🏆 Рекорд: ${waveRecord}`; playSound('victory');
+                    victoryRecord.innerText = `Волн пройдено: ${wave}  |  Рекорд: ${waveRecord}`; playSound('victory');
                     saveSurvivalStats(wave, countKillsThisGame);
                     setTimeout(() => { gameContainer.style.display = 'none'; screenVictory.style.display = 'flex'; }, 800);
                 }
@@ -1505,7 +1506,7 @@
                 }
                 if (dashCooldown > 0) dashCooldown--;
                 
-                // Умный бот из твоего кода
+                // Умный бот
                 if (offlineBot && !offlineBot.dead) {
                     const dxToBall = ball.x - offlineBot.x, dyToBall = ball.y - offlineBot.y; 
                     const distToBall = Math.hypot(dxToBall, dyToBall);
@@ -1675,22 +1676,19 @@
                                 if (enemy.dead) continue;
                                 const d = Math.hypot(b.x - enemy.x, b.y - enemy.y);
                                 if (d < enemy.radius + b.radius) {
-                                    // ЗАЩИТА ОТ ПАДЕНИЯ КОДА
-                                    try {
-                                        if (enemy.isBoss && enemy.shieldTimer > 0) {
+                                    // ИСПРАВЛЕНА ЛОГИКА УРОНА
+                                    let damage = PLAYER_DAMAGE;
+                                    if (enemy.isBoss) {
+                                        if (enemy.shieldTimer > 0) {
                                             createImpactParticles(b.x, b.y, '#888', 4); playSound('shield');
                                             bullets.splice(i, 1); break;
                                         }
-                                        const damage = PLAYER_DAMAGE; 
-                                        if (enemy.isBoss) { damage = Math.floor(damage / 3); }
-                                        enemy.hp -= damage; createImpactParticles(b.x, b.y, '#ffdd44', 6);
-                                        enemy.vx += (b.vx / BULLET_SPEED) * 8; enemy.vy += (b.vy / BULLET_SPEED) * 8;
-                                        if (enemy.hp <= 0) { enemy.dead = true; countKillsThisGame++; if (enemy.isBoss) { isWaveInProgress = false; waveDelay = WAVE_DELAY; spawnMedkit(enemy.x, enemy.y); } createImpactParticles(enemy.x, enemy.y, '#ffffff', 15); playSound('hit'); updateHUD(); checkGameOver(); }
-                                        bullets.splice(i, 1); break;
-                                    } catch (err) {
-                                        console.error('Ошибка в логике урона боссу:', err);
-                                        bullets.splice(i, 1); break;
+                                        damage = Math.floor(PLAYER_DAMAGE / 2);
                                     }
+                                    enemy.hp -= damage; createImpactParticles(b.x, b.y, '#ffdd44', 6);
+                                    enemy.vx += (b.vx / BULLET_SPEED) * 8; enemy.vy += (b.vy / BULLET_SPEED) * 8;
+                                    if (enemy.hp <= 0) { enemy.dead = true; countKillsThisGame++; if (enemy.isBoss) { isWaveInProgress = false; waveDelay = WAVE_DELAY; spawnMedkit(enemy.x, enemy.y); } createImpactParticles(enemy.x, enemy.y, '#ffffff', 15); playSound('hit'); updateHUD(); checkGameOver(); }
+                                    bullets.splice(i, 1); break;
                                 }
                             }
                         } else if (b.owner === 'enemy') {
@@ -1792,7 +1790,7 @@
             if (currentMode === 'battle' || currentMode === 'survival') gameLoop();
         }
 
-        // ================= ПРОКРУТКА ТАБОВ =================
+        // ================= ПРОКРУТКА ТАБОВ (как в Telegram) =================
         function centerTab(tab) {
             const wrap = document.getElementById('mode-tabs-wrap');
             if (!tab || !wrap) return;
